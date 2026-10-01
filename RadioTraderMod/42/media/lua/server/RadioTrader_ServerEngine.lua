@@ -84,7 +84,7 @@ end
 -- 日替わりスポット品目（Daily Shop）管理
 -- ---------------------------------------------------------------------------
 local DAILY_MODDATA_KEY = "RadioTrader_DailyState"
-local DAILY_DATA_VERSION = 3  -- 発電機5000CR・特殊品追加対応版
+local DAILY_DATA_VERSION = 10  -- プレミアム枠価格本格化（革大4000/粘土1800/布1500等）
 local REROLL_COST = 50
 
 function RadioTrader_ServerEngine.getOrUpdateDailyShop(forceReroll)
@@ -231,6 +231,7 @@ function RadioTrader_ServerEngine.processTrade(player, args)
                     itemName = shopEntry.name,
                     count    = (shopEntry.count or 1) * itQty,
                     subCost  = subCost,
+                    subCat   = shopEntry.subCat,
                 })
                 if summaryName == "" then
                     summaryName = shopEntry.name .. (itQty > 1 and (" x" .. itQty) or "")
@@ -271,6 +272,7 @@ function RadioTrader_ServerEngine.processTrade(player, args)
             itemName = shopEntry.name,
             count    = (shopEntry.count or 1) * quantity,
             subCost  = totalCost,
+            subCat   = shopEntry.subCat,
         })
     end
 
@@ -279,11 +281,53 @@ function RadioTrader_ServerEngine.processTrade(player, args)
         return
     end
 
-    -- クレジット確認・引き落とし
-    if not RadioTrader_ServerEngine.deductCredits(player, totalCost) then
+    -- ドロップボックス内の不用品査定（下取り相殺用）
+    local container, obj = RadioTrader_GetLZContainer and RadioTrader_GetLZContainer(player)
+    local assessedItems = {}
+    local assessedCredits = 0
+    if container then
+        local resCont, totalCr, err, unacc, items = RadioTrader_AssessContainer(player)
+        if items and totalCr and totalCr > 0 then
+            assessedItems = items
+            assessedCredits = totalCr
+        end
+    end
+
+    -- 利用可能予算（手持ちCR + ドロップボックス下取り査定額）の確認
+    local playerCredits = RadioTrader_ServerEngine.getCredits(player)
+    local availableCredits = playerCredits + assessedCredits
+    if availableCredits < totalCost then
         RadioTrader_ServerEngine.sendToClient(player, "error",
             { errCode = "NOT_ENOUGH_CREDITS", message = "Not enough credits." })
         return
+    end
+
+    -- ドロップボックス内の不用品を一括回収（削除）
+    local removedTradeInCount = 0
+    if #assessedItems > 0 and container then
+        for _, entry in ipairs(assessedItems) do
+            if entry.item then
+                if container.DoRemoveItem then
+                    container:DoRemoveItem(entry.item)
+                    removedTradeInCount = removedTradeInCount + 1
+                elseif container.Remove then
+                    container:Remove(entry.item)
+                    removedTradeInCount = removedTradeInCount + 1
+                end
+            end
+        end
+        log(("processTrade: Collected %d items from LZ container (Trade-in value: %d CR)"):format(
+            removedTradeInCount, assessedCredits))
+    end
+
+    -- クレジット清算（相殺計算: netDiff = 査定額 - 購入代金）
+    local netDiff = assessedCredits - totalCost
+    if netDiff > 0 then
+        -- 査定額の方が大きい場合：余剰差額を手持ちCRに加算！
+        RadioTrader_ServerEngine.addCredits(player, netDiff)
+    elseif netDiff < 0 then
+        -- 購入代金の方が多い場合：不足分を手持ちCRから引き落とし！
+        RadioTrader_ServerEngine.deductCredits(player, -netDiff)
     end
 
     -- 配達タイマー起動
@@ -295,25 +339,63 @@ function RadioTrader_ServerEngine.processTrade(player, args)
         totalItemCount = totalItemCount + (it.count or 1)
     end
 
+    -- 不用品の中に家具 (Furniture) または 軍用品 (Military) が含まれていたかチェック
+    local hasValuableSalvage = false
+    if #assessedItems > 0 then
+        for _, entry in ipairs(assessedItems) do
+            if entry.category == "Furniture" or entry.category == "Military" then
+                hasValuableSalvage = true
+                break
+            end
+        end
+    end
+
+    -- 家具または軍用品が含まれていれば 40% の確率でランチボックス差し入れ当選！
+    local bonusLunchbox = false
+    if hasValuableSalvage then
+        local roll = (ZombRand and ZombRand(100)) or math.random(0, 99)
+        if roll < 40 then
+            bonusLunchbox = true
+            log("processTrade: Crew lunchbox bonus rolled! (Valuable salvage detected)")
+        end
+    end
+
     -- 注文内容を保存（投下要請待ち・ヘリ到着後に配達される）
     local timerData = ModData.getOrCreate("RadioTrader_Timer_" .. getUsernameSafe(player))
     local gmd = getPlayerGMD(player)
     gmd[RadioTrader_Config.KEY_ORDER] = {
-        items       = orderItems,
-        itemName    = summaryName,
-        totalItems  = #orderItems,
-        count       = totalItemCount,
-        paidCredits = totalCost,   -- 返金計算用：発注時の支払額を記録
-        isMegaHorde = timerData and timerData.isMegaHorde or false,
+        items         = orderItems,
+        itemName      = summaryName,
+        totalItems    = #orderItems,
+        count         = totalItemCount,
+        paidCredits   = totalCost,   -- 返金計算用：発注時の支払額を記録
+        isMegaHorde   = timerData and timerData.isMegaHorde or false,
+        bonusLunchbox = bonusLunchbox,
     }
 
-    -- クライアントへ受注通知
+    -- クレジット残高をクライアントに同期
+    RadioTrader_ServerEngine.sendCreditUpdate(player)
+
+    -- 注文品に「俺のおやつ (TraderStash)」が含まれているかチェック
+    local hasTraderStash = false
+    for _, it in ipairs(orderItems) do
+        if it.subCat == "TraderStash" then
+            hasTraderStash = true
+            break
+        end
+    end
+
+    -- クライアントへ受注通知（下取り相殺情報・俺のおやつフラグも同封）
     RadioTrader_ServerEngine.sendToClient(player, RadioTrader_Config.CMD_TRADE_ACCEPTED, {
-        itemName = summaryName,
-        cost     = totalCost,
+        itemName       = summaryName,
+        cost           = totalCost,
+        tradeInCredits = assessedCredits,
+        tradeInCount   = removedTradeInCount,
+        newCredits     = RadioTrader_ServerEngine.getCredits(player),
+        hasTraderStash = hasTraderStash,
     })
 
-    log(player:getUsername() .. " placed order: " .. summaryName .. " for " .. totalCost .. " credits")
+    log(player:getUsername() .. " placed order: " .. summaryName .. " (Cost: " .. totalCost .. " CR, TradeIn: " .. assessedCredits .. " CR)")
 end
 
 -- ---------------------------------------------------------------------------
@@ -371,26 +453,21 @@ function RadioTrader_ServerEngine.deliverItems(player)
                 end
             end
         elseif targetId == "RadioTrader_Mystery_Furniture" then
-            -- 家具ミステリー発注時：ミリタリー木箱（Base.Mov_MilitaryCrate）を必ず投入！
-            -- さらにバニラ家具クレート抽選テーブルから引かれた家具現品（Mov_...）があれば同封
+            -- 家具ミステリー発注時：バニラ家具クレート抽選テーブルから引かれた家具現品（Mov_...）を届ける
             for i = 1, count do
-                local woodCrate = instanceItem("Base.Mov_MilitaryCrate")
-                if woodCrate then
-                    inv:AddItem(woodCrate)
-                    sendAddItemToContainer(inv, woodCrate)
-                    log("  + Spawned Wooden Military Crate for Mystery Furniture")
+                local rolledFurnId = RadioTrader_ItemsTable_GetRandomFurniture and RadioTrader_ItemsTable_GetRandomFurniture()
+                if not rolledFurnId then
+                    -- フォールバック（家具が引けなかった場合のみ木箱）
+                    rolledFurnId = "Base.Mov_MilitaryCrate"
                 end
 
-                local rolledFurnId = RadioTrader_ItemsTable_GetRandomFurniture and RadioTrader_ItemsTable_GetRandomFurniture()
-                if rolledFurnId then
-                    local furnItem = instanceItem(rolledFurnId)
-                    if furnItem then
-                        inv:AddItem(furnItem)
-                        sendAddItemToContainer(inv, furnItem)
-                        log(("  + Spawned Furniture Prize: %s into LZ container"):format(rolledFurnId))
-                    end
+                local furnItem = instanceItem(rolledFurnId)
+                if furnItem then
+                    inv:AddItem(furnItem)
+                    sendAddItemToContainer(inv, furnItem)
+                    log(("  + Spawned Mystery Furniture: %s into LZ container"):format(rolledFurnId))
                 else
-                    log("  [i] Furniture rolled empty - player gets military crate only")
+                    log(("  [!] Failed to instance furniture item: %s"):format(tostring(rolledFurnId)))
                 end
             end
         else
@@ -446,6 +523,24 @@ function RadioTrader_ServerEngine.deliverItems(player)
         end
     end
 
+    -- 家具・軍用品下取り提供時のお礼差し入れ（現場クルー特製ランチボックス）
+    local hasLunchboxBonus = (order and order.bonusLunchbox) or false
+    if hasLunchboxBonus then
+        local boxType = ((ZombRand and ZombRand(2) == 0) or math.random(0, 1) == 0) and "Base.Lunchbox" or "Base.Lunchbox2"
+        local lunchbox = instanceItem(boxType)
+        if lunchbox then
+            local container = lunchbox:getItemContainer()
+            local packedCount = 0
+            if container and RadioTrader_ItemsTable_FillLunchbox then
+                packedCount = RadioTrader_ItemsTable_FillLunchbox(container)
+            end
+            inv:AddItem(lunchbox)
+            sendAddItemToContainer(inv, lunchbox)
+            log(("  + Crew Lunchbox Bonus (%s packed with %d fresh treats) spawned into LZ container"):format(
+                boxType, packedCount))
+        end
+    end
+
     -- 注文データをクリア
     gmd[RadioTrader_Config.KEY_ORDER] = nil
 
@@ -467,10 +562,11 @@ function RadioTrader_ServerEngine.deliverItems(player)
     orderCount = orderCount or 1
 
     RadioTrader_ServerEngine.sendToClient(player, RadioTrader_Config.CMD_DELIVERY_DONE, {
-        itemName      = orderItemName,
-        count         = orderCount,
-        bonusItemName = bonusId,
-        isMegaHorde   = isMega,
+        itemName         = orderItemName,
+        count            = orderCount,
+        bonusItemName    = bonusId,
+        hasLunchboxBonus = hasLunchboxBonus,
+        isMegaHorde      = isMega,
     })
 
     log("Delivered " .. tostring(orderItemName) .. " (count: " .. tostring(orderCount) .. ")"
@@ -493,6 +589,17 @@ function RadioTrader_ServerEngine.sendToClient(player, cmd, args)
             sendServerCommand(player, "RadioTrader", cmd, args)
         end
     end
+end
+
+-- ---------------------------------------------------------------------------
+-- クレジット残高更新ヘルパー
+-- ---------------------------------------------------------------------------
+function RadioTrader_ServerEngine.sendCreditUpdate(player)
+    if not player then return end
+    local credits = RadioTrader_ServerEngine.getCredits(player)
+    RadioTrader_ServerEngine.sendToClient(player, RadioTrader_Config.CMD_CREDIT_UPDATE, {
+        credits = credits,
+    })
 end
 
 -- ---------------------------------------------------------------------------

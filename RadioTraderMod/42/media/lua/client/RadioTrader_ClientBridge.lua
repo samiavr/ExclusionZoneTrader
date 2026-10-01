@@ -180,9 +180,13 @@ local function onServerCommand(module, command, args)
         local itemName = args and getItemDisplayName(args.itemId, args.itemName) or "Goods"
         local cost     = args and args.cost or 0
         local msg      = tr("UI_RadioTrader_Radio_Accepted", "Order accepted. Dispatched transport heli for %s. Cost: %s CR. Stay alert.", itemName, tostring(cost))
+        if args and args.hasTraderStash then
+            local stashMsg = tr("UI_RadioTrader_Radio_StashAccepted", " '...That was my personal stash, you know. Ah well, enjoy it.'")
+            msg = msg .. stashMsg
+        end
         showRadioText(player, msg)
         playSound("RadioStatic")
-        log("Trade accepted: " .. itemName)
+        log("Trade accepted: " .. itemName .. (args and args.hasTraderStash and " (Trader's Stash ordered!)" or ""))
 
     -- === ヘリ接近警告 ===
     elseif command == RadioTrader_Config.CMD_HELI_APPROACH then
@@ -223,6 +227,8 @@ local function onServerCommand(module, command, args)
             itemDisplay = rawName .. " x" .. tostring(count)
         end
 
+        local hasLunchbox = args and args.hasLunchboxBonus
+
         local msg
         if isMega then
             if bonusName then
@@ -245,9 +251,16 @@ local function onServerCommand(module, command, args)
                     itemDisplay)
             end
         end
+
+        if hasLunchbox then
+            local lunchMsg = tr("UI_RadioTrader_Radio_LunchboxBonus",
+                " 'Thanks for the great salvage! Crew packed you a fresh lunchbox.'")
+            msg = msg .. lunchMsg
+        end
+
         showRadioText(player, msg)
         playSound("Helicopter")
-        log("Delivery complete (MegaHorde: " .. tostring(isMega) .. "): " .. itemDisplay .. (bonusName and (" + Bonus: " .. bonusName) or ""))
+        log("Delivery complete (MegaHorde: " .. tostring(isMega) .. ", Lunchbox: " .. tostring(hasLunchbox) .. "): " .. itemDisplay .. (bonusName and (" + Bonus: " .. bonusName) or ""))
 
     -- === クレジット残高更新 ===
     elseif command == RadioTrader_Config.CMD_CREDIT_UPDATE then

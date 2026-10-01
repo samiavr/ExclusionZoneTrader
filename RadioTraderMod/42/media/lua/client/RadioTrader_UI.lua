@@ -92,6 +92,7 @@ local FONT     = UIFont.Small
 local COLOR_BG_DARK  = { r=0.10, g=0.10, b=0.12, a=0.97 }
 local COLOR_BG_PANEL = { r=0.14, g=0.14, b=0.18, a=1.0  }
 local COLOR_ACCENT   = { r=0.20, g=0.80, b=0.50, a=1.0  }  -- グリーン
+local COLOR_SUCCESS  = { r=0.20, g=0.85, b=0.40, a=1.0  }  -- 明るい緑（成功・ボーナス）
 local COLOR_WARN     = { r=0.90, g=0.60, b=0.10, a=1.0  }  -- 黄
 local COLOR_DANGER   = { r=0.90, g=0.20, b=0.20, a=1.0  }  -- 赤
 local COLOR_TEXT     = { r=0.85, g=0.90, b=0.85, a=1.0  }
@@ -351,17 +352,10 @@ function RadioTrader_UI:buildUI()
 
     -- ===== ボタンバー =====
     local btnY = logY + LOG_H + MARGIN
-    local btnW = 180
+    local orderW = 260
 
-    local sellLabel = tr("UI_RadioTrader_SellBtn", "[Sell] Send Sell Request")
-    self.btnSell = ISButton:new(MARGIN, btnY, btnW, BTN_H,
-        sellLabel, self, RadioTrader_UI.onSellClick)
-    self.btnSell:initialise()
-    self.btnSell:instantiate()
-    self:addChild(self.btnSell)
-
-    local orderLabel = tr("UI_RadioTrader_OrderBtn", "[Buy] Place Order")
-    self.btnOrder = ISButton:new(MARGIN + btnW + MARGIN, btnY, btnW, BTN_H,
+    local orderLabel = tr("UI_RadioTrader_OrderBtn", "[Trade] Place Order & Pickup")
+    self.btnOrder = ISButton:new(MARGIN, btnY, orderW, BTN_H,
         orderLabel, self, RadioTrader_UI.onOrderClick)
     self.btnOrder:initialise()
     self.btnOrder:instantiate()
@@ -369,7 +363,7 @@ function RadioTrader_UI:buildUI()
 
     local rerollW = 210
     local rerollLabel = tr("UI_RadioTrader_RerollBtn", "[Inquire] Got anything else? (50 CR)")
-    self.btnReroll = ISButton:new(MARGIN + (btnW + MARGIN) * 2, btnY, rerollW, BTN_H,
+    self.btnReroll = ISButton:new(MARGIN + orderW + MARGIN, btnY, rerollW, BTN_H,
         rerollLabel, self, RadioTrader_UI.onRerollClick)
     self.btnReroll:initialise()
     self.btnReroll:instantiate()
@@ -399,7 +393,12 @@ function RadioTrader_UI:loadCategory(categoryKey)
         local effPrice = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(entry.price) or entry.price
         local label
         if categoryKey == "Daily" then
-            label = ("%s x %d  -  %d CR"):format(dispName, entry.count or 1, effPrice)
+            if entry.subCat == "TraderStash" then
+                local stashPrefix = tr("UI_RadioTrader_StashPrefix", "[★Stash] ")
+                label = ("%s%s x %d  -  %d CR"):format(stashPrefix, dispName, entry.count or 1, effPrice)
+            else
+                label = ("%s x %d  -  %d CR"):format(dispName, entry.count or 1, effPrice)
+            end
         elseif entry.count and entry.count > 1 then
             label = ("%s x %d  -  %d CR"):format(dispName, entry.count, effPrice)
         else
@@ -501,10 +500,11 @@ function RadioTrader_UI:updateStatusDisplay()
         self.labelCredits:setName(("%s: %d CR"):format(credLabel, self.credits))
     end
 
-    -- 査定額
+    -- 下取り査定額 ＆ 利用可能予算合計
     if self.labelAssess then
         local assessLabel = tr("UI_RadioTrader_Assess", "Drop Box Value")
-        self.labelAssess:setName(("%s: %d CR"):format(assessLabel, self.assessedCredits))
+        local totalBudget = self.credits + (self.assessedCredits or 0)
+        self.labelAssess:setName(("%s: +%d CR (Total: %d CR)"):format(assessLabel, self.assessedCredits, totalBudget))
     end
 
     -- 配達ステート
@@ -603,7 +603,7 @@ function RadioTrader_UI:refreshCartUI()
             self.labelCartTitle:setName(titleText)
         end
         if self.btnOrder then
-            local batchOrderText = tr("UI_RadioTrader_OrderBatchBtn", "[Buy] Batch Order (%s CR)", tostring(totalCost))
+            local batchOrderText = tr("UI_RadioTrader_OrderBatchBtn", "[Trade] Batch Order & Pickup (%s CR)", tostring(totalCost))
             self.btnOrder:setTitle(batchOrderText)
         end
     else
@@ -615,9 +615,9 @@ function RadioTrader_UI:refreshCartUI()
         if self.btnOrder then
             if self.selectedItem then
                 local effPrice = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(self.selectedItem.price) or self.selectedItem.price
-                self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Buy] Place Order") .. (" (%s CR)"):format(tostring(effPrice)))
+                self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Trade] Order & Pickup") .. (" (%s CR)"):format(tostring(effPrice)))
             else
-                self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Buy] Place Order"))
+                self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Trade] Order & Pickup"))
             end
         end
     end
@@ -771,7 +771,6 @@ function RadioTrader_UI:onRerollClick()
         local errText = tr("UI_RadioTrader_Err_NOT_ENOUGH_CREDITS_REROLL",
             "Not enough credits to inquire for other supplies (Need 50 CR).")
         self:addLog("[!] " .. errText, COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
-        playSound("AccessDenied")
         return
     end
 
@@ -822,6 +821,18 @@ function RadioTrader_UI:onServerNotify(cmd, args)
         self.deliveryState = cfg.STATE_PENDING
         local itemName = args.itemId and getItemDisplayName(args.itemId, args.itemName) or (args.itemName or "Goods")
         self:addLog(tr("UI_RadioTrader_Log_Accepted", "Order accepted. Dispatched transport heli for %s.", itemName))
+        if args.tradeInCount and args.tradeInCount > 0 then
+            self:addLog(tr("UI_RadioTrader_Log_TradeInOffset", "Trade-in: Collected %s items (+%s CR offset applied).", tostring(args.tradeInCount), tostring(args.tradeInCredits or 0)),
+                COLOR_ACCENT.r, COLOR_ACCENT.g, COLOR_ACCENT.b)
+        end
+        if args.hasTraderStash then
+            self:addLog(tr("UI_RadioTrader_Log_StashAccepted", "[Radio] '...That was my personal stash, you know.'"),
+                COLOR_WARN.r, COLOR_WARN.g, COLOR_WARN.b)
+        end
+        if args.newCredits ~= nil then
+            self.credits = tonumber(args.newCredits) or self.credits
+        end
+        self.assessedCredits = 0
         self:updateStatusDisplay()
 
     elseif cmd == cfg.CMD_HELI_APPROACH then
@@ -875,6 +886,12 @@ function RadioTrader_UI:onServerNotify(cmd, args)
                     "Supply drop complete. Check LZ for %s.", itemDisplay)
             end
             self:addLog(logMsg, COLOR_ACCENT.r, COLOR_ACCENT.g, COLOR_ACCENT.b)
+        end
+
+        if args and args.hasLunchboxBonus then
+            self:addLog(tr("UI_RadioTrader_Log_LunchboxBonus",
+                "[Bonus] Crew appreciated your valuable salvage and packed a fresh lunchbox!"),
+                COLOR_SUCCESS.r, COLOR_SUCCESS.g, COLOR_SUCCESS.b)
         end
         self:updateStatusDisplay()
 

@@ -39,6 +39,107 @@ function RadioTrader_ItemsTable_GetRandomCannedBox()
 end
 
 -- ---------------------------------------------------------------------------
+-- 生鮮野菜・果物・機能性ハーブ（ランダム配達・アソート用テーブル）
+-- ---------------------------------------------------------------------------
+RadioTrader_FreshVeggies = {
+    "Base.Cabbage",
+    "Base.Tomato",
+    "Base.Potato",
+    "Base.Corn",
+    "Base.Carrots",
+    "Base.Broccoli",
+    "Base.RedRadish",
+    "Base.Onion",
+    "Base.Lettuce",
+    "Base.BellPepper",
+    "Base.Eggplant",
+    "Base.Leek",
+    "Base.Zucchini",
+    "Base.SweetPotato",
+    "Base.Pumpkin",
+    "Base.Avocado",
+}
+
+RadioTrader_FreshFruits = {
+    "Base.Apple",
+    "Base.Peach",
+    "Base.Watermelon",
+    "Base.Strawberry",
+    "Base.Banana",
+    "Base.Orange",
+    "Base.Lemon",
+    "Base.Lime",
+    "Base.Grapes",
+    "Base.Pineapple",
+    "Base.Cherry",
+}
+
+RadioTrader_FreshHerbs = {
+    "Base.WildGarlic",
+    "Base.WildOnion",
+    "Base.Lemongrass",
+    "Base.Ginseng",
+    "Base.BlackSage",
+    "Base.CommonMallow",
+    "Base.Plantain",
+}
+
+-- ---------------------------------------------------------------------------
+-- 焼きたてベーカリースイーツ（不用品回収依頼時の30%差し入れ用テーブル）
+-- ---------------------------------------------------------------------------
+RadioTrader_BakerySweets = {
+    -- ドーナツ
+    "Base.DoughnutChocolate",
+    "Base.DoughnutFrosted",
+    "Base.DoughnutJelly",
+    "Base.DoughnutPlain",
+    -- ケーキ
+    "Base.CakeBlackForest",
+    "Base.CakeCarrot",
+    "Base.CakeCheeseCake",
+    "Base.CakeChocolate",
+    "Base.CakeRedVelvet",
+    "Base.CakeSlice",
+    "Base.CakeStrawberryShortcake",
+    -- パイ
+    "Base.PieApple",
+    "Base.PieBlueberry",
+    "Base.PieKeyLime",
+    "Base.PieLemonMeringue",
+    "Base.PiePumpkin",
+}
+
+-- ---------------------------------------------------------------------------
+-- 現場クルーからの差し入れランチボックス用食品リスト
+-- ---------------------------------------------------------------------------
+-- メイン料理枠：崩壊後は腐って手に入らなくなり、作成にも高いスキルと素材が必要なごちそう
+RadioTrader_LunchMains = {
+    "Base.SushiFish",            -- 握り寿司 (魚)
+    "Base.SushiEgg",             -- 握り寿司 (玉子)
+    "Base.Pizza",                -- 焼きたてピザスライス
+    "Base.Burger",               -- ハンバーガー
+    "Base.Sandwich",             -- サンドイッチ
+    "Base.BaguetteSandwich",     -- バゲットサンド
+    "Base.Burrito",              -- ブリトー
+    "Base.Taco",                 -- タコス
+    "Base.Hotdog",               -- ホットドッグ
+    "Base.Corndog",              -- アメリカンドッグ
+    "Base.MeatDumpling",         -- 肉まん・点心
+    "Base.ShrimpDumpling",       -- 海老蒸し餃子・点心
+}
+
+-- 冷蔵・冷凍おやつ枠：電気が落ちた後は溶けて腐り、二度と手に入らなくなる冷凍・冷蔵スイーツ
+RadioTrader_LunchColdDesserts = {
+    "Base.Icecream",             -- カップアイスクリーム
+    "Base.ConeIcecreamToppings", -- トッピング付きアイスクリームコーン
+    "Base.IcecreamSandwich",     -- アイスクリームサンド
+    "Base.Creamocle",            -- クリームアイスバー
+    "Base.FudgeePop",            -- 濃厚チョコアイスバー
+    "Base.Popsicle",             -- フルーツアイスキャンディー
+    "Base.FruitSalad",           -- フレッシュフルーツサラダ
+}
+
+-- ---------------------------------------------------------------------------
 -- カテゴリ別バニラクレート動的自動探索テーブル（キャッシュ管理）
 -- ---------------------------------------------------------------------------
 -- バニラ本体の ProceduralDistributions.list の中から、各アイテム種別の Crate を動的に自動探索・キャッシュします。
@@ -132,8 +233,7 @@ end
 -- ---------------------------------------------------------------------------
 -- バニラ本体の ProceduralDistributions.list から "Crate...Chair/Table/Stove" 等を
 -- 実行時に自動収集・キャッシュし、MOD側でのリスト管理を完全不要にします。
--- 配達時は必ずミリタリー木箱（Base.Mov_MilitaryCrate）が1個届き、
--- さらにバニラ家具クレート抽選テーブルから引かれた家具現品（Mov_...）が同封されます。
+-- 配達時はバニラ家具クレート抽選テーブルから引かれた家具現品（Mov_...）が直接届きます。
 local _cachedFurnitureDists = nil
 
 function RadioTrader_ItemsTable_GetRandomFurniture()
@@ -191,6 +291,16 @@ RadioTrader_CrateDefinitions = {
             "KitchenBaking",
             "ArmySurplusSnacks",
         },
+    },
+
+    RadioTrader_Crate_Produce = {
+        id = "RadioTrader_Crate_Produce",
+        name = "Fresh Produce & Herbs Bag",
+        price = 850,
+        container = "Base.Bag_DuffelBag",
+        isProduceBag = true,
+        minItems = 5,
+        maxItems = 8,
     },
 
     RadioTrader_Crate_Medical = {
@@ -266,11 +376,10 @@ RadioTrader_CrateDefinitions = {
         minItems = 3,
         maxItems = 8,
         distributionLists = {
+            "CrateMechanics",
+            "MechanicShelfWheels",
+            "MechanicShelfBrakes",
             "CarSupplyBatteries",
-            "CarSupplyTools",
-            "CarSupplyGasCans",
-            "MechanicShelfTools",
-            "MechanicShelfMisc",
         },
     },
 
@@ -431,6 +540,16 @@ RadioTrader_CrateDefinitions = {
         container = "Base.Garbagebag",
         isTrashBag = true,
     },
+
+    -- 不用品回収依頼（ヘリ基本出撃料100CR・30%の確率で焼きたてスイーツ差し入れ）
+    RadioTrader_Crate_Pickup = {
+        id = "RadioTrader_Crate_Pickup",
+        name = "Cargo Pickup Request",
+        price = 100,
+        container = "Base.Bag_PaperBag",
+        isPickupRequest = true,
+        sweetChance = 30,
+    },
 }
 
 -- ---------------------------------------------------------------------------
@@ -532,6 +651,36 @@ end
 -- ---------------------------------------------------------------------------
 -- 日替わりスポット品目 抽選用バニラCrate定義群
 -- ---------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
+-- 超プレミアム固定枠（現場資材・袋詰・BOX資材・種袋）
+-- ---------------------------------------------------------------------------
+RadioTrader_DailyPremiumPool = {
+    -- 布束・鞣し革（大・中・小）
+    { id = "Base.FabricRoll_Cotton",        baseUnit = 1500, minCount = 1, maxCount = 2 },
+    { id = "Base.FabricRoll_DenimBlue",     baseUnit = 1500, minCount = 1, maxCount = 2 },
+    { id = "Base.Leather_Crude_Large_Tan",  baseUnit = 4000, minCount = 1, maxCount = 1 },
+    { id = "Base.Leather_Crude_Medium_Tan", baseUnit = 2500,  minCount = 1, maxCount = 2 },
+    { id = "Base.Leather_Crude_Small_Tan",  baseUnit = 1000,  minCount = 1, maxCount = 3 },
+    -- 釘BOX・ネジBOX
+    { id = "Base.NailsBox",                 baseUnit = 950, minCount = 1, maxCount = 2 },
+    { id = "Base.ScrewsBox",                baseUnit = 900, minCount = 1, maxCount = 2 },
+    -- 毛糸・糸
+    { id = "Base.Thread",                   baseUnit = 550,  minCount = 1, maxCount = 3 },
+    { id = "Base.Yarn",                     baseUnit = 550,  minCount = 1, maxCount = 3 },
+    -- 袋詰め建材
+    { id = "Base.ConcretePowder",           baseUnit = 600, minCount = 1, maxCount = 2 },
+    { id = "Base.Sandbag",                  baseUnit = 900, minCount = 1, maxCount = 2 },
+    { id = "Base.Gravelbag",                baseUnit = 100, minCount = 1, maxCount = 2 },
+    { id = "Base.Claybag",                  baseUnit = 1800, minCount = 1, maxCount = 2 },
+    -- 乾電池BOX
+    { id = "Base.BatteryBox",               baseUnit = 600, minCount = 1, maxCount = 1 },
+    -- 動物飼料
+    { id = "Base.AnimalFeedBag",            baseUnit = 450, minCount = 1, maxCount = 2 },
+}
+
+-- ---------------------------------------------------------------------------
+-- 日替わりスポット品目 抽選用バニラCrate定義群（+超プレミアム固定枠）
+-- ---------------------------------------------------------------------------
 RadioTrader_DailyCrateCategories = {
     { category = "Carpentry",  label = "Carpentry", dists = { "CrateCarpentry", "CrateLumber", "CrateTools", "CrateToolsOld" } },
     { category = "Pottery",    label = "Pottery",   dists = { "CratePottery", "CrateClayBags", "CrateClayBricks", "CrateMasonry" } },
@@ -542,63 +691,76 @@ RadioTrader_DailyCrateCategories = {
     { category = "Food",       label = "Food",      dists = { "CrateCannedFood", "CrateFlour", "CrateRice", "CratePasta" } },
     { category = "Building",   label = "Building",  dists = { "CrateConcrete", "CrateSandBags", "CrateGravelBags", "CratePaint" } },
     { category = "Tailoring",  label = "Tailoring", dists = { "SewingStoreFabric", "SewingStoreTools", "CrateFabric_Cotton", "CrateFabric_DenimBlue", "CrateLeather", "CrateTailoring" } },
+    { category = "Premium",    label = "Premium",   isPremium = true },
 }
 
--- アイテムのウェイト・種別から価格と販売数量を自動算出
-local function calculateDailyItemPriceAndCount(itemId, weight)
-    local count = 1
-    local price = 250
+-- 10の桁で切り上げヘルパー
+local function ceilTo10(val)
+    return math.ceil(val / 10.0) * 10
+end
 
-    if not weight or weight <= 0 then weight = 1.0 end
+-- アイテムのウェイト・種別から価格と販売数量を算出
+-- ユーザー算定式: ( (基準単価 + 乱数(1〜10)*10) * 個数 * 乱数(1.00〜2.00) )
+-- ※購入・表示時に MOD設定係数（BuyPriceMultiplier）が掛けられます
+local function calculateDailyItemPriceAndCount(itemId, weight, isTraderStash, forcedCount, forcedBaseUnit)
+    local count = forcedCount or 1
+    local baseUnit = forcedBaseUnit
 
-    if weight <= 0.1 then
-        -- 激レア品 (例: Axe, BenchAnvil, 貴重スキル本等) - 4倍ベース
-        count = 1
-        price = 3200
-    elseif weight <= 1.0 then
-        -- レア品 (例: 工具・特殊医薬品・中間スキル本等) - 4倍ベース
-        count = 1
-        price = 1680
-    elseif weight <= 10.0 then
-        -- アンコモン - 4倍ベース
-        count = (ZombRand and (ZombRand(2) + 1)) or 1
-        price = 960
-    else
-        -- コモン資材 (木板・粘土・釘・砂袋・セメント・布束・糸など実用資材) - 4倍ベース
-        if string.find(itemId, "Plank") or string.find(itemId, "ClayBrick") then
-            count = 10
-            price = 880
-        elseif string.find(itemId, "FabricRoll") or string.find(itemId, "Leather") then
-            -- 布束・布ロール・革材
-            count = 2
-            price = 720
-        elseif string.find(itemId, "Thread") or string.find(itemId, "Yarn") then
-            -- 糸・毛糸（まとめ買い需要）
-            count = 4
-            price = 560
-        elseif string.find(itemId, "Claybag") or string.find(itemId, "ConcretePowder")
-            or string.find(itemId, "Sandbag") or string.find(itemId, "Gravelbag")
-            or string.find(itemId, "SheetMetal") or string.find(itemId, "BatteryBox") then
-            count = 4
-            price = 800
-        elseif string.find(itemId, "NailsBox") or string.find(itemId, "ScrewsBox") or string.find(itemId, "Fertilizer")
-            or string.find(itemId, "AnimalFeedBag") or string.find(itemId, "Wheat") then
-            count = 2
-            price = 720
+    if not baseUnit then
+        if isTraderStash then
+            -- トレーダーの私物隠しおやつ・冷凍食品（超高額プレミア価格）
+            if string.find(itemId, "PizzaWhole") then
+                count = 1
+                baseUnit = ceilTo10(1600 * 1.25)
+            elseif string.find(itemId, "Frozen_") or string.find(itemId, "TVDinner") then
+                count = (ZombRand and (ZombRand(2) + 1)) or math.random(1, 2)
+                baseUnit = ceilTo10(600 * 1.25)
+            elseif string.find(itemId, "Icecream") or string.find(itemId, "Creamocle")
+                or string.find(itemId, "FudgeePop") or string.find(itemId, "Popsicle") then
+                count = 1
+                baseUnit = ceilTo10(950 * 1.25)
+            else
+                count = 1
+                baseUnit = ceilTo10(850 * 1.25)
+            end
         else
-            count = 3
-            price = 640
+            -- 【バニラ品目】価格ベースは出現ウェイト（希少度）に完全一本化！
+            if not weight or weight <= 0 then weight = 1.0 end
+
+            if weight <= 0.1 then
+                -- 激レア品 (例: Axe, BenchAnvil, 貴重スキル本等)
+                count = 1
+                baseUnit = ceilTo10(3200 * 1.25)
+            elseif weight <= 1.0 then
+                -- レア品 (例: 工具・特殊医薬品・中間スキル本等)
+                count = 1
+                baseUnit = ceilTo10(1680 * 1.25)
+            elseif weight <= 10.0 then
+                -- アンコモン (例: スクリュードライバー・中間資材)
+                count = 1
+                baseUnit = ceilTo10(960 * 1.25)
+            else
+                -- コモン資材 (1〜2個小口)
+                count = (ZombRand and (ZombRand(2) + 1)) or math.random(1, 2)
+                baseUnit = ceilTo10(200 * 1.25)
+            end
+
+            -- 特殊高額機材・装備への例外最低保証
+            if string.find(itemId, "Generator") then
+                count = 1
+                baseUnit = ceilTo10(5000 * 1.25)
+            elseif string.find(itemId, "ALICEpack") then
+                count = 1
+                baseUnit = ceilTo10(3000 * 1.25)
+            end
         end
     end
 
-    -- 特殊高額機材・装備への例外調整
-    if string.find(itemId, "Generator") then
-        count = 1
-        price = 5000
-    elseif string.find(itemId, "ALICEpack") then
-        count = 1
-        price = 3000
-    end
+    -- 価格計算式: (基準値 + 乱数(1〜10)*10) * 個数 * 乱数(1.00〜2.00)
+    local randOffset = ((ZombRand and (ZombRand(10) + 1)) or math.random(1, 10)) * 10
+    local fluctuation = 1.0 + (((ZombRand and ZombRand(101)) or math.random(0, 100)) / 100.0)
+    local rawPrice = (baseUnit + randOffset) * count * fluctuation
+    local price = math.max(10, math.floor(rawPrice + 0.5))
 
     return count, price
 end
@@ -625,14 +787,29 @@ function RadioTrader_ItemsTable_RollDailyShop()
 
     for k = 1, pickedCount do
         local cat = cats[k]
-        local dists = cat.dists
-        local dIdx = (ZombRand and (ZombRand(#dists) + 1)) or math.random(1, #dists)
-        local distName = dists[dIdx]
+        local itemId, weight = nil, 1.0
+        local forcedCount, forcedBaseUnit = nil, nil
 
-        local itemId, weight = RadioTrader_ItemsTable_RollProceduralItemWithWeight(distName)
+        if cat.isPremium and RadioTrader_DailyPremiumPool and #RadioTrader_DailyPremiumPool > 0 then
+            -- 超プレミアム固定枠から選定
+            local pIdx = (ZombRand and (ZombRand(#RadioTrader_DailyPremiumPool) + 1)) or math.random(1, #RadioTrader_DailyPremiumPool)
+            local pItem = RadioTrader_DailyPremiumPool[pIdx]
+            itemId = pItem.id
+            local minC = pItem.minCount or 1
+            local maxC = pItem.maxCount or 1
+            forcedCount = (minC == maxC) and minC or ((ZombRand and ZombRand(minC, maxC + 1)) or math.random(minC, maxC))
+            forcedBaseUnit = ceilTo10(pItem.baseUnit * 1.25)
+        else
+            -- バニラCrateテーブルから選定
+            local dists = cat.dists
+            local dIdx = (ZombRand and (ZombRand(#dists) + 1)) or math.random(1, #dists)
+            local distName = dists[dIdx]
+            itemId, weight = RadioTrader_ItemsTable_RollProceduralItemWithWeight(distName)
+        end
+
         if itemId and not seenIds[itemId] then
             seenIds[itemId] = true
-            local count, price = calculateDailyItemPriceAndCount(itemId, weight)
+            local count, price = calculateDailyItemPriceAndCount(itemId, weight, false, forcedCount, forcedBaseUnit)
             local entry = {
                 id       = itemId,
                 name     = itemId,
@@ -642,6 +819,28 @@ function RadioTrader_ItemsTable_RollDailyShop()
                 subCat   = cat.category
             }
             table.insert(dailyItems, entry)
+        end
+    end
+
+    -- 超低確率（約3%）でトレーダーの私物「俺のおやつ(備蓄)」枠が1品追加！
+    local stashRoll = (ZombRand and ZombRand(100)) or math.random(0, 99)
+    if stashRoll < 3 then
+        local stashDists = { "FreezerIceCream", "FreezerFrozenFood" }
+        local sIdx = (ZombRand and (ZombRand(#stashDists) + 1)) or math.random(1, #stashDists)
+        local stashDistName = stashDists[sIdx]
+        local stashItemId, stashWeight = RadioTrader_ItemsTable_RollProceduralItemWithWeight(stashDistName)
+        if stashItemId and not seenIds[stashItemId] then
+            seenIds[stashItemId] = true
+            local sCount, sPrice = calculateDailyItemPriceAndCount(stashItemId, stashWeight, true)
+            local stashEntry = {
+                id       = stashItemId,
+                name     = stashItemId,
+                price    = sPrice,
+                count    = sCount,
+                category = "Daily",
+                subCat   = "TraderStash"
+            }
+            table.insert(dailyItems, stashEntry)
         end
     end
 
@@ -816,6 +1015,93 @@ function RadioTrader_ItemsTable_FillTrashBag(bagContainer)
 end
 
 -- ---------------------------------------------------------------------------
+-- 生鮮野菜・果物・機能性ハーブ（薬草）の産直アソート充填処理
+-- ---------------------------------------------------------------------------
+-- 野菜3〜4個、果物1〜2個、ハーブ1〜2個をバランスよく封入（計5〜8個）
+function RadioTrader_ItemsTable_FillProduceBag(bagContainer)
+    if not bagContainer then return 0 end
+    local addedCount = 0
+
+    local function addItem(fullType)
+        local script = getItem(fullType)
+        if script then
+            local itm = instanceItem(fullType)
+            if itm then
+                bagContainer:AddItem(itm)
+                addedCount = addedCount + 1
+            end
+        end
+    end
+
+    -- 1. 生鮮野菜枠 (3〜4個)
+    local veggieCount = (ZombRand and ZombRand(3, 5)) or math.random(3, 4)
+    if RadioTrader_FreshVeggies and #RadioTrader_FreshVeggies > 0 then
+        for i = 1, veggieCount do
+            local idx = (ZombRand and (ZombRand(#RadioTrader_FreshVeggies) + 1)) or math.random(1, #RadioTrader_FreshVeggies)
+            addItem(RadioTrader_FreshVeggies[idx])
+        end
+    end
+
+    -- 2. 新鮮なフルーツ枠 (1〜2個)
+    local fruitCount = (ZombRand and ZombRand(1, 3)) or math.random(1, 2)
+    if RadioTrader_FreshFruits and #RadioTrader_FreshFruits > 0 then
+        for i = 1, fruitCount do
+            local idx = (ZombRand and (ZombRand(#RadioTrader_FreshFruits) + 1)) or math.random(1, #RadioTrader_FreshFruits)
+            addItem(RadioTrader_FreshFruits[idx])
+        end
+    end
+
+    -- 3. 機能性ハーブ・薬草枠 (1〜2個)
+    local herbCount = (ZombRand and ZombRand(1, 3)) or math.random(1, 2)
+    if RadioTrader_FreshHerbs and #RadioTrader_FreshHerbs > 0 then
+        for i = 1, herbCount do
+            local idx = (ZombRand and (ZombRand(#RadioTrader_FreshHerbs) + 1)) or math.random(1, #RadioTrader_FreshHerbs)
+            addItem(RadioTrader_FreshHerbs[idx])
+        end
+    end
+
+    return addedCount
+end
+
+-- ---------------------------------------------------------------------------
+-- 現場クルーからの差し入れランチボックス充填処理
+-- ---------------------------------------------------------------------------
+-- メイン料理枠（寿司・ピザ・バーガー・サンド等）から1〜2個、
+-- 冷蔵・冷凍おやつ枠（アイス・アイスサンド・フルーツサラダ等）から確定1個を充填。
+function RadioTrader_ItemsTable_FillLunchbox(lunchboxContainer)
+    if not lunchboxContainer then return 0 end
+    local addedCount = 0
+
+    local function addItem(fullType)
+        local script = getItem(fullType)
+        if script then
+            local itm = instanceItem(fullType)
+            if itm then
+                lunchboxContainer:AddItem(itm)
+                addedCount = addedCount + 1
+            end
+        end
+    end
+
+    -- 1. メイン料理枠 (1〜2個)
+    local mainCount = (ZombRand and ZombRand(1, 3)) or math.random(1, 2)
+    if RadioTrader_LunchMains and #RadioTrader_LunchMains > 0 then
+        for i = 1, mainCount do
+            local idx = (ZombRand and (ZombRand(#RadioTrader_LunchMains) + 1)) or math.random(1, #RadioTrader_LunchMains)
+            addItem(RadioTrader_LunchMains[idx])
+        end
+    end
+
+    -- 2. 冷凍・冷蔵おやつ枠 (1個)
+    if RadioTrader_LunchColdDesserts and #RadioTrader_LunchColdDesserts > 0 then
+        local idx = (ZombRand and (ZombRand(#RadioTrader_LunchColdDesserts) + 1)) or math.random(1, #RadioTrader_LunchColdDesserts)
+        addItem(RadioTrader_LunchColdDesserts[idx])
+    end
+
+    return addedCount
+end
+
+-- ---------------------------------------------------------------------------
 -- ダッフルバッグにバニラルートアイテムを充填（全体乱数カウント 3〜10 に収まるまで抽選）
 -- ---------------------------------------------------------------------------
 function RadioTrader_ItemsTable_FillDuffelBag(bagItem, crateDef)
@@ -826,6 +1112,26 @@ function RadioTrader_ItemsTable_FillDuffelBag(bagItem, crateDef)
     -- ゴミ袋の場合は専用の複合・重み付け抽選処理を実行
     if crateDef.isTrashBag then
         return RadioTrader_ItemsTable_FillTrashBag(bagContainer)
+    end
+
+    -- 生鮮野菜・果物・ハーブアソートバッグの場合は専用充填処理を実行
+    if crateDef.isProduceBag then
+        return RadioTrader_ItemsTable_FillProduceBag(bagContainer)
+    end
+
+    -- 不用品回収依頼の場合は差し入れスイーツ判定 (30%確率)
+    if crateDef.isPickupRequest then
+        local roll = (ZombRand and ZombRand(100)) or math.random(0, 99)
+        if roll < (crateDef.sweetChance or 30) and RadioTrader_BakerySweets and #RadioTrader_BakerySweets > 0 then
+            local idx = (ZombRand and (ZombRand(#RadioTrader_BakerySweets) + 1)) or math.random(1, #RadioTrader_BakerySweets)
+            local sweetId = RadioTrader_BakerySweets[idx]
+            local itm = instanceItem(sweetId)
+            if itm then
+                bagContainer:AddItem(itm)
+                return 1
+            end
+        end
+        return 0
     end
 
     local minItems = crateDef.minItems or 3
@@ -945,7 +1251,9 @@ RadioTrader_Shop = {
 
     -- 種類別補給バッグ（全種集約・中央リストに並べて選択）
     Bags = {
+        { id = "RadioTrader_Crate_Pickup",      name = "Cargo Pickup Request",          price = 100,  count = 1 },
         { id = "RadioTrader_Crate_Food",        name = "Food Supply Duffel Bag",        price = 600,  count = 1 },
+        { id = "RadioTrader_Crate_Produce",     name = "Fresh Produce & Herbs Bag",     price = 850,  count = 1 },
         { id = "RadioTrader_Crate_Medical",     name = "Medical Aid Duffel Bag",        price = 800,  count = 1 },
         { id = "RadioTrader_Crate_Weapons",     name = "Arms & Ammo Duffel Bag",        price = 1000, count = 1 },
         { id = "RadioTrader_Crate_Blades",      name = "Blades & Axes Duffel Bag",      price = 1300, count = 1 },
@@ -963,6 +1271,7 @@ RadioTrader_Shop = {
     -- 食料補給 (互換用)
     Food = {
         { id = "RadioTrader_Crate_Food",      name = "Food Supply Duffel Bag",        price = 600,  count = 1  },
+        { id = "RadioTrader_Crate_Produce",   name = "Fresh Produce & Herbs Bag",     price = 850,  count = 1  },
     },
 
     -- 医療支援
@@ -1027,6 +1336,7 @@ RadioTrader_Shop = {
 
     -- その他・放出品・大型機材（バッグに入らない重機材や設置式設備）
     Misc = {
+        { id = "RadioTrader_Crate_Pickup",        name = "Cargo Pickup Request",          price = 100,  count = 1 },
         { id = "RadioTrader_Crate_TrashBag",      name = "Trader's Mystery Trash Bag",    price = 350,  count = 1 },
         { id = "Base.Generator",                  name = "Generator",                     price = 5000, count = 1 },
         { id = "Base.Mov_RoadBarrier",            name = "Concrete Barricade",            price = 2000, count = 1 },
@@ -1198,6 +1508,26 @@ RadioTrader_Sell = {
     { id = "Base.Eggplant",            name = "Fresh Eggplant",       basePricePerUnit = 2,   category = "Produce" },
     { id = "Base.Leek",                name = "Fresh Leek",           basePricePerUnit = 2,   category = "Produce" },
     { id = "Base.Zucchini",            name = "Fresh Zucchini",       basePricePerUnit = 2,   category = "Produce" },
+    -- 追加: B42野菜・根菜
+    { id = "Base.SweetPotato",         name = "Sweet Potato",         basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Pumpkin",             name = "Fresh Pumpkin",        basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Avocado",             name = "Fresh Avocado",        basePricePerUnit = 2,   category = "Produce" },
+    -- 追加: フルーツ
+    { id = "Base.Banana",              name = "Fresh Banana",         basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Orange",              name = "Fresh Orange",         basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Lemon",               name = "Fresh Lemon",          basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Lime",                name = "Fresh Lime",           basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Grapes",              name = "Fresh Grapes",         basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Pineapple",           name = "Fresh Pineapple",      basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Cherry",              name = "Fresh Cherry",         basePricePerUnit = 2,   category = "Produce" },
+    -- 追加: 機能性ハーブ・薬草（野草）
+    { id = "Base.WildGarlic",          name = "Wild Garlic",          basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.WildOnion",           name = "Wild Onion",           basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Lemongrass",          name = "Lemongrass",           basePricePerUnit = 3,   category = "Produce" },
+    { id = "Base.Ginseng",             name = "Ginseng",              basePricePerUnit = 3,   category = "Produce" },
+    { id = "Base.BlackSage",           name = "Black Sage",           basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.CommonMallow",        name = "Common Mallow",        basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Plantain",            name = "Plantain",             basePricePerUnit = 2,   category = "Produce" },
 
     -- =========================================================================
     -- カテゴリ7: 旧世界の通貨・カード類 (Currency & Financial)
@@ -1296,6 +1626,56 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
     -- 卵
     if string.find(itemId, "Egg") then
         return { id = itemId, name = "Fresh Egg", basePricePerUnit = 3, category = "Egg" }
+    end
+
+    -- 工具類 (Tools: 中古スクラップ・リサイクル資材)
+    if string.find(itemId, "Jack") or string.find(itemId, "LugWrench") or string.find(itemId, "TirePump")
+        or string.find(itemId, "BlowTorch") or string.find(itemId, "HandDrill") or string.find(itemId, "Multitool") then
+        return { id = itemId, name = "Heavy Tool", basePricePerUnit = 20, category = "Tools" }
+    elseif string.find(itemId, "Hammer") or string.find(itemId, "Wrench") or string.find(itemId, "Screwdriver")
+        or string.find(itemId, "Saw") or string.find(itemId, "Pliers") or string.find(itemId, "Crowbar")
+        or string.find(itemId, "PipeWrench") or string.find(itemId, "Snips") or string.find(itemId, "Chisel") then
+        return { id = itemId, name = "Hand Tool", basePricePerUnit = 8, category = "Tools" }
+    end
+
+    -- 車両パーツ (Vehicle Parts: タイヤ・足回り・電装部品)
+    if string.find(itemId, "Tire") then
+        return { id = itemId, name = "Vehicle Tire", basePricePerUnit = 15, category = "Vehicles" }
+    elseif string.find(itemId, "Brake") then
+        return { id = itemId, name = "Vehicle Brake", basePricePerUnit = 10, category = "Vehicles" }
+    elseif string.find(itemId, "Suspension") then
+        return { id = itemId, name = "Vehicle Suspension", basePricePerUnit = 12, category = "Vehicles" }
+    elseif string.find(itemId, "Muffler") then
+        return { id = itemId, name = "Vehicle Muffler", basePricePerUnit = 10, category = "Vehicles" }
+    elseif string.find(itemId, "CarBattery") then
+        return { id = itemId, name = "Car Battery", basePricePerUnit = 25, category = "Vehicles" }
+    elseif string.find(itemId, "EngineParts") then
+        return { id = itemId, name = "Engine Parts", basePricePerUnit = 2, category = "Vehicles" }
+    end
+
+    -- 持ち運べる家具・設備 (Moveable Furniture: リサイクル木材・金属・アンティーク / 控えめ価格)
+    if string.find(itemId, "Mov_") or string.find(itemId, "^Moveables") then
+        if string.find(itemId, "AntiqueStove") then
+            return { id = itemId, name = "Antique Wood Stove", basePricePerUnit = 150, category = "Furniture" }
+        elseif string.find(itemId, "LightConstruction") then
+            return { id = itemId, name = "Work Flood Light", basePricePerUnit = 40, category = "Furniture" }
+        elseif string.find(itemId, "RoadBarrier") or string.find(itemId, "MilitaryCrate") then
+            return { id = itemId, name = "Reinforced Barrier/Crate", basePricePerUnit = 25, category = "Furniture" }
+        else
+            return { id = itemId, name = "Salvaged Furniture", basePricePerUnit = 10, category = "Furniture" }
+        end
+    end
+
+    -- 軍用品・サバイバル装備 (Military Surplus: レア装備・軍服・無線機)
+    if string.find(itemId, "ALICE") or string.find(itemId, "Bag_Military") then
+        return { id = itemId, name = "Military Backpack", basePricePerUnit = 35, category = "Military" }
+    elseif string.find(itemId, "HamRadio2") or string.find(itemId, "WalkieTalkie5") then
+        return { id = itemId, name = "Military Radio Equipment", basePricePerUnit = 30, category = "Military" }
+    elseif string.find(itemId, "Vest_Bullet") or string.find(itemId, "Hat_Army") or string.find(itemId, "Hat_CrashHelmet")
+        or string.find(itemId, "Hat_BeretArmy") or string.find(itemId, "Holster") or string.find(itemId, "AmmoStrap") then
+        return { id = itemId, name = "Military Tactical Gear", basePricePerUnit = 20, category = "Military" }
+    elseif string.find(itemId, "Camo") or string.find(itemId, "Army") or string.find(itemId, "Military") then
+        return { id = itemId, name = "Military Apparel", basePricePerUnit = 12, category = "Military" }
     end
 
     return nil
