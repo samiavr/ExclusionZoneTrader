@@ -143,14 +143,12 @@ local function updateVirtualHelis()
                     -- 音響
                     fireAcousticWave(heli.x, heli.y, heli.z, heli.isMegaHorde)
                     
-                    -- 残りのゾンビがいればここで最終湧き (万が一のため)
-                    local leftDirect = heli.totalZombies - heli.spawnedZombies
-                    local leftRemote = (heli.totalRemote or 0) - (heli.spawnedRemote or 0)
-                    local left = leftDirect + leftRemote
-                    if left > 0 and RadioTrader_ZombieSpawnQueue and RadioTrader_ZombieSpawnQueue.enqueue then
-                        RadioTrader_ZombieSpawnQueue.enqueue(heli.targetX, heli.targetY, heli.z, left, heli.approachAngle, 30, 45, 85)
-                        heli.spawnedZombies = heli.totalZombies
-                        heli.spawnedRemote = heli.totalRemote
+                    -- 残りのゾンビがいればここで最終湧き (仮想ホードに失敗した残存分のみ)
+                    local leftFallback = heli.fallbackDirect - heli.spawnedDirect
+                    if leftFallback > 0 and RadioTrader_ZombieSpawnQueue and RadioTrader_ZombieSpawnQueue.enqueue then
+                        log(("Heli arrived: Flushing %d fallback direct zombies to queue"):format(leftFallback))
+                        RadioTrader_ZombieSpawnQueue.enqueue(heli.targetX, heli.targetY, heli.z, leftFallback, heli.approachAngle, 30, 45, 85)
+                        heli.spawnedDirect = heli.fallbackDirect
                     end
                     
                     -- 配達
@@ -169,66 +167,54 @@ local function updateVirtualHelis()
                     
                     local newDist = math.sqrt((heli.targetX - heli.x)^2 + (heli.targetY - heli.y)^2)
                     
-                    -- ヘリがLZ周辺（ロード済みチャンク周辺）に近づいたら、飛行ルート上で段階的にスポーンさせる
+                    -- ヘリがLZ周辺（ロード済みチャンク周辺）に近づいたら、飛行ルート上で段階的に仮想ホードを発進させる
                     while heli.nextSpawnDist > 0 and newDist <= heli.nextSpawnDist do
-                        -- A. 遠隔仮想ホード (ヘリ通過中の現在地からPopmanで発進)
-                        if heli.totalRemote and heli.totalRemote > 0 and (heli.totalRemote - heli.spawnedRemote) > 0 then
-                            local remoteLeft = heli.totalRemote - heli.spawnedRemote
-                            local remoteBatch = math.ceil(heli.totalRemote / 3) -- 200, 150, 100 タイル地点で分散
-                            if heli.nextSpawnDist <= 100 or remoteBatch > remoteLeft then
-                                remoteBatch = remoteLeft
+                        -- 1. 最優先: 遠隔チャンク（ヘリ現在地）への仮想ホード (Popman) 配置
+                        if heli.totalHorde > 0 and heli.dispatchedVirtual < heli.totalHorde then
+                            local left = heli.totalHorde - heli.dispatchedVirtual
+                            local batch = math.floor(heli.totalHorde / 4)
+                            if heli.nextSpawnDist <= 50 or batch > left then
+                                batch = left
                             end
                             
-                            if remoteBatch > 0 then
+                            if batch > 0 then
                                 local hX = math.floor(heli.x)
                                 local hY = math.floor(heli.y)
                                 local popmanSuccess = false
                                 if ZombiePopulationManager and ZombiePopulationManager.instance and ZombiePopulationManager.instance.createHordeFromTo then
                                     local ok, err = pcall(function()
-                                        ZombiePopulationManager.instance:createHordeFromTo(hX, hY, heli.targetX, heli.targetY, remoteBatch)
+                                        ZombiePopulationManager.instance:createHordeFromTo(hX, hY, heli.targetX, heli.targetY, batch)
                                     end)
                                     if ok then
                                         popmanSuccess = true
-                                        heli.spawnedRemote = heli.spawnedRemote + remoteBatch
-                                        log(("  [Popman] Dispatched remote virtual horde from Heli position (%d,%d) towards LZ: %d zombies (left: %d)"):format(
-                                            hX, hY, remoteBatch, heli.totalRemote - heli.spawnedRemote))
+                                        heli.dispatchedVirtual = heli.dispatchedVirtual + batch
+                                        log(("  [Popman] Successfully dispatched virtual horde from Heli position (%d,%d) towards LZ (%d,%d): %d zombies [remaining: %d]"):format(
+                                            hX, hY, heli.targetX, heli.targetY, batch, heli.totalHorde - heli.dispatchedVirtual))
                                     else
                                         log("[!] Error in Popman createHordeFromTo: " .. tostring(err))
                                     end
                                 end
                                 
-                                -- Popmanが利用不可なら近接直接スポーンに合流させる
+                                -- 仮想ホードとして配置できなかった場合のみ実体フォールバックへ回す
                                 if not popmanSuccess then
-                                    heli.totalZombies = heli.totalZombies + remoteBatch
-                                    heli.spawnedRemote = heli.spawnedRemote + remoteBatch
+                                    heli.dispatchedVirtual = heli.dispatchedVirtual + batch
+                                    heli.fallbackDirect = heli.fallbackDirect + batch
+                                    log(("  [!] Popman unavailable/failed. Routed %d zombies to fallback direct queue"):format(batch))
                                 end
                             end
                         end
 
-                        -- B. 近接飛行ルート連動スポーン (ヘリ距離連動 + シャープ進入回廊 +/-30度)
-                        if heli.totalZombies > 0 then
-                            local directLeft = heli.totalZombies - heli.spawnedZombies
-                            local batch = math.floor(heli.totalZombies / 4)
-                            if heli.nextSpawnDist <= 50 then
-                                batch = directLeft
-                            end
-                            
-                            if batch > 0 and RadioTrader_ZombieSpawnQueue and RadioTrader_ZombieSpawnQueue.enqueue then
-                                local minR, maxR
-                                if heli.nextSpawnDist >= 150 then
-                                    minR = 85
-                                    maxR = 120
-                                else
-                                    minR = 50
-                                    maxR = 85
-                                end
-                                
-                                log(("Heli at dist %.1f: Spawning flight-path batch of %d zombies (Angle: %s deg +/- 30, R: %d-%d)"):format(
-                                    newDist, batch, tostring(heli.approachAngle), minR, maxR))
-                                RadioTrader_ZombieSpawnQueue.enqueue(heli.targetX, heli.targetY, heli.z, batch, heli.approachAngle, 30, minR, maxR)
-                                heli.spawnedZombies = heli.spawnedZombies + batch
-                            end
+                        -- 2. フォールバック: 仮想配置に失敗した分のみ実体スポーン（安全距離45タイル＋進入回廊連動）
+                        if heli.fallbackDirect > heli.spawnedDirect and RadioTrader_ZombieSpawnQueue and RadioTrader_ZombieSpawnQueue.enqueue then
+                            local directBatch = heli.fallbackDirect - heli.spawnedDirect
+                            local minR = (heli.nextSpawnDist >= 150) and 85 or 50
+                            local maxR = (heli.nextSpawnDist >= 150) and 120 or 85
+                            log(("Heli at dist %.1f: Spawning fallback direct batch of %d zombies (Angle: %s deg +/- 30, R: %d-%d)"):format(
+                                newDist, directBatch, tostring(heli.approachAngle), minR, maxR))
+                            RadioTrader_ZombieSpawnQueue.enqueue(heli.targetX, heli.targetY, heli.z, directBatch, heli.approachAngle, 30, minR, maxR)
+                            heli.spawnedDirect = heli.fallbackDirect
                         end
+
                         heli.nextSpawnDist = heli.nextSpawnDist - 50
                     end
                 end
@@ -322,16 +308,7 @@ function RadioTrader_HeliEvent.trigger(player, isMegaHorde)
         end
     end
     
-    -- 遠隔仮想ホード（Popman createHordeFromTo）と近接コーンスポーンの配分
-    local directCount = count
-    local remoteCount = 0
-    if count > 0 then
-        local remoteRatio = cfg.getHordeRemoteRatio()
-        remoteCount = math.floor(count * remoteRatio)
-        directCount = count - remoteCount
-        log(("  Heli horde planned: %d total (%d direct flight-path, %d remote in-flight)"):format(
-            count, directCount, remoteCount))
-    end
+    log(("  Heli horde planned: %d total (primary: virtual Popman horde at flight coordinates, fallback: direct spawn)"):format(count))
     
     local now = getCurrentGameHour()
     table.insert(virtualHelis, {
@@ -344,10 +321,10 @@ function RadioTrader_HeliEvent.trigger(player, isMegaHorde)
         targetY = lzY,
         lastUpdate = now,
         lastSoundTime = now,
-        totalZombies = directCount,
-        spawnedZombies = 0,
-        totalRemote = remoteCount,
-        spawnedRemote = 0,
+        totalHorde = count,
+        dispatchedVirtual = 0,
+        fallbackDirect = 0,
+        spawnedDirect = 0,
         nextSpawnDist = 200,
         approachAngle = angle,
         isMegaHorde = isMegaHorde or false,
