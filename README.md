@@ -1,11 +1,28 @@
-# Radio Trader Mod (Project Zomboid Build 42)
+# Exclusion Zone Trader (B42) - 隔離地域外トレーダー
 
 ![Project Zomboid B42](https://img.shields.io/badge/Project%20Zomboid-Build%2042-orange?style=flat-square)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)
 ![Multiplayer Supported](https://img.shields.io/badge/Multiplayer-Single%20%26%20Server-green?style=flat-square)
 ![Language: EN & JP](https://img.shields.io/badge/Language-English%20%7C%20%E6%97%A5%E6%9C%AC%E8%AA%9E-brightgreen?style=flat-square)
 
-**Radio Trader Mod** は、ノックス州（隔離地域）封鎖線の外にいる外部商人・補給部隊と無線通信を行い、物資の売買および輸送ヘリコプターによる支援物資投下・回収を行う **Project Zomboid Build 42 対応** の本格交易＆拠点防衛 MOD です。
+**Exclusion Zone Trader** は、ノックス州（隔離地域）封鎖線の外にいる外部組織・商人・有志補給部隊と無線通信を行い、物資の売買および輸送ヘリコプターによる支援物資投下・回収を行う **Project Zomboid Build 42 対応** の本格交易＆拠点防衛 MOD です。
+
+---
+
+## 📻 世界観・背景ストーリー (Lore & Background)
+
+> **「ノックス州の封鎖線は維持された。だが、檻の中の俺たちは見捨てられた。」**
+>
+> 感染の封じ込め（隔離）自体は成功し、隔離線の向こう側――「外の世界」には辛うじて政府や軍、市民社会の文明と経済が保たれている。
+> しかし、隔離地域（ノックス郡全域）があまりにも広大すぎるため、外の政府も電気や水道といったライフラインを復旧させることはできず、ワクチンや治療法も存在しないため地上部隊を派遣しての救出・奪還も不可能と判断された。
+> 
+> さらに、感染拡大パニックを防ぐ情報統制と外部連携遮断のため、隔離地域全域には**強力な電波隔離（ジャミング）**が敷かれている。
+> 
+> あなたは偶然、軍や検問の監視をかいくぐる**特定の秘密周波数（104.8 MHz）**を見つけ出した。
+> そのノイズの向こう側にいたのは、外の世界で生きる密輸業者や有志の補給部隊だった。
+> 地上への立ち入りは感染リスクが高すぎるため、取引は**「ヘリコプターによる超短時間の物資投下（LZ指定）」**しか行えない。
+> 
+> 遠く離れた外の世界と命がけで繋がり、ヘリの爆音に引き寄せられるゾンビの群れを迎え撃ちながら、この巨大な隔離地域を生き延びろ。
 
 ---
 
