@@ -79,32 +79,39 @@ RadioTrader_Config.HORDE_SIZE_TABLE = {
 -- サンドボックス設定の安全な多層フォールバック取得
 -- ---------------------------------------------------------------------------
 function RadioTrader_Config.getSandboxOption(key)
-    -- 1. SandboxVars.RadioTrader[key]
-    if SandboxVars and SandboxVars.RadioTrader and SandboxVars.RadioTrader[key] ~= nil then
-        return SandboxVars.RadioTrader[key]
-    end
-    -- 2. SandboxVars[key]
-    if SandboxVars and SandboxVars[key] ~= nil then
-        return SandboxVars[key]
-    end
-    -- 3. SandboxVars["RadioTrader." .. key]
-    if SandboxVars and SandboxVars["RadioTrader." .. key] ~= nil then
-        return SandboxVars["RadioTrader." .. key]
-    end
-    -- 4. Java getSandboxOptions() API
+    -- 1. 最優先: ゲーム中の動的変更を即座に拾うため Java getSandboxOptions() API を最初にチェック
     if getSandboxOptions then
         local ok, val = pcall(function()
             local so = getSandboxOptions()
             if so and so.getOptionByName then
                 local opt = so:getOptionByName("RadioTrader." .. key) or so:getOptionByName(key)
                 if opt and opt.getValue then
-                    return opt:getValue()
+                    local v = opt:getValue()
+                    if v ~= nil then return v end
                 end
             end
             return nil
         end)
-        if ok and val ~= nil then return val end
+        if ok and val ~= nil then
+            -- Lua 側の SandboxVars キャッシュも最新値に追従同期
+            if SandboxVars and SandboxVars.RadioTrader then
+                SandboxVars.RadioTrader[key] = val
+            end
+            return val
+        end
     end
+
+    -- 2. フォールバック: Lua グローバルテーブル SandboxVars
+    if SandboxVars and SandboxVars.RadioTrader and SandboxVars.RadioTrader[key] ~= nil then
+        return SandboxVars.RadioTrader[key]
+    end
+    if SandboxVars and SandboxVars[key] ~= nil then
+        return SandboxVars[key]
+    end
+    if SandboxVars and SandboxVars["RadioTrader." .. key] ~= nil then
+        return SandboxVars["RadioTrader." .. key]
+    end
+
     return nil
 end
 
