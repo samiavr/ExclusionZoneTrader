@@ -22,3 +22,6 @@ dist/
 
 # Internal task tracker (optional)
 task.md
+
+# Development / verification scripts (local only)
+scripts/

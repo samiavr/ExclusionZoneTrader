@@ -113,9 +113,6 @@ radio_trading_mod/
 ├── docs/                             # 仕様書・全バージョンの作業ログ
 │   ├── spec_radio_trader.md          # システム総合仕様書
 │   └── logs/                         # 詳細な開発・検証ログ
-├── scripts/                          # CI・自動健全性検証スクリプト
-│   ├── check_mod_health.py           # 構文・BOM・文字化け・翻訳フォーマット自動スキャナ
-│   └── build_release_zip.py          # 配布用ZIPパッケージ自動生成ツール
 └── RadioTraderMod/                   # Mod ソースコード本体 (B42対応構造)
     └── 42/
         ├── mod.info
