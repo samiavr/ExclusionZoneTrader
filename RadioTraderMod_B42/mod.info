@@ -1,0 +1,9 @@
+name=Radio Trader Mod
+id=RadioTraderMod
+author=Developer
+modversion=1.0.0
+description=Radio Trader and Helicopter Drop Mod
+poster=poster.png
+icon=icon.png
+tags=Build 42
+versionMin=42.0

@@ -1,0 +1,108 @@
+VERSION = 1,
+
+option HeliZombieAttractRadius
+{
+    type = integer,
+    min = 100,
+    max = 1000,
+    default = 400,
+    page = RadioTrader,
+    translation = RT_HeliZombieAttractRadius,
+}
+
+option HeliHordeEnabled
+{
+    type = boolean,
+    default = true,
+    page = RadioTrader,
+    translation = RT_HeliHordeEnabled,
+}
+
+option HeliHordeSize
+{
+    type = enum,
+    numValues = 5,
+    default = 3,
+    page = RadioTrader,
+    translation = RT_HeliHordeSize,
+    valueTranslation = RT_HeliHordeSizeValue,
+}
+
+option DeliveryTimeHours
+{
+    type = enum,
+    numValues = 5,
+    default = 3,
+    page = RadioTrader,
+    translation = RT_DeliveryTimeHours,
+    valueTranslation = RT_DeliveryTimeHoursValue,
+}
+
+option TradeFrequency
+{
+    type = double,
+    min = 85.0,
+    max = 108.0,
+    default = 104.8,
+    page = RadioTrader,
+    translation = RT_TradeFrequency,
+}
+
+option RequireOutdoorLZ
+{
+    type = boolean,
+    default = true,
+    page = RadioTrader,
+    translation = RT_RequireOutdoorLZ,
+}
+
+option LZMaxRange
+{
+    type = integer,
+    min = 50,
+    max = 2000,
+    default = 500,
+    page = RadioTrader,
+    translation = RT_LZMaxRange,
+}
+
+option BuyPriceMultiplier
+{
+    type = double,
+    min = 0.2,
+    max = 100.0,
+    default = 10.0,
+    page = RadioTrader,
+    translation = RT_BuyPriceMultiplier,
+}
+
+option SellPriceMultiplier
+{
+    type = double,
+    min = 0.1,
+    max = 5.0,
+    default = 1.0,
+    page = RadioTrader,
+    translation = RT_SellPriceMultiplier,
+}
+
+option MegaHordeChance
+{
+    type = enum,
+    numValues = 5,
+    default = 3,
+    page = RadioTrader,
+    translation = RT_MegaHordeChance,
+    valueTranslation = RT_MegaHordeChanceValue,
+}
+
+option HeliHordeRemoteRatio
+{
+    type = enum,
+    numValues = 5,
+    default = 3,
+    page = RadioTrader,
+    translation = RT_HeliHordeRemoteRatio,
+    valueTranslation = RT_HeliHordeRemoteRatioValue,
+}
+

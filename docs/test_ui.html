@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RadioTrader Mod — 機能テストUI</title>
+<style>
+  :root {
+    --bg-base:    #0d0d10;
+    --bg-panel:   #141418;
+    --bg-card:    #1a1a22;
+    --accent:     #20c97a;
+    --accent-dim: #158d54;
+    --warn:       #e8981a;
+    --danger:     #e83030;
+    --text:       #d8e8d8;
+    --text-muted: #7a9a7a;
+    --border:     #2a2a38;
+    --tab-active: #1e2e28;
+    --font: 'Segoe UI', 'Meiryo', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg-base);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== Header ===== */
+  header {
+    background: linear-gradient(90deg, #0d1810 0%, #0d1c12 100%);
+    border-bottom: 1px solid var(--accent-dim);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+  .badge {
+    background: var(--accent-dim);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .header-status {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* ===== Layout ===== */
+  .workspace {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    height: calc(100vh - 52px);
+  }
+
+  /* ===== Sidebar (test navigator) ===== */
+  .sidebar {
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px 0;
+  }
+  .sidebar-section {
+    padding: 6px 16px;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+  .nav-item {
+    display: block;
+    padding: 9px 20px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { background: var(--bg-card); color: var(--text); }
+  .nav-item.active {
+    background: var(--tab-active);
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+
+  /* ===== Main area ===== */
+  .main {
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .card-header {
+    background: var(--bg-panel);
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-body { padding: 16px; }
+
+  /* ===== Test: Context Menu ===== */
+  .ctx-simulator {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .ctx-controls label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    margin-top: 10px;
+  }
+  .ctx-controls label:first-child { margin-top: 0; }
+  .ctx-controls input[type="number"],
+  .ctx-controls input[type="text"],
+  .ctx-controls select {
+    width: 100%;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 0.82rem;
+  }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .toggle-row label { margin: 0; flex: 1; }
+  input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  .ctx-result {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 0.82rem;
+    min-height: 160px;
+  }
+  .ctx-result .menu-item {
+    padding: 7px 12px;
+    border-radius: 4px;
+    margin: 3px 0;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ctx-result .menu-item.enabled {
+    background: rgba(32,201,122,0.12);
+    color: var(--accent);
+  }
+  .ctx-result .menu-item.disabled {
+    background: rgba(200,80,80,0.08);
+    color: var(--danger);
+    opacity: 0.7;
+  }
+  .ctx-result .menu-item.warn {
+    background: rgba(232,152,26,0.12);
+    color: var(--warn);
+  }
+  .ctx-result .reason {
+    padding: 4px 12px 4px 32px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* ===== Test: Trading UI ===== */
+  .trade-ui {
+    display: grid;
+    grid-template-columns: 110px 1fr 200px;
+    grid-template-rows: 1fr auto auto;
+    gap: 0;
+    height: 420px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 0.82rem;
+  }
+  .trade-tabs {
+    background: #12121a;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    grid-row: 1 / 3;
+  }
+  .trade-tab {
+    padding: 10px 8px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    transition: all 0.12s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .trade-tab:hover { background: var(--bg-card); color: var(--text); }
+  .trade-tab.active { background: var(--tab-active); color: var(--accent); border-left-color: var(--accent); }
+
+  .trade-list {
+    overflow-y: auto;
+    grid-row: 1;
+    padding: 0;
+  }
+  .trade-list-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: background 0.1s;
+  }
+  .trade-list-item:hover { background: var(--bg-panel); }
+  .trade-list-item.selected { background: var(--tab-active); }
+  .item-price {
+    font-size: 0.75rem;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .trade-info {
+    background: #12121a;
+    border-left: 1px solid var(--border);
+    padding: 12px;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .info-section {
+    background: var(--bg-card);
+    border-radius: 5px;
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+  .info-section .label { color: var(--text-muted); font-size: 0.7rem; margin-bottom: 3px; }
+  .info-section .value { color: var(--text); font-weight: 600; }
+  .info-section .value.accent { color: var(--accent); }
+  .info-section .value.warn { color: var(--warn); }
+  .info-section .value.danger { color: var(--danger); }
+
+  .trade-log {
+    grid-column: 2;
+    grid-row: 2;
+    background: #0f0f16;
+    border-top: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 6px 12px;
+    height: 80px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+  }
+  .trade-log .log-line { padding: 2px 0; }
+  .trade-log .log-line.accent { color: var(--accent); }
+  .trade-log .log-line.warn   { color: var(--warn); }
+  .trade-log .log-line.danger { color: var(--danger); }
+
+  .trade-actions {
+    grid-column: 1 / 3;
+    grid-row: 3;
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+  }
+  .trade-actions-info {
+    grid-column: 3;
+    grid-row: 3;
+    padding: 8px;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+  }
+
+  /* ===== Test: Delivery Timer ===== */
+  .timer-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+  .timer-controls .field { display: flex; flex-direction: column; gap: 4px; }
+  .timer-controls label { font-size: 0.75rem; color: var(--text-muted); }
+  .timer-controls input[type="range"] { accent-color: var(--accent); }
+
+  .timeline {
+    position: relative;
+    height: 64px;
+    background: var(--bg-panel);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .timeline-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #1a4028 0%, var(--accent) 100%);
+    transition: width 0.3s;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+    min-width: 0;
+  }
+  .milestone {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--warn);
+  }
+  .milestone-label {
+    position: absolute;
+    bottom: 4px;
+    font-size: 0.65rem;
+    color: var(--warn);
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .state-indicator {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .state-chip {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .state-chip.active {
+    background: rgba(32,201,122,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .state-chip.warn { background: rgba(232,152,26,0.15); border-color: var(--warn); color: var(--warn); }
+  .state-chip.danger { background: rgba(232,48,48,0.15); border-color: var(--danger); color: var(--danger); }
+
+  /* ===== Test: Horde Visualizer ===== */
+  .horde-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 16px;
+  }
+  .map-canvas-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    max-height: 380px;
+  }
+  canvas#hordeMap {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .horde-controls label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    margin-top: 10px;
+  }
+  .horde-controls label:first-child { margin-top: 0; }
+  .horde-controls input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .horde-stats {
+    background: var(--bg-panel);
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 0.78rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .horde-stat { display: flex; justify-content: space-between; }
+  .horde-stat .k { color: var(--text-muted); }
+  .horde-stat .v { color: var(--accent); font-weight: 600; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    padding: 7px 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #2ae88a; }
+  .btn-primary:disabled { background: var(--accent-dim); color: #555; cursor: not-allowed; opacity: 0.6; }
+  .btn-warn { background: var(--warn); color: #000; }
+  .btn-warn:hover { background: #f0a830; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .section-hidden { display: none; }
+  .section { display: flex; flex-direction: column; gap: 20px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
+</style>
+</head>
+<body>
+
+<header>
+  <span style="font-size:1.3rem">📻</span>
+  <h1>RadioTrader Mod — 機能テストUI</h1>
+  <span class="badge">v1.0.0</span>
+  <span class="badge" style="background:#2a1a1a">Build 42</span>
+  <span class="header-status" id="headerStatus">テスト環境 — ゲーム外モック</span>
+</header>
+
+<div class="workspace">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-section">テストモジュール</div>
+    <a class="nav-item active" id="nav-ctx"   onclick="switchSection('ctx')">🖱 コンテキストメニュー</a>
+    <a class="nav-item"        id="nav-trade" onclick="switchSection('trade')">🛒 取引UI パネル</a>
+    <a class="nav-item"        id="nav-timer" onclick="switchSection('timer')">⏱ 配達タイマー</a>
+    <a class="nav-item"        id="nav-horde" onclick="switchSection('horde')">🧟 ゾンビ誘引ビジュアライザ</a>
+    <div class="sidebar-section" style="margin-top:20px">設定参照</div>
+    <a class="nav-item"        id="nav-cfg"   onclick="switchSection('cfg')">⚙ Config 定数確認</a>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ======================================================== -->
+    <!-- SECTION: Context Menu                                      -->
+    <!-- ======================================================== -->
+    <div id="section-ctx" class="section">
+      <div class="card">
+        <div class="card-header">🖱 コンテキストメニューシミュレータ</div>
+        <div class="card-body">
+          <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">
+            プレイヤーの状態条件を変更して、右クリックメニューに表示されるオプションをシミュレートします。
+          </p>
+          <div class="ctx-simulator">
+            <div class="ctx-controls">
+              <label>対象オブジェクト</label>
+              <select id="ctx-target" onchange="simulateContextMenu()">
+                <option value="container">コンテナ（ドラム缶）</option>
+                <option value="radio">無線機（HAMラジオ）</option>
+                <option value="other">その他オブジェクト</option>
+              </select>
+
+              <div class="toggle-row">
+                <input type="checkbox" id="ctx-outdoor" checked onchange="simulateContextMenu()">
+                <label for="ctx-outdoor">屋外スクエア (isOutside = true)</label>
+              </div>
+              <div class="toggle-row">
+                <input type="checkbox" id="ctx-lz" onchange="simulateContextMenu()">
+                <label for="ctx-lz">LZ 登録済み</label>
+              </div>
+              <div class="toggle-row">
+                <input type="checkbox" id="ctx-power" checked onchange="simulateContextMenu()">
+                <label for="ctx-power">無線機 電源ON</label>
+              </div>
+
+              <label>無線機周波数 (MHz)</label>
+              <input type="number" id="ctx-freq" value="104.8" step="0.1" min="85" max="108" onchange="simulateContextMenu()">
+
+              <label>プレイヤーとコンテナの距離 (タイル)</label>
+              <input type="number" id="ctx-dist" value="30" min="0" max="2000" onchange="simulateContextMenu()">
+            </div>
+
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px">シミュレーション結果：</div>
+              <div class="ctx-result" id="ctx-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SECTION: Trade UI                                          -->
+    <!-- ======================================================== -->
+    <div id="section-trade" class="section section-hidden">
+      <div class="card">
+        <div class="card-header">🛒 取引UIパネル — ISPanel モック</div>
+        <div class="card-body" style="padding:0">
+          <div class="trade-ui">
+
+            <!-- カテゴリタブ -->
+            <div class="trade-tabs" id="tradeTabs"></div>
+
+            <!-- アイテムリスト -->
+            <div class="trade-list" id="tradeList"></div>
+
+            <!-- 右パネル: 状態ビュー -->
+            <div class="trade-info">
+              <div class="info-section">
+                <div class="label">💰 クレジット残高</div>
+                <div class="value accent" id="ui-credits">0 CR</div>
+              </div>
+              <div class="info-section">
+                <div class="label">📦 LZ 査定額</div>
+                <div class="value" id="ui-assess">-- CR</div>
+              </div>
+              <div class="info-section">
+                <div class="label">🚁 配達ステート</div>
+                <div class="value" id="ui-delivery-state">待機なし</div>
+              </div>
+              <div class="info-section" style="flex:1;overflow-y:auto">
+                <div class="label">🔍 選択中アイテム</div>
+                <div class="value" id="ui-item-detail" style="font-size:0.75rem;font-weight:normal;line-height:1.6;margin-top:4px">アイテムを選択してください</div>
+              </div>
+              <div>
+                <div class="label" style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">クレジットをシミュレート</div>
+                <input type="number" id="sim-credits" value="0" min="0" style="width:100%;background:var(--bg-base);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-family:inherit;font-size:0.78rem" oninput="updateCredits(this.value)">
+              </div>
+            </div>
+
+            <!-- 通信ログ -->
+            <div class="trade-log" id="tradeLog">
+              <div class="log-line accent">» システム初期化完了。周波数 104.8 MHz に接続中...</div>
+            </div>
+            <div style="background:var(--bg-panel);border-top:1px solid var(--border);border-left:1px solid var(--border);padding:6px 8px;display:flex;align-items:center">
+              <span style="font-size:0.65rem;color:var(--text-muted)">無線通信ログ</span>
+            </div>
+
+            <!-- アクションボタン -->
+            <div class="trade-actions">
+              <button class="btn btn-warn" onclick="simulateSell()">📤 売却依頼を送信</button>
+              <button class="btn btn-primary" id="btnOrder" onclick="simulateOrder()">🛒 発注する</button>
+              <button class="btn btn-ghost" onclick="addLog('ウィンドウを閉じました。', '')">✖ 閉じる</button>
+            </div>
+            <div class="trade-actions-info">
+              <div style="font-size:0.65rem;color:var(--text-muted)">アクション</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">📋 サーバーコマンドシミュレータ</div>
+        <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
+          <button class="btn btn-primary" onclick="simulateServerCmd('tradeAccepted')">tradeAccepted</button>
+          <button class="btn btn-warn"    onclick="simulateServerCmd('heliApproaching')">heliApproaching</button>
+          <button class="btn btn-danger"  onclick="simulateServerCmd('deliveryComplete')">deliveryComplete</button>
+          <button class="btn btn-ghost"   onclick="simulateServerCmd('creditUpdate')">creditUpdate</button>
+          <button class="btn btn-ghost"   onclick="simulateServerCmd('assessmentResult')">assessmentResult</button>
+          <button class="btn btn-ghost"   onclick="simulateServerCmd('error')">error</button>
+          <button class="btn btn-ghost"   onclick="simulateServerCmd('stateRefresh')">stateRefresh</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SECTION: Timer                                             -->
+    <!-- ======================================================== -->
+    <div id="section-timer" class="section section-hidden">
+      <div class="card">
+        <div class="card-header">⏱ 配達タイマー ステートマシン</div>
+        <div class="card-body">
+          <div class="timer-controls">
+            <div class="field">
+              <label>配達時間 (ゲーム内時間)</label>
+              <input type="range" id="delivHours" min="0" max="24" step="1" value="4" oninput="updateTimerSim()">
+              <span id="delivHoursVal" style="font-size:0.75rem;color:var(--accent)">4 時間</span>
+            </div>
+            <div class="field">
+              <label>経過時間 (ゲーム内時間)</label>
+              <input type="range" id="elapsedHours" min="0" max="24" step="0.1" value="0" oninput="updateTimerSim()">
+              <span id="elapsedHoursVal" style="font-size:0.75rem;color:var(--accent)">0 時間</span>
+            </div>
+            <div class="field">
+              <label>接近警告 (分前)</label>
+              <input type="range" id="approachMin" min="1" max="60" value="10" oninput="updateTimerSim()">
+              <span id="approachMinVal" style="font-size:0.75rem;color:var(--accent)">10 分前</span>
+            </div>
+            <button class="btn btn-primary" onclick="startTimer()">▶ 発注開始</button>
+            <button class="btn btn-ghost"   onclick="resetTimer()">↺ リセット</button>
+          </div>
+
+          <div class="timeline" id="timerTimeline">
+            <div class="timeline-bar" id="timerBar" style="width:0%">0%</div>
+          </div>
+
+          <div class="state-indicator" id="stateChips">
+            <div class="state-chip active" id="chip-NONE">NONE</div>
+            <div class="state-chip" id="chip-PENDING">PENDING</div>
+            <div class="state-chip warn" id="chip-APPROACHING">APPROACHING</div>
+            <div class="state-chip danger" id="chip-DELIVERING">DELIVERING</div>
+            <div class="state-chip" id="chip-COMPLETED">COMPLETED</div>
+          </div>
+
+          <div id="timerInfo" style="margin-top:12px;font-size:0.78rem;color:var(--text-muted)">
+            「発注開始」を押してタイマーを開始してください。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SECTION: Horde Visualizer                                  -->
+    <!-- ======================================================== -->
+    <div id="section-horde" class="section section-hidden">
+      <div class="card">
+        <div class="card-header">🧟 ゾンビ誘引スポーン ビジュアライザ</div>
+        <div class="card-body">
+          <div class="horde-layout">
+            <div class="map-canvas-wrap">
+              <canvas id="hordeMap" width="500" height="500"></canvas>
+            </div>
+            <div class="horde-controls">
+              <label>ホードサイズ</label>
+              <select id="hordeSize" onchange="drawHorde()">
+                <option value="None">None (0)</option>
+                <option value="Small">Small (5〜10)</option>
+                <option value="Medium" selected>Medium (15〜30)</option>
+                <option value="Large">Large (50〜100)</option>
+                <option value="Insane">Insane (150〜200)</option>
+              </select>
+
+              <label>スポーン最小半径 (タイル): <span id="spawnMinVal">200</span></label>
+              <input type="range" id="spawnMin" min="50" max="800" value="200" oninput="updateSpawnRange()" onchange="drawHorde()">
+
+              <label>スポーン最大半径 (タイル): <span id="spawnMaxVal">400</span></label>
+              <input type="range" id="spawnMax" min="100" max="1000" value="400" oninput="updateSpawnRange()" onchange="drawHorde()">
+
+              <label>音響誘引半径 (タイル): <span id="soundRadVal">400</span></label>
+              <input type="range" id="soundRad" min="100" max="1000" value="400" oninput="updateSoundRad()" onchange="drawHorde()">
+
+              <div class="horde-stats" id="hordeStats"></div>
+
+              <button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="drawHorde()">🔄 再計算（ランダム再配置）</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SECTION: Config                                            -->
+    <!-- ======================================================== -->
+    <div id="section-cfg" class="section section-hidden">
+      <div class="card">
+        <div class="card-header">⚙ RadioTrader_Config 定数リファレンス</div>
+        <div class="card-body">
+          <table style="width:100%;border-collapse:collapse;font-size:0.8rem">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border);color:var(--text-muted)">
+                <th style="text-align:left;padding:6px 8px">定数名</th>
+                <th style="text-align:left;padding:6px 8px">デフォルト</th>
+                <th style="text-align:left;padding:6px 8px">説明</th>
+              </tr>
+            </thead>
+            <tbody id="cfgTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// =====================================================================
+// データ定義（RadioTrader_ItemsTable モック）
+// =====================================================================
+const SHOP = {
+  Food: [
+    { id:"Base.MRE",           name:"MRE（レーション）",    price:30,  count:1  },
+    { id:"Base.CannedBeans",   name:"缶詰（豆）",            price:10,  count:2  },
+    { id:"Base.CannedMeat",    name:"缶詰（肉）",            price:15,  count:2  },
+    { id:"Base.CannedTomato",  name:"缶詰（トマト）",        price:8,   count:2  },
+    { id:"Base.CondensedMilk", name:"コンデンスミルク",      price:12,  count:1  },
+    { id:"Base.Crackers",      name:"クラッカー",            price:8,   count:1  },
+    { id:"Base.PowderedMilk",  name:"粉ミルク",              price:18,  count:1  },
+  ],
+  Medical: [
+    { id:"Base.Antibiotics",   name:"抗生物質",              price:80,  count:6  },
+    { id:"Base.BloodBag_OPos", name:"血液バッグ（O型）",    price:120, count:1  },
+    { id:"Base.Morphine",      name:"モルヒネ",              price:150, count:3  },
+    { id:"Base.VitaminTablets",name:"ビタミン剤",            price:25,  count:12 },
+    { id:"Base.Bandage",       name:"包帯",                  price:15,  count:5  },
+    { id:"Base.Suture",        name:"縫合キット",            price:60,  count:2  },
+  ],
+  Ammo: [
+    { id:"Base.Bullets9mm",    name:"9mm弾 x20",             price:50,  count:20 },
+    { id:"Base.ShotgunShells", name:"散弾 x10",              price:60,  count:10 },
+    { id:"Base.Bullets556mm",  name:"5.56mm弾 x30",          price:90,  count:30 },
+    { id:"Base.Bullets308",    name:".308弾 x20",            price:100, count:20 },
+    { id:"Base.Bullets44",     name:".44弾 x20",             price:80,  count:20 },
+  ],
+  Tools: [
+    { id:"Base.Hammer",        name:"ハンマー",              price:40,  count:1  },
+    { id:"Base.WeldingMask",   name:"溶接マスク",            price:180, count:1  },
+    { id:"Base.WeldingRods",   name:"溶接棒",                price:60,  count:5  },
+    { id:"Base.BlowTorch",     name:"ブローチ",              price:120, count:1  },
+    { id:"Base.Generator",     name:"発電機",                price:500, count:1  },
+    { id:"Base.GasCan",        name:"ガソリン缶",            price:70,  count:1  },
+  ],
+  Materials: [
+    { id:"Base.SheetMetal",    name:"金属板",                price:40,  count:3  },
+    { id:"Base.MetalBar",      name:"鉄棒",                  price:35,  count:3  },
+    { id:"Base.Wire",          name:"電線",                  price:20,  count:3  },
+    { id:"Base.Nails",         name:"釘",                    price:10,  count:50 },
+    { id:"Base.Sandbag",       name:"土嚢",                  price:25,  count:5  },
+  ],
+  Misc: [
+    { id:"Base.Battery",       name:"バッテリー",            price:30,  count:2  },
+    { id:"Base.WalkieTalkie3", name:"高出力無線機",          price:800, count:1  },
+    { id:"Base.Map",           name:"地図（ノックス郡）",    price:100, count:1  },
+  ],
+};
+const CATEGORIES = [
+  { key:"Food",      label:"🍱 食料"    },
+  { key:"Medical",   label:"💊 医療品"  },
+  { key:"Ammo",      label:"🔫 弾薬"    },
+  { key:"Tools",     label:"🔧 工具"    },
+  { key:"Materials", label:"🏗 建材"    },
+  { key:"Misc",      label:"📦 その他"  },
+];
+const HORDE_SIZES = {
+  None:   { min:0,   max:0   },
+  Small:  { min:5,   max:10  },
+  Medium: { min:15,  max:30  },
+  Large:  { min:50,  max:100 },
+  Insane: { min:150, max:200 },
+};
+const CFG = [
+  { key:"FREQUENCY",           val:"104.8",   desc:"交易ネットワーク周波数 (MHz)" },
+  { key:"FREQUENCY_TOLERANCE", val:"0.1",     desc:"周波数の許容誤差 (+/-)" },
+  { key:"REQUIRE_OUTDOOR_LZ",  val:"true",    desc:"屋外 LZ 必須か" },
+  { key:"LZ_MAX_RANGE",        val:"500",     desc:"LZ 登録可能最大距離（タイル）" },
+  { key:"DELIVERY_HOURS_MIN",  val:"3",       desc:"最短配達時間（ゲーム内時間）" },
+  { key:"DELIVERY_HOURS_MAX",  val:"6",       desc:"最長配達時間（ゲーム内時間）" },
+  { key:"APPROACH_WARNING_MINUTES", val:"10", desc:"ヘリ接近警告タイミング（到着前分数）" },
+  { key:"SOUND_RADIUS_TILES",  val:"400",     desc:"音響ゾンビ誘引半径（タイル）" },
+  { key:"HORDE_ENABLED",       val:"true",    desc:"追従ゾンビ生成の有無" },
+  { key:"HORDE_SPAWN_RADIUS_MIN", val:"200",  desc:"追従ゾンビスポーン最小半径" },
+  { key:"HORDE_SPAWN_RADIUS_MAX", val:"400",  desc:"追従ゾンビスポーン最大半径" },
+  { key:"HORDE_SIZE",          val:"Medium",  desc:"ホードサイズ（None/Small/Medium/Large/Insane）" },
+  { key:"CONDITION_WEIGHT",    val:"0.6",     desc:"耐久度の査定影響係数" },
+  { key:"FRESHNESS_WEIGHT",    val:"0.4",     desc:"食品新鮮度の査定影響係数" },
+  { key:"MIN_SELL_CONDITION",  val:"0.1",     desc:"売却可能最低コンディション" },
+];
+
+// =====================================================================
+// State
+// =====================================================================
+let currentCategory  = "Food";
+let selectedItem     = null;
+let credits          = 0;
+let deliveryState    = "NONE";
+let timerStarted     = false;
+let timerInterval    = null;
+let timerElapsed     = 0;
+let timerTotal       = 4;
+let timerApproach    = 10 / 60;
+
+// =====================================================================
+// Section switching
+// =====================================================================
+function switchSection(key) {
+  document.querySelectorAll('.section').forEach(s => s.classList.add('section-hidden'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + key).classList.remove('section-hidden');
+  document.getElementById('nav-' + key).classList.add('active');
+
+  if (key === 'ctx')   simulateContextMenu();
+  if (key === 'trade') initTradeUI();
+  if (key === 'horde') { setTimeout(drawHorde, 50); }
+  if (key === 'cfg')   initCfgTable();
+}
+
+// =====================================================================
+// Context Menu Simulator
+// =====================================================================
+function simulateContextMenu() {
+  const target  = document.getElementById('ctx-target').value;
+  const outdoor = document.getElementById('ctx-outdoor').checked;
+  const lz      = document.getElementById('ctx-lz').checked;
+  const power   = document.getElementById('ctx-power').checked;
+  const freq    = parseFloat(document.getElementById('ctx-freq').value);
+  const dist    = parseFloat(document.getElementById('ctx-dist').value);
+
+  const result = document.getElementById('ctx-result');
+  result.innerHTML = '';
+
+  if (target === 'other') {
+    addMenuItem(result, 'disabled', '（関係のないオブジェクトです — メニューなし）');
+    return;
+  }
+
+  if (target === 'container') {
+    if (lz) {
+      addMenuItem(result, 'enabled', '📦 [交易 LZ を解除]');
+    } else {
+      if (!outdoor) {
+        addMenuItem(result, 'warn', '📦 [交易ドロップボックス/LZに指定] ⚠屋外限定');
+        addReason(result, '⚠ この場所は屋内です。屋外のコンテナのみ LZ に指定できます。');
+      } else if (dist > 500) {
+        addMenuItem(result, 'warn', '📦 [交易ドロップボックス/LZに指定]');
+        addReason(result, '⚠ 距離が離れすぎています（' + Math.floor(dist) + ' タイル）。最大 500 タイルです。');
+      } else {
+        addMenuItem(result, 'enabled', '📦 [交易ドロップボックス/LZに指定]');
+        addReason(result, '✔ 屋外確認済。クリックで登録できます。');
+      }
+    }
+  }
+
+  if (target === 'radio') {
+    const freqOk  = Math.abs(freq - 104.8) <= 0.1;
+    const allOk   = power && freqOk && lz;
+
+    if (allOk) {
+      addMenuItem(result, 'enabled', '📻 [無線取引ネットワークに接続]');
+      addReason(result, '✔ すべての条件を満たしています。取引UIを開けます。');
+    } else {
+      addMenuItem(result, 'disabled', '📻 [無線取引ネットワーク] ✖');
+      if (!power)  addReason(result, '⚠ 電源が入っていません');
+      if (!freqOk) addReason(result, '⚠ 周波数が合っていません（現在: ' + freq.toFixed(1) + ' MHz、必要: 104.8 MHz）');
+      if (!lz)     addReason(result, '⚠ 交易 LZ が登録されていません');
+    }
+  }
+}
+function addMenuItem(parent, cls, text) {
+  const div = document.createElement('div');
+  div.className = 'menu-item ' + cls;
+  div.innerHTML = text;
+  parent.appendChild(div);
+}
+function addReason(parent, text) {
+  const div = document.createElement('div');
+  div.className = 'reason';
+  div.textContent = text;
+  parent.appendChild(div);
+}
+
+// =====================================================================
+// Trade UI
+// =====================================================================
+function initTradeUI() {
+  const tabsEl = document.getElementById('tradeTabs');
+  tabsEl.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'trade-tab' + (cat.key === currentCategory ? ' active' : '');
+    div.textContent = cat.label;
+    div.onclick = () => selectCategory(cat.key);
+    tabsEl.appendChild(div);
+  });
+  renderItemList();
+}
+function selectCategory(key) {
+  currentCategory = key;
+  selectedItem = null;
+  document.querySelectorAll('.trade-tab').forEach((t, i) => {
+    t.classList.toggle('active', CATEGORIES[i].key === key);
+  });
+  renderItemList();
+  updateItemDetail();
+}
+function renderItemList() {
+  const el = document.getElementById('tradeList');
+  el.innerHTML = '';
+  const items = SHOP[currentCategory] || [];
+  items.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'trade-list-item' + (selectedItem && selectedItem.id === entry.id ? ' selected' : '');
+    div.innerHTML = `<span>${entry.name}</span><span class="item-price">${entry.price} CR × ${entry.count}</span>`;
+    div.onclick = () => selectItem(entry);
+    el.appendChild(div);
+  });
+}
+function selectItem(entry) {
+  selectedItem = entry;
+  renderItemList();
+  updateItemDetail();
+}
+function updateItemDetail() {
+  const el = document.getElementById('ui-item-detail');
+  if (!selectedItem) {
+    el.textContent = 'アイテムを選択してください';
+    return;
+  }
+  el.innerHTML = `<strong>${selectedItem.name}</strong><br>価格: ${selectedItem.price} CR<br>数量: ${selectedItem.count} 個<br><span style="color:var(--text-muted);font-size:0.72rem">ID: ${selectedItem.id}</span>`;
+}
+function updateCredits(val) {
+  credits = parseInt(val) || 0;
+  document.getElementById('ui-credits').textContent = credits + ' CR';
+}
+function addLog(msg, cls='accent') {
+  const el = document.getElementById('tradeLog');
+  const div = document.createElement('div');
+  div.className = 'log-line ' + cls;
+  div.textContent = '» ' + msg;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+function simulateSell() {
+  const assess = Math.floor(Math.random() * 200) + 50;
+  credits += assess;
+  document.getElementById('ui-credits').textContent = credits + ' CR';
+  document.getElementById('ui-assess').textContent = '0 CR（売却済み）';
+  document.getElementById('sim-credits').value = credits;
+  addLog('売却完了。' + assess + ' CR を受け取りました。', 'accent');
+}
+function simulateOrder() {
+  if (!selectedItem) { addLog('アイテムを選択してください。', 'danger'); return; }
+  if (deliveryState !== 'NONE' && deliveryState !== 'COMPLETED') {
+    addLog('配達が進行中です。', 'danger'); return;
+  }
+  if (credits < selectedItem.price) {
+    addLog('クレジットが不足しています。（必要: ' + selectedItem.price + ' CR）', 'danger'); return;
+  }
+  credits -= selectedItem.price;
+  document.getElementById('ui-credits').textContent = credits + ' CR';
+  document.getElementById('sim-credits').value = credits;
+  addLog('発注中: ' + selectedItem.name + ' (' + selectedItem.price + ' CR)...', 'warn');
+  // Simulate server accepting
+  setTimeout(() => simulateServerCmd('tradeAccepted', selectedItem.name), 600);
+}
+function simulateServerCmd(cmd, itemName) {
+  const names = { tradeAccepted:'物資', deliveryComplete:'MRE（レーション）' };
+  const name = itemName || names[cmd] || '物資';
+  const cmdHandlers = {
+    tradeAccepted: () => {
+      deliveryState = 'PENDING';
+      addLog('受注完了。' + name + ' の輸送ヘリを手配した。到着まで警戒せよ。', 'accent');
+      updateDeliveryState();
+    },
+    heliApproaching: () => {
+      deliveryState = 'APPROACHING';
+      addLog('⚠ こちらイーグル1。投下ポイント接近中。周囲の熱源多数——', 'warn');
+      updateDeliveryState();
+    },
+    deliveryComplete: () => {
+      deliveryState = 'COMPLETED';
+      addLog('物資投下完了。' + name + ' ×1 をLZに確認せよ。こちらイーグル1、離脱する。', 'accent');
+      updateDeliveryState();
+    },
+    creditUpdate: () => {
+      credits += 100;
+      document.getElementById('ui-credits').textContent = credits + ' CR';
+      document.getElementById('sim-credits').value = credits;
+      addLog('残高更新: +100 CR', '');
+    },
+    assessmentResult: () => {
+      const v = Math.floor(Math.random() * 300) + 80;
+      document.getElementById('ui-assess').textContent = v + ' CR';
+      addLog('LZ 内査定額: ' + v + ' CR', '');
+    },
+    error: () => addLog('⚠ 不明なエラーが発生しました', 'danger'),
+    stateRefresh: () => {
+      deliveryState = 'NONE';
+      updateDeliveryState();
+      addLog('ステートリフレッシュ完了。', '');
+    },
+  };
+  const fn = cmdHandlers[cmd];
+  if (fn) fn();
+}
+function updateDeliveryState() {
+  const labels = {
+    NONE: '待機なし',
+    PENDING: '⏳ 配達待機中...',
+    APPROACHING: '⚠ ヘリ接近中！LZを確保せよ！',
+    DELIVERING: '🚁 配達中...',
+    COMPLETED: '✔ 配達完了',
+  };
+  document.getElementById('ui-delivery-state').textContent = labels[deliveryState] || '不明';
+  const canOrder = deliveryState === 'NONE' || deliveryState === 'COMPLETED';
+  document.getElementById('btnOrder').disabled = !canOrder;
+}
+
+// =====================================================================
+// Timer Simulator
+// =====================================================================
+function updateTimerSim() {
+  const dh = parseFloat(document.getElementById('delivHours').value);
+  const eh = parseFloat(document.getElementById('elapsedHours').value);
+  const am = parseInt(document.getElementById('approachMin').value);
+  document.getElementById('delivHoursVal').textContent = dh + ' 時間';
+  document.getElementById('elapsedHoursVal').textContent = eh.toFixed(1) + ' 時間';
+  document.getElementById('approachMinVal').textContent = am + ' 分前';
+
+  if (!timerStarted) return;
+
+  const pct  = Math.min(100, (eh / dh) * 100);
+  const approachThreshold = dh - am / 60;
+  const state = (dh === 0 || eh === 0) ? 'NONE'
+    : eh >= dh            ? 'COMPLETED'
+    : eh >= approachThreshold ? 'APPROACHING'
+    : 'PENDING';
+
+  document.getElementById('timerBar').style.width = pct + '%';
+  document.getElementById('timerBar').textContent = pct.toFixed(0) + '%';
+
+  // Milestone line
+  const timeline = document.getElementById('timerTimeline');
+  const old = timeline.querySelector('.milestone');
+  if (old) old.remove();
+  const oldLabel = timeline.querySelector('.milestone-label');
+  if (oldLabel) oldLabel.remove();
+
+  if (dh > 0) {
+    const mPct = (approachThreshold / dh) * 100;
+    const ms = document.createElement('div');
+    ms.className = 'milestone';
+    ms.style.left = mPct + '%';
+    timeline.appendChild(ms);
+    const ml = document.createElement('div');
+    ml.className = 'milestone-label';
+    ml.style.left = mPct + '%';
+    ml.textContent = '接近警告';
+    timeline.appendChild(ml);
+  }
+
+  // State chips
+  const states = ['NONE','PENDING','APPROACHING','DELIVERING','COMPLETED'];
+  states.forEach(s => {
+    const chip = document.getElementById('chip-' + s);
+    if (!chip) return;
+    chip.classList.remove('active','warn','danger');
+    if (s === state) {
+      if (s === 'APPROACHING') chip.classList.add('warn');
+      else if (s === 'DELIVERING') chip.classList.add('danger');
+      else chip.classList.add('active');
+    }
+  });
+
+  const rem = Math.max(0, dh - eh);
+  document.getElementById('timerInfo').textContent =
+    '現在ステート: ' + state + '  |  残り: ' + rem.toFixed(1) + ' 時間';
+}
+function startTimer() {
+  timerStarted = true;
+  document.getElementById('elapsedHours').value = 0;
+  updateTimerSim();
+}
+function resetTimer() {
+  timerStarted = false;
+  document.getElementById('elapsedHours').value = 0;
+  document.getElementById('timerBar').style.width = '0%';
+  document.getElementById('timerBar').textContent = '0%';
+  ['NONE','PENDING','APPROACHING','DELIVERING','COMPLETED'].forEach(s => {
+    const c = document.getElementById('chip-' + s);
+    if (c) { c.classList.remove('active','warn','danger'); if(s==='NONE') c.classList.add('active'); }
+  });
+  document.getElementById('timerInfo').textContent = '「発注開始」を押してタイマーを開始してください。';
+}
+
+// =====================================================================
+// Horde Visualizer
+// =====================================================================
+function updateSpawnRange() {
+  document.getElementById('spawnMinVal').textContent = document.getElementById('spawnMin').value;
+  document.getElementById('spawnMaxVal').textContent = document.getElementById('spawnMax').value;
+}
+function updateSoundRad() {
+  document.getElementById('soundRadVal').textContent = document.getElementById('soundRad').value;
+}
+function drawHorde() {
+  const canvas  = document.getElementById('hordeMap');
+  const ctx     = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+
+  const hordeKey = document.getElementById('hordeSize').value;
+  const minR     = parseInt(document.getElementById('spawnMin').value);
+  const maxR     = parseInt(document.getElementById('spawnMax').value);
+  const soundR   = parseInt(document.getElementById('soundRad').value);
+
+  const horde = HORDE_SIZES[hordeKey];
+  const count = horde.min + Math.floor(Math.random() * (horde.max - horde.min + 1));
+  const SCALE = W / (soundR * 2.2);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // 背景
+  ctx.fillStyle = '#0d0f0e';
+  ctx.fillRect(0, 0, W, H);
+
+  // グリッド
+  ctx.strokeStyle = '#1a1e1a';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < W; i += 30) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke();
+  }
+
+  // 音響範囲円
+  const soundPx = soundR * SCALE;
+  ctx.beginPath();
+  ctx.arc(cx, cy, soundPx, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(32,201,122,0.25)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(32,201,122,0.04)';
+  ctx.fill();
+
+  // スポーン範囲リング
+  const minPx = minR * SCALE;
+  const maxPx = maxR * SCALE;
+  ctx.beginPath();
+  ctx.arc(cx, cy, maxPx, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(232,152,26,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.arc(cx, cy, minPx, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(232,152,26,0.25)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // スポーンゾーン塗り
+  ctx.beginPath();
+  ctx.arc(cx, cy, maxPx, 0, Math.PI * 2);
+  ctx.arc(cx, cy, minPx, 0, Math.PI * 2, true);
+  ctx.fillStyle = 'rgba(232,152,26,0.07)';
+  ctx.fill('evenodd');
+
+  // LZ（プレイヤー位置）
+  ctx.fillStyle = '#20c97a';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('LZ', cx, cy + 20);
+
+  // ゾンビスポーン点
+  const zombiePositions = [];
+  for (let i = 0; i < count; i++) {
+    const angle  = Math.random() * Math.PI * 2;
+    const radius = minR + Math.random() * (maxR - minR);
+    const zx = cx + radius * SCALE * Math.cos(angle);
+    const zy = cy + radius * SCALE * Math.sin(angle);
+    zombiePositions.push({ x: zx, y: zy });
+
+    // スポーン点
+    ctx.fillStyle = '#e83030';
+    ctx.beginPath();
+    ctx.arc(zx, zy, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // LZへの移動線（薄い矢印）
+    ctx.strokeStyle = 'rgba(232,80,80,0.2)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(zx, zy);
+    ctx.lineTo(cx, cy);
+    ctx.stroke();
+  }
+
+  // ラベル
+  ctx.fillStyle = 'rgba(32,201,122,0.7)';
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('音響誘引 r=' + soundR + ' tiles', 8, 16);
+  ctx.fillStyle = 'rgba(232,152,26,0.8)';
+  ctx.fillText('スポーンゾーン r=' + minR + '~' + maxR + ' tiles', 8, 30);
+
+  // Stats
+  const statsEl = document.getElementById('hordeStats');
+  statsEl.innerHTML = `
+    <div class="horde-stat"><span class="k">ホードサイズ</span><span class="v">${hordeKey}</span></div>
+    <div class="horde-stat"><span class="k">スポーン数</span><span class="v">${count} 体</span></div>
+    <div class="horde-stat"><span class="k">スポーン半径</span><span class="v">${minR}〜${maxR} tiles</span></div>
+    <div class="horde-stat"><span class="k">音響誘引半径</span><span class="v">${soundR} tiles</span></div>
+    <div class="horde-stat"><span class="k">スケール</span><span class="v">1px = ${(1/SCALE).toFixed(1)} tiles</span></div>
+  `;
+}
+
+// =====================================================================
+// Config Table
+// =====================================================================
+function initCfgTable() {
+  const el = document.getElementById('cfgTable');
+  el.innerHTML = CFG.map(c => `
+    <tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:7px 8px;font-family:monospace;color:var(--accent);font-size:0.78rem">${c.key}</td>
+      <td style="padding:7px 8px;font-family:monospace;color:var(--warn)">${c.val}</td>
+      <td style="padding:7px 8px;color:var(--text-muted)">${c.desc}</td>
+    </tr>
+  `).join('');
+}
+
+// =====================================================================
+// Init
+// =====================================================================
+simulateContextMenu();
+updateSpawnRange();
+updateSoundRad();
+</script>
+</body>
+</html>
