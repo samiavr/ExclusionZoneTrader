@@ -18,10 +18,49 @@ local function getQueue()
     return gmd
 end
 
-local function getNaturalScore(sq)
+local function getActivePlayers()
+    local players = {}
+    if IsoPlayer and IsoPlayer.getPlayers then
+        local pList = IsoPlayer.getPlayers()
+        if pList and pList.size then
+            for i = 0, pList:size() - 1 do
+                local p = pList:get(i)
+                if p and not p:isDead() then
+                    table.insert(players, p)
+                end
+            end
+        end
+    end
+    if #players == 0 and getSpecificPlayer then
+        local p0 = getSpecificPlayer(0)
+        if p0 and not p0:isDead() then
+            table.insert(players, p0)
+        end
+    end
+    return players
+end
+
+local function getNaturalScore(sq, players, minPlayerDist)
     if not sq then return 0 end
     if not sq:isFree(false) then return 0 end
     if not sq:isOutside() then return 0 end
+
+    -- プレイヤーセーフティ: どのプレイヤーからも最低 minPlayerDist タイル以上離れていること
+    if players and #players > 0 then
+        local sqX = sq:getX()
+        local sqY = sq:getY()
+        local minDistSq = (minPlayerDist or 45) * (minPlayerDist or 45)
+        for _, p in ipairs(players) do
+            if p then
+                local px = p:getX()
+                local py = p:getY()
+                local distSq = (sqX - px) * (sqX - px) + (sqY - py) * (sqY - py)
+                if distSq < minDistSq then
+                    return 0 -- プレイヤー至近距離（視界内）のため除外
+                end
+            end
+        end
+    end
 
     if SafeHouse then
         if SafeHouse.getSafeHouse and SafeHouse.getSafeHouse(sq) then return 0
@@ -77,6 +116,11 @@ local function trySpawnFromLoadedArea(entry, maxAttempts)
     maxAttempts  = maxAttempts or (count * 10)
     local spawned = 0
 
+    local players = getActivePlayers()
+    local minPlayerDist = cfg.PLAYER_SAFETY_RADIUS_TILES or 45
+    local minHordeRadius = cfg.HORDE_SPAWN_RADIUS_MIN or 45
+    local maxHordeRadius = math.max(120, (cfg.HORDE_SPAWN_RADIUS_MAX or 85) + 35)
+
     for i = 1, maxAttempts do
         if spawned >= count then break end
         local angle
@@ -93,12 +137,12 @@ local function trySpawnFromLoadedArea(entry, maxAttempts)
         local foundValid = false
         local sq, score, spawnX, spawnY
         
-        for r = cfg.HORDE_SPAWN_RADIUS_MIN, 120, 6 do
+        for r = minHordeRadius, maxHordeRadius, 6 do
             spawnX = math.floor(lzX + r * math.cos(rad))
             spawnY = math.floor(lzY + r * math.sin(rad))
             sq = cell:getGridSquare(spawnX, spawnY, lzZ)
             if sq then
-                score = getNaturalScore(sq)
+                score = getNaturalScore(sq, players, minPlayerDist)
                 if score > 0 then
                     foundValid = true
                     break

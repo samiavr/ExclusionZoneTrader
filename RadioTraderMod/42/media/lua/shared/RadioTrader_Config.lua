@@ -43,15 +43,16 @@ local DEFAULTS = {
     DROP_REFUND_RATE         = 0.5, -- キャンセル時の返金率（0.5 = 半額）
 
     -- ヘリ音響・ゾンビ設定
-    SOUND_RADIUS_TILES     = 400,   -- 音響による既存ゾンビ誘引半径（タイル）
-    HORDE_ENABLED          = true,  -- 追従ゾンビ生成の有無
-    HORDE_SPAWN_RADIUS_MIN = 35,    -- 追従ゾンビのスポーン最小半径（画面外・視界外）
-    HORDE_SPAWN_RADIUS_MAX = 65,    -- 追従ゾンビのスポーン最大半径（ロード済みチャンク内）
-    HORDE_SIZE             = "Medium",  -- None / Small / Medium / Large / Insane
-    MEGA_HORDE_ENABLED     = true,      -- 低確率大規模ホードの有無
-    MEGA_HORDE_CHANCE      = 0.15,      -- 大規模ホード発生確率 (デフォルト: 15%)
-    MEGA_HORDE_MULTIPLIER  = 2.5,       -- 大規模ホード時のゾンビ数倍率 (2.5倍)
-    HORDE_REMOTE_RATIO     = 0.50,      -- 遠隔仮想ホードの割合 (デフォルト: 50% 遠隔 / 50% 近接)
+    SOUND_RADIUS_TILES         = 400,   -- 音響による既存ゾンビ誘引半径（タイル）
+    HORDE_ENABLED              = true,  -- 追従ゾンビ生成の有無
+    HORDE_SPAWN_RADIUS_MIN     = 45,    -- 追従ゾンビのLZからの最小スポーン半径（画面外）
+    HORDE_SPAWN_RADIUS_MAX     = 85,    -- 追従ゾンビのLZからの最大スポーン半径（ロード済みチャンク内）
+    PLAYER_SAFETY_RADIUS_TILES = 45,    -- プレイヤーからの絶対セーフティ除外半径（45タイル以内にはスポーンさせない）
+    HORDE_SIZE                 = "Medium",  -- None / Small / Medium / Large / Insane
+    MEGA_HORDE_ENABLED         = true,      -- 低確率大規模ホードの有無
+    MEGA_HORDE_CHANCE          = 0.15,      -- 大規模ホード発生確率 (デフォルト: 15%)
+    MEGA_HORDE_MULTIPLIER      = 2.5,       -- 大規模ホード時のゾンビ数倍率 (2.5倍)
+    HORDE_REMOTE_RATIO         = 0.50,      -- 遠隔仮想ホードの割合 (デフォルト: 50% 遠隔 / 50% 近接)
 
     -- クレジット査定設定
     CONDITION_WEIGHT   = 0.6,       -- 耐久度の査定への影響係数
@@ -149,8 +150,9 @@ function RadioTrader_Config.init()
     RadioTrader_Config.SOUND_RADIUS_TILES     = getOpt("HeliZombieAttractRadius") or DEFAULTS.SOUND_RADIUS_TILES
     local hordeEn = getOpt("HeliHordeEnabled")
     RadioTrader_Config.HORDE_ENABLED          = (hordeEn ~= nil) and hordeEn or DEFAULTS.HORDE_ENABLED
-    RadioTrader_Config.HORDE_SPAWN_RADIUS_MIN = DEFAULTS.HORDE_SPAWN_RADIUS_MIN
-    RadioTrader_Config.HORDE_SPAWN_RADIUS_MAX = DEFAULTS.HORDE_SPAWN_RADIUS_MAX
+    RadioTrader_Config.HORDE_SPAWN_RADIUS_MIN     = DEFAULTS.HORDE_SPAWN_RADIUS_MIN
+    RadioTrader_Config.HORDE_SPAWN_RADIUS_MAX     = DEFAULTS.HORDE_SPAWN_RADIUS_MAX
+    RadioTrader_Config.PLAYER_SAFETY_RADIUS_TILES = DEFAULTS.PLAYER_SAFETY_RADIUS_TILES
 
     -- ホード規模
     local minCount, maxCount, hName, rawHorde = RadioTrader_Config.getHordeCountRange()
