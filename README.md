@@ -111,7 +111,7 @@ radio_trading_mod/
 │   └── logs/                         # 詳細な開発・検証ログ
 ├── scripts/                          # CI・自動健全性検証スクリプト
 │   ├── check_mod_health.py           # 構文・BOM・文字化け・翻訳フォーマット自動スキャナ
-│   └── sync_all_mods.py              # 各配布ディレクトリへの自動完全同期ツール
+│   └── build_release_zip.py          # 配布用ZIPパッケージ自動生成ツール
 └── RadioTraderMod/                   # Mod ソースコード本体 (B42対応構造)
     └── 42/
         ├── mod.info
@@ -123,6 +123,38 @@ radio_trading_mod/
             │   └── shared/           # 設定、価格テーブル、多言語辞書
             └── sandbox/              # サンドボックス設定UI定義
 ```
+
+---
+
+## 🤖 Development Notice (AI-Assisted Development) / 開発体制について
+
+> [!NOTE]
+> **English**:  
+> Please note that this mod's code, scripts, and initial architecture were realized and developed with the active assistance of **Generative AI (LLM pair-programming)**, directed by the creator's original gameplay concepts, lore, balance design, and rigorous testing. While every release is audited and verified for Build 42 compatibility, please be aware of this development approach. Feel free to report any edge cases or suggestions via GitHub Issues!
+> 
+> **日本語**:  
+> 本MODのLuaコード、各種スクリプト、およびシステム実装は、製作者のゲームプレイ構想・公式背景ストーリー・バランス調整方針に基づき、**生成AI（LLMによるペアプログラミング支援）を活用して具現化・制作**されています。  
+> 動作検証および整合性チェックを行いBuild 42に準拠した品質を保つよう制作しておりますが、AI支援を取り入れたプロジェクトである点をご認識・ご理解の上でお楽しみいただけますと幸いです。予期せぬ不具合や改善案がございましたら、お気軽に [GitHub Issues](https://github.com/samiavr/ExclusionZoneTrader/issues) までお寄せください！
+
+---
+
+## ☕ Support the Creator / 開発者を支援
+
+If you enjoy **Exclusion Zone Trader** and would like to support ongoing development, updates, and future Project Zomboid mods, consider buying me a coffee or stopping by my Twitch stream! Any support is deeply appreciated! ❤️
+
+もしこのMODを気に入っていただけましたら、今後の機能追加やアップデート、新作MOD開発の励みになりますので、Ko-fiでのご支援やTwitchのフォロー・サブスクをいただけると大変嬉しいです！
+
+<p align="left">
+  <a href="https://ko-fi.com/samiavr" target="_blank">
+    <img src="https://img.shields.io/badge/Ko--fi-Support%20Me-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" />
+  </a>
+  <a href="https://www.twitch.tv/samiavr" target="_blank">
+    <img src="https://img.shields.io/badge/Twitch-Follow%20%2F%20Subscribe-9146FF?style=for-the-badge&logo=twitch&logoColor=white" alt="Twitch" />
+  </a>
+</p>
+
+- ☕ **Ko-fi**: [https://ko-fi.com/samiavr](https://ko-fi.com/samiavr)
+- 🟣 **Twitch**: [https://www.twitch.tv/samiavr](https://www.twitch.tv/samiavr)
 
 ---
 
@@ -142,4 +174,4 @@ radio_trading_mod/
 
 ---
 
-*Enjoy the Radio Trader Mod! Stay safe, survivor.*
+*Enjoy the Exclusion Zone Trader! Stay safe behind the quarantine lines, survivor.*
