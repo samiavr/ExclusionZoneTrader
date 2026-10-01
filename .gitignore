@@ -16,5 +16,9 @@ desktop.ini
 .vscode/
 .idea/
 
+# Distribution / Release archives
+dist/
+*.zip
+
 # Internal task tracker (optional)
 task.md
