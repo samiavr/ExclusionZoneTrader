@@ -100,7 +100,7 @@ option HeliHordeRemoteRatio
 {
     type = enum,
     numValues = 5,
-    default = 3,
+    default = 5,
     page = RadioTrader,
     translation = RT_HeliHordeRemoteRatio,
     valueTranslation = RT_HeliHordeRemoteRatioValue,

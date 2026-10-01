@@ -36,7 +36,7 @@
     "Sandbox_RT_MegaHordeChanceValue_option4": "High (25%%)",
     "Sandbox_RT_MegaHordeChanceValue_option5": "Always (100%%)",
     "Sandbox_RT_HeliHordeRemoteRatio": "Remote vs Direct Spawn Ratio",
-    "Sandbox_RT_HeliHordeRemoteRatio_tooltip": "Controls the ratio of trailing zombies that march in as virtual hordes from distant unloaded cells (120-150 tiles away) versus spawning directly near the LZ.",
+    "Sandbox_RT_HeliHordeRemoteRatio_tooltip": "Controls the ratio of trailing zombies that march in as virtual hordes from distant unloaded cells along the flight path versus spawning directly near the LZ. (Default: Remote Only 100%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option1": "Direct Only (Remote 0%% / Direct 100%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option2": "Mostly Direct (Remote 25%% / Direct 75%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option3": "Balanced (Remote 50%% / Direct 50%%)",

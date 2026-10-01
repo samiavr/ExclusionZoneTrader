@@ -36,7 +36,7 @@
     "Sandbox_RT_MegaHordeChanceValue_option4": "高い (25%%)",
     "Sandbox_RT_MegaHordeChanceValue_option5": "毎回発生 (100%%)",
     "Sandbox_RT_HeliHordeRemoteRatio": "遠隔ホードと近接スポーンの配分比率",
-    "Sandbox_RT_HeliHordeRemoteRatio_tooltip": "ヘリ追従ゾンビのうち、未ロードの遠隔地（120〜150タイル先）から進撃してくる仮想ホードと、LZ周辺（35〜65タイル）に直接段階スポーンする近接部隊の比率を設定します。",
+    "Sandbox_RT_HeliHordeRemoteRatio_tooltip": "ヘリ追従ゾンビのうち、ヘリ通過中の未ロード遠隔チャンクから進撃してくる仮想ホードと、LZ飛行回廊に直接段階スポーンする近接部隊の比率を設定します。(標準: 遠隔のみ 100%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option1": "近接のみ (遠隔 0%% / 近接 100%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option2": "近接多め (遠隔 25%% / 近接 75%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option3": "バランス (遠隔 50%% / 近接 50%%)",

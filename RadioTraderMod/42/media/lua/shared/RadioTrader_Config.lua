@@ -52,7 +52,7 @@ local DEFAULTS = {
     MEGA_HORDE_ENABLED         = true,      -- 低確率大規模ホードの有無
     MEGA_HORDE_CHANCE          = 0.15,      -- 大規模ホード発生確率 (デフォルト: 15%)
     MEGA_HORDE_MULTIPLIER      = 2.5,       -- 大規模ホード時のゾンビ数倍率 (2.5倍)
-    HORDE_REMOTE_RATIO         = 0.50,      -- 遠隔仮想ホードの割合 (デフォルト: 50% 遠隔 / 50% 近接)
+    HORDE_REMOTE_RATIO         = 1.0,       -- 遠隔仮想ホードの割合 (デフォルト: 100% 遠隔 / 0% 近接)
 
     -- クレジット査定設定
     CONDITION_WEIGHT   = 0.6,       -- 耐久度の査定への影響係数
@@ -184,13 +184,13 @@ end
 function RadioTrader_Config.getHordeRemoteRatio()
     local raw = RadioTrader_Config.getSandboxOption("HeliHordeRemoteRatio")
     if raw ~= nil then
-        local map = { [1] = 0.0, [2] = 0.25, [3] = 0.50, [4] = 0.75, [5] = 1.0, [0] = 0.50 }
+        local map = { [1] = 0.0, [2] = 0.25, [3] = 0.50, [4] = 0.75, [5] = 1.0, [0] = 1.0 }
         local num = tonumber(raw)
         if num and map[num] ~= nil then
             return map[num], num
         end
     end
-    return DEFAULTS.HORDE_REMOTE_RATIO or 0.50, 3
+    return DEFAULTS.HORDE_REMOTE_RATIO or 1.0, 5
 end
 
 -- ---------------------------------------------------------------------------
