@@ -276,7 +276,6 @@ local function onFillWorldObjectContextMenu(playerNum, context, worldObjects, te
     -- ターゲットオブジェクトを分類
     local containers = {}
     local radios     = {}
-    local atms       = {}
 
     for _, obj in ipairs(worldObjects) do
         -- コンテナ判定
@@ -296,51 +295,6 @@ local function onFillWorldObjectContextMenu(playerNum, context, worldObjects, te
         if isRadio and devData then
             table.insert(radios, obj)
         end
-
-        -- ATM判定（スプライト名にatmまたはbankが含まれているか）
-        if obj:getSprite() and obj:getSprite():getName() then
-            local sName = string.lower(obj:getSprite():getName())
-            -- バニラのATMスプライト名例: location_business_bank_01_0, etc.
-            if string.find(sName, "atm") or string.find(sName, "bank_01_0") or string.find(sName, "bank_01_1") then
-                table.insert(atms, obj)
-            end
-        end
-    end
-
-    -- --- ATMメニュー ---
-    for _, atm in ipairs(atms) do
-        local sq = atm:getSquare()
-        -- 通電判定
-        local isPowered = (sq and sq:haveElectricity()) or (SandboxVars.ElecShutModifier > -1 and GameTime:getInstance():getNightsSurvived() < SandboxVars.ElecShutModifier)
-
-        if isPowered then
-            -- プレイヤーの所持品チェック
-            local inv = player:getInventory()
-            local hasCard = inv:containsTypeRecurse("CreditCard")
-            local hasMoney = inv:containsTypeRecurse("Money")
-
-            if hasCard or hasMoney then
-                local atmMenu = context:addOption(tr("ContextMenu_RadioTrader_ATM_Title", "[ATM] Black Market Account Access"), player, nil)
-                local subMenu = context:getNew(context)
-                context:addSubMenu(atmMenu, subMenu)
-
-                if hasCard then
-                    subMenu:addOption(tr("ContextMenu_RadioTrader_ATM_Card", "Withdraw Balance from Credit Card"), player, function(pl)
-                        sendClientCommand(pl, "RadioTrader", RadioTrader_Config.CMD_ATM_CARD, {})
-                    end)
-                end
-                if hasMoney then
-                    subMenu:addOption(tr("ContextMenu_RadioTrader_ATM_Cash", "Deposit Cash into Credits"), player, function(pl)
-                        sendClientCommand(pl, "RadioTrader", RadioTrader_Config.CMD_ATM_CASH, {})
-                    end)
-                end
-            else
-                context:addOption(tr("ContextMenu_RadioTrader_ATM_NoFunds", "[ATM] Network Online (No card or cash)"), player, nil)
-            end
-        else
-            context:addOption(tr("ContextMenu_RadioTrader_ATM_NoPower", "[ATM] Power Offline - No Connection"), player, nil)
-        end
-        break -- 1つのATMにのみ追加
     end
 
     -- --- コンテナメニュー ---

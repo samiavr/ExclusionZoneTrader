@@ -12,11 +12,7 @@
     "ContextMenu_RadioTrader_ForceHorde": "[Zombies] Spawn Horde Only (No Heli)",
     "ContextMenu_RadioTrader_ShowState": "[Info] Query Current State",
     "ContextMenu_RadioTrader_FullReset": "[!] Full Reset (LZ, Timer, Order)",
-    "ContextMenu_RadioTrader_ATM_Title": "[ATM] Black Market Account Access",
-    "ContextMenu_RadioTrader_ATM_Card": "Withdraw Balance from Credit Card",
-    "ContextMenu_RadioTrader_ATM_Cash": "Deposit Cash into Credits",
-    "ContextMenu_RadioTrader_ATM_NoFunds": "[ATM] Online (No card or cash)",
-    "ContextMenu_RadioTrader_ATM_NoPower": "[ATM] No Power - Offline",
+
     "ContextMenu_RadioTrader_RequestDrop": "[Request Drop] Call Delivery Heli",
     "ContextMenu_RadioTrader_ClearLZ": "[Clear Trading LZ]",
     "ContextMenu_RadioTrader_SetLZ": "[Designate Trading Drop Box / LZ]",

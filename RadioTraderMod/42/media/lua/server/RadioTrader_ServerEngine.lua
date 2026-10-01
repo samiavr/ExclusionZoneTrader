@@ -512,39 +512,6 @@ function RadioTrader_ServerEngine.broadcastToClients(cmd, args)
 end
 
 -- ---------------------------------------------------------------------------
--- ATM クレジット換金処理 (サーバーサイド)
--- ---------------------------------------------------------------------------
-function RadioTrader_ServerEngine.processATMDeposit(player, isCard)
-    local inv = player:getInventory()
-    if not inv then return end
-
-    local typeToSearch = isCard and "CreditCard" or "Money"
-    local item = inv:getFirstTypeRecurse(typeToSearch)
-
-    if not item then
-        RadioTrader_ServerEngine.sendToClient(player, "error", { errCode = "INVALID_ITEM", message = "Target item not found." })
-        return
-    end
-
-    local creditsToAdd = 0
-
-    if isCard then
-        -- クレジットカード：500〜3000のランダムクレジット
-        creditsToAdd = 500 + ZombRand(2501)
-        inv:Remove(item)
-        log(player:getUsername() .. " hacked ATM with CreditCard. Added " .. creditsToAdd .. " credits.")
-    else
-        local count = 1
-        creditsToAdd = 20
-        inv:Remove(item)
-        log(player:getUsername() .. " deposited Money at ATM. Added " .. creditsToAdd .. " credits.")
-    end
-
-    RadioTrader_ServerEngine.addCredits(player, creditsToAdd)
-    player:Say("+ " .. tostring(creditsToAdd) .. " CR")
-end
-
--- ---------------------------------------------------------------------------
 -- クライアントコマンド受信ハンドラ
 -- ---------------------------------------------------------------------------
 local function onClientCommand(module, command, player, args)
@@ -569,12 +536,6 @@ local function onClientCommand(module, command, player, args)
         gmd[RadioTrader_Config.KEY_LZ_Z] = nil
         log("LZ cleared for " .. getUsernameSafe(player))
         RadioTrader_ServerEngine.sendToClient(player, "lzCleared", {})
-
-    elseif command == RadioTrader_Config.CMD_ATM_CARD then
-        RadioTrader_ServerEngine.processATMDeposit(player, true)
-
-    elseif command == RadioTrader_Config.CMD_ATM_CASH then
-        RadioTrader_ServerEngine.processATMDeposit(player, false)
 
     elseif command == RadioTrader_Config.CMD_REQUEST_SELL then
         RadioTrader_ServerEngine.processSell(player)

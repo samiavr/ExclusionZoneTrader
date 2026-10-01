@@ -12,11 +12,7 @@
     "ContextMenu_RadioTrader_ForceHorde": "[ゾンビ] ホードのみスポーン (ヘリなし)",
     "ContextMenu_RadioTrader_ShowState": "[情報] 現在のステートを表示",
     "ContextMenu_RadioTrader_FullReset": "[!] 全状態リセット (LZ・タイマー・注文)",
-    "ContextMenu_RadioTrader_ATM_Title": "[ATM] 闇取引口座アクセス",
-    "ContextMenu_RadioTrader_ATM_Card": "クレジットカードから残高を引き出す",
-    "ContextMenu_RadioTrader_ATM_Cash": "現金を入金してクレジット変換",
-    "ContextMenu_RadioTrader_ATM_NoFunds": "[ATM] ネットワーク正常 (カード/現金がありません)",
-    "ContextMenu_RadioTrader_ATM_NoPower": "[ATM] 停電中 - ネットワーク切断",
+
     "ContextMenu_RadioTrader_RequestDrop": "[投下要請] ヘリを呼ぶ",
     "ContextMenu_RadioTrader_ClearLZ": "[交易 LZ を解除]",
     "ContextMenu_RadioTrader_SetLZ": "[交易ドロップボックス/LZに指定]",

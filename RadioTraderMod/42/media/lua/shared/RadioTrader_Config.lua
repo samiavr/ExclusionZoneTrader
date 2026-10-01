@@ -311,9 +311,7 @@ RadioTrader_Config.CMD_DELIVERY_DONE   = "deliveryComplete"
 RadioTrader_Config.CMD_CREDIT_UPDATE   = "creditUpdate"
 RadioTrader_Config.CMD_ORDER_EXPIRED   = "orderExpired"  -- 要請期限切れ通知
 
--- ATM換金システム用コマンド
-RadioTrader_Config.CMD_ATM_CARD       = "atmDepositCard"
-RadioTrader_Config.CMD_ATM_CASH       = "atmDepositCash"
+
 
 -- 配達ステート定数
 RadioTrader_Config.STATE_NONE          = "NONE"
