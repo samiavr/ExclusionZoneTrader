@@ -1156,22 +1156,51 @@ RadioTrader_Sell = {
     { id = "Base.WoodenToy",           name = "Handmade Wooden Toy",  basePricePerUnit = 30,  category = "Handcrafts" },
 
     -- =========================================================================
-    -- カテゴリ4: 隔離地域産のオーガニック農作物 (Organic Produce)
+    -- カテゴリ4: 魚の切り身・生肉 (Fish Fillet & Raw Meat)
     -- =========================================================================
-    -- 外の富裕層向けの希少な生鮮産品（生鮮空輸コスト控除後の買取額）
-    { id = "Base.Cabbage",             name = "Fresh Cabbage",        basePricePerUnit = 4,   category = "Produce" },
-    { id = "Base.Tomato",              name = "Fresh Tomato",         basePricePerUnit = 5,   category = "Produce" },
-    { id = "Base.Potato",              name = "Fresh Potato",         basePricePerUnit = 4,   category = "Produce" },
-    { id = "Base.Corn",                name = "Fresh Corn",           basePricePerUnit = 4,   category = "Produce" },
-    { id = "Base.Carrots",             name = "Fresh Carrots",        basePricePerUnit = 4,   category = "Produce" },
-    { id = "Base.Broccoli",            name = "Fresh Broccoli",       basePricePerUnit = 4,   category = "Produce" },
-    { id = "Base.RedRadish",           name = "Fresh Radish",         basePricePerUnit = 3,   category = "Produce" },
-    { id = "Base.Apple",               name = "Fresh Apple",          basePricePerUnit = 4,   category = "Produce" },
-    { id = "Base.Peach",               name = "Fresh Peach",          basePricePerUnit = 5,   category = "Produce" },
-    { id = "Base.Watermelon",          name = "Fresh Watermelon",     basePricePerUnit = 8,   category = "Produce" },
+    -- 0.5kg単位ブロック買取（0.5kgあたり20 CR）、端数合計1 CR
+    { id = "Base.FishFillet",          name = "Fish Fillet",          basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.Steak",               name = "Beef Steak",           basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.MeatPatty",           name = "Meat Patty",           basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.Rabbitmeat",          name = "Rabbit Meat",          basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.Smallanimalmeat",     name = "Small Animal Meat",    basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.Smallbirdmeat",       name = "Small Bird Meat",      basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.Chicken",             name = "Raw Chicken",          basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.PorkChop",            name = "Pork Chop",            basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.MuttonChop",          name = "Mutton Chop",          basePricePerUnit = 20,  category = "MeatFish" },
+    { id = "Base.Venison",             name = "Venison",              basePricePerUnit = 20,  category = "MeatFish" },
 
     -- =========================================================================
-    -- カテゴリ5: 旧世界の通貨・カード類 (Currency & Financial)
+    -- カテゴリ5: 朝採れ卵 (Farm Fresh Eggs)
+    -- =========================================================================
+    -- 1個3 CR、6個パックごとに +10 CRボーナス
+    { id = "Base.Egg",                 name = "Fresh Egg",            basePricePerUnit = 3,   category = "Egg" },
+    { id = "Base.WildEggs",            name = "Wild Bird Eggs",       basePricePerUnit = 3,   category = "Egg" },
+
+    -- =========================================================================
+    -- カテゴリ6: 隔離地域産のオーガニック農作物 (Organic Produce)
+    -- =========================================================================
+    -- 1個2 CR、10個ロットごとに +15 CRボーナス（10個で35 CR）
+    { id = "Base.Cabbage",             name = "Fresh Cabbage",        basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Tomato",              name = "Fresh Tomato",         basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Potato",              name = "Fresh Potato",         basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Corn",                name = "Fresh Corn",           basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Carrots",             name = "Fresh Carrots",        basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Broccoli",            name = "Fresh Broccoli",       basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.RedRadish",           name = "Fresh Radish",         basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Apple",               name = "Fresh Apple",          basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Peach",               name = "Fresh Peach",          basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Watermelon",          name = "Fresh Watermelon",     basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Strawberry",          name = "Fresh Strawberry",     basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Onion",               name = "Fresh Onion",          basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Lettuce",             name = "Fresh Lettuce",        basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.BellPepper",          name = "Fresh Bell Pepper",    basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Eggplant",            name = "Fresh Eggplant",       basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Leek",                name = "Fresh Leek",           basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Zucchini",            name = "Fresh Zucchini",       basePricePerUnit = 2,   category = "Produce" },
+
+    -- =========================================================================
+    -- カテゴリ7: 旧世界の通貨・カード類 (Currency & Financial)
     -- =========================================================================
     -- 現金は 1 CR、札束は 50 CR、クレジットカードは 1〜5 CR 程度で買取
     { id = "Base.Money",               name = "Cash (Bill/Coin)",     basePricePerUnit = 1,   category = "Currency" },
@@ -1254,6 +1283,19 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
         return { id = itemId, name = "Cut Sapphire", basePricePerUnit = 75, category = "Gems" }
     elseif string.find(itemId, "Emerald") then
         return { id = itemId, name = "Cut Emerald", basePricePerUnit = 75, category = "Gems" }
+    end
+
+    -- 魚の切り身・各種生肉
+    if string.find(itemId, "FishFillet") then
+        return { id = itemId, name = "Fish Fillet", basePricePerUnit = 20, category = "MeatFish" }
+    elseif string.find(itemId, "Steak") or string.find(itemId, "Meat") or string.find(itemId, "Chop")
+        or string.find(itemId, "Chicken") or string.find(itemId, "Venison") then
+        return { id = itemId, name = "Raw Meat", basePricePerUnit = 20, category = "MeatFish" }
+    end
+
+    -- 卵
+    if string.find(itemId, "Egg") then
+        return { id = itemId, name = "Fresh Egg", basePricePerUnit = 3, category = "Egg" }
     end
 
     return nil
@@ -1350,6 +1392,11 @@ function RadioTrader_AssessContainer(player)
     local unacceptedItems = {}
     local cfg = RadioTrader_Config
 
+    -- ロット・重量集計用グループ
+    local meatFishGroup = { items = {}, totalWeight = 0 }
+    local eggGroup      = { items = {}, count = 0, effectiveUnits = 0 }
+    local produceGroup  = { items = {}, count = 0, effectiveUnits = 0 }
+
     local items = container:getItems()
     if items then
         for i = 0, items:size() - 1 do
@@ -1375,35 +1422,58 @@ function RadioTrader_AssessContainer(player)
                         freshness = 0.5
                     end
 
-                    -- 腐敗品でなければ査定計算
                     if freshness > 0 and condition >= cfg.MIN_SELL_CONDITION then
-                        local basePrice = sellEntry.basePricePerUnit
-                        -- クレジットカードのランダム買取 (1〜5 CR)
-                        if sellEntry.isRandom or string.find(itemType, "CreditCard") then
-                            local seed = (item.getID and item:getID()) or 0
-                            basePrice = 1 + (math.abs(seed) % 5)
-                        end
+                        -- カテゴリ別分岐: ロット・重量集計対象
+                        if sellEntry.category == "MeatFish" then
+                            -- 切り身・生肉: 重量スケーリング
+                            local w = 0.3
+                            if item.getActualWeight then
+                                w = item:getActualWeight() or 0.3
+                            end
+                            local effectiveW = w * freshness
+                            meatFishGroup.totalWeight = meatFishGroup.totalWeight + effectiveW
+                            table.insert(meatFishGroup.items, { item = item, name = sellEntry.name, condition = condition })
 
-                        local condValue = condition * cfg.CONDITION_WEIGHT
-                        local freshValue = freshness * cfg.FRESHNESS_WEIGHT
-                        local totalWeight = cfg.CONDITION_WEIGHT + cfg.FRESHNESS_WEIGHT
-                        local qualityMultiplier = (condValue + freshValue) / totalWeight
-                        -- 通貨類（現金・束・カード）はコンディション減衰なし
-                        if sellEntry.category == "Currency" then
-                            qualityMultiplier = 1.0
-                        end
+                        elseif sellEntry.category == "Egg" then
+                            -- 卵: パック集計
+                            eggGroup.count = eggGroup.count + 1
+                            eggGroup.effectiveUnits = eggGroup.effectiveUnits + freshness
+                            table.insert(eggGroup.items, { item = item, name = sellEntry.name, condition = condition })
 
-                        local sellMult = RadioTrader_Config.getSellPriceMultiplier and RadioTrader_Config.getSellPriceMultiplier() or 1.0
-                        local itemCredits = math.max(1, math.floor(basePrice * qualityMultiplier * sellMult + 0.5))
+                        elseif sellEntry.category == "Produce" then
+                            -- 野菜・果物: ロット集計
+                            produceGroup.count = produceGroup.count + 1
+                            produceGroup.effectiveUnits = produceGroup.effectiveUnits + freshness
+                            table.insert(produceGroup.items, { item = item, name = sellEntry.name, condition = condition })
 
-                        if itemCredits > 0 then
-                            table.insert(assessedItems, {
-                                item = item,
-                                name = sellEntry.name,
-                                credits = itemCredits,
-                                condition = condition,
-                            })
-                            totalCredits = totalCredits + itemCredits
+                        else
+                            -- 通常品目（貴金属、一次資料、時計、通貨など）
+                            local basePrice = sellEntry.basePricePerUnit
+                            if sellEntry.isRandom or string.find(itemType, "CreditCard") then
+                                local seed = (item.getID and item:getID()) or 0
+                                basePrice = 1 + (math.abs(seed) % 5)
+                            end
+
+                            local condValue = condition * cfg.CONDITION_WEIGHT
+                            local freshValue = freshness * cfg.FRESHNESS_WEIGHT
+                            local totalWeight = cfg.CONDITION_WEIGHT + cfg.FRESHNESS_WEIGHT
+                            local qualityMultiplier = (condValue + freshValue) / totalWeight
+                            if sellEntry.category == "Currency" then
+                                qualityMultiplier = 1.0
+                            end
+
+                            local sellMult = RadioTrader_Config.getSellPriceMultiplier and RadioTrader_Config.getSellPriceMultiplier() or 1.0
+                            local itemCredits = math.max(1, math.floor(basePrice * qualityMultiplier * sellMult + 0.5))
+
+                            if itemCredits > 0 then
+                                table.insert(assessedItems, {
+                                    item = item,
+                                    name = sellEntry.name,
+                                    credits = itemCredits,
+                                    condition = condition,
+                                })
+                                totalCredits = totalCredits + itemCredits
+                            end
                         end
                     else
                         table.insert(unacceptedItems, item:getName() or itemType)
@@ -1412,6 +1482,64 @@ function RadioTrader_AssessContainer(player)
                     table.insert(unacceptedItems, item:getName() or itemType)
                 end
             end
+        end
+    end
+
+    local sellMult = RadioTrader_Config.getSellPriceMultiplier and RadioTrader_Config.getSellPriceMultiplier() or 1.0
+
+    -- 1. 切り身・生肉ロット計算（0.5kg単位ブロック買取 20 CR、端数合計1 CR）
+    if #meatFishGroup.items > 0 and meatFishGroup.totalWeight > 0 then
+        local blocks = math.floor(meatFishGroup.totalWeight / 0.5)
+        local remainder = meatFishGroup.totalWeight - (blocks * 0.5)
+        local blockPrice = math.max(1, math.floor(20 * sellMult + 0.5))
+        local meatCredits = blocks * blockPrice
+        if remainder >= 0.01 or (blocks == 0 and meatFishGroup.totalWeight > 0) then
+            meatCredits = meatCredits + 1
+        end
+        totalCredits = totalCredits + meatCredits
+        for _, entry in ipairs(meatFishGroup.items) do
+            table.insert(assessedItems, {
+                item = entry.item,
+                name = entry.name,
+                credits = 0,
+                condition = entry.condition,
+            })
+        end
+    end
+
+    -- 2. 朝採れ卵ロット計算（1個3 CR、6個パックごとに +10 CRボーナス）
+    if eggGroup.count > 0 then
+        local baseEggPrice = math.max(1, math.floor(3 * sellMult + 0.5))
+        local bonus6Pack = math.max(1, math.floor(10 * sellMult + 0.5))
+        local packs = math.floor(eggGroup.count / 6)
+        local eggCredits = math.floor(eggGroup.effectiveUnits * baseEggPrice) + (packs * bonus6Pack)
+        if eggCredits <= 0 and eggGroup.count > 0 then eggCredits = 1 end
+        totalCredits = totalCredits + eggCredits
+        for _, entry in ipairs(eggGroup.items) do
+            table.insert(assessedItems, {
+                item = entry.item,
+                name = entry.name,
+                credits = 0,
+                condition = entry.condition,
+            })
+        end
+    end
+
+    -- 3. 農作物・果物ロット計算（1個2 CR、10個ロットごとに +15 CRボーナス）
+    if produceGroup.count > 0 then
+        local baseProducePrice = math.max(1, math.floor(2 * sellMult + 0.5))
+        local bonus10Lot = math.max(1, math.floor(15 * sellMult + 0.5))
+        local lots = math.floor(produceGroup.count / 10)
+        local produceCredits = math.floor(produceGroup.effectiveUnits * baseProducePrice) + (lots * bonus10Lot)
+        if produceCredits <= 0 and produceGroup.count > 0 then produceCredits = 1 end
+        totalCredits = totalCredits + produceCredits
+        for _, entry in ipairs(produceGroup.items) do
+            table.insert(assessedItems, {
+                item = entry.item,
+                name = entry.name,
+                credits = 0,
+                condition = entry.condition,
+            })
         end
     end
 
