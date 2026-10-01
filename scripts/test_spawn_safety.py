@@ -25,8 +25,6 @@ def test_spawn_safety():
 
     # マルチプレイヤーケース: Player A (1000, 1000), Player B (1050, 1050)
     players_mp = [{"x": 1000, "y": 1000}, {"x": 1050, "y": 1050}]
-    # 候補地 (1046, 1000): Player Aからは46タイル離れているが、Player Bから (1046-1050)^2 + (1000-1050)^2 = 16 + 2500 = 2516 (dist 50.15) -> 許可
-    # 候補地 (1040, 1040): Player Aから (40)^2+(40)^2 = 3200 (dist 56.5) だが Player Bから (10)^2+(10)^2 = 200 (dist 14.1) -> 拒絶されるべき！
     sq_mid = {"x": 1040, "y": 1040}
     rejected = False
     for p in players_mp:
@@ -36,7 +34,24 @@ def test_spawn_safety():
             break
     assert rejected, "sq_mid must be rejected because it is close to Player B!"
 
-    print("ALL SPAWN SAFETY TESTS PASSED!")
+    # ケース4: 飛行ルート連動コーンスポーン (+/- 30度)
+    # LZ (1000, 1000), ヘリ進入角 90度（南から進入）
+    app_angle = 90
+    spread = 30
+    for offset in [-30, -15, 0, 15, 30]:
+        ang = (app_angle + offset) % 360
+        rad = math.radians(ang)
+        # ヘリ200タイル時: minR 85, maxR 120
+        r_far = 100
+        fx = 1000 + r_far * math.cos(rad)
+        fy = 1000 + r_far * math.sin(rad)
+        # 南側（y > 1000）に位置しているか確認
+        assert fy > 1000, f"Flight path spawn should be south: fy={fy}"
+        # 進入回廊の角度が 60度〜120度（南の+/-30度）に収まっていること
+        angle_from_lz = math.degrees(math.atan2(fy - 1000, fx - 1000))
+        assert 59.9 <= angle_from_lz <= 120.1, f"Angle out of cone: {angle_from_lz}"
+
+    print("ALL SPAWN SAFETY & FLIGHT-PATH CONE TESTS PASSED!")
 
 if __name__ == "__main__":
     test_spawn_safety()

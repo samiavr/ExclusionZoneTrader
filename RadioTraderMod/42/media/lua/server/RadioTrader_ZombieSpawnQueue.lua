@@ -112,20 +112,20 @@ local function trySpawnFromLoadedArea(entry, maxAttempts)
     local lzZ    = entry.lzZ
     local count  = entry.count
     local appAngle = entry.approachAngle
-    local spread   = entry.spreadAngle or 60  -- デフォルト +/-60度 (合計120度の円錐・扇形)
+    local spread   = entry.spreadAngle or 30  -- デフォルト +/-30度 (合計60度のシャープな進入回廊)
     maxAttempts  = maxAttempts or (count * 10)
     local spawned = 0
 
     local players = getActivePlayers()
     local minPlayerDist = cfg.PLAYER_SAFETY_RADIUS_TILES or 45
-    local minHordeRadius = cfg.HORDE_SPAWN_RADIUS_MIN or 45
-    local maxHordeRadius = math.max(120, (cfg.HORDE_SPAWN_RADIUS_MAX or 85) + 35)
+    local minHordeRadius = entry.minRadius or cfg.HORDE_SPAWN_RADIUS_MIN or 45
+    local maxHordeRadius = entry.maxRadius or math.max(120, (cfg.HORDE_SPAWN_RADIUS_MAX or 85) + 35)
 
     for i = 1, maxAttempts do
         if spawned >= count then break end
         local angle
         if appAngle ~= nil then
-            -- ヘリ進入方向を中心とした円錐形・扇形（コーン状）から角度を選択
+            -- ヘリ進入方向を中心としたシャープな進入回廊から角度を選択
             local offset = ZombRand(spread * 2 + 1) - spread
             angle = (appAngle + offset) % 360
         else
@@ -188,21 +188,23 @@ function RadioTrader_ZombieSpawnQueue.processQueue(maxAttemptsOverride)
     if totalLeft > 0 then log(totalLeft .. " zombie(s) still queued.") end
 end
 
-function RadioTrader_ZombieSpawnQueue.enqueue(lzX, lzY, lzZ, count, approachAngle, spreadAngle)
+function RadioTrader_ZombieSpawnQueue.enqueue(lzX, lzY, lzZ, count, approachAngle, spreadAngle, minRadius, maxRadius)
     if count <= 0 then return end
-    spreadAngle = spreadAngle or 60
+    spreadAngle = spreadAngle or 30
     local immediateEntry = {
         lzX = lzX, lzY = lzY, lzZ = lzZ,
         count = count,
         approachAngle = approachAngle,
         spreadAngle = spreadAngle,
+        minRadius = minRadius,
+        maxRadius = maxRadius,
     }
     local attempts = count * 15
     local spawned = trySpawnFromLoadedArea(immediateEntry, attempts)
     local leftover = count - spawned
     if leftover <= 0 then
-        log(("All %d zombies spawned immediately for LZ (%d,%d,%d) (Cone: %s +/- %d deg). No queue needed."):format(
-            count, lzX, lzY, lzZ, tostring(approachAngle), spreadAngle))
+        log(("All %d zombies spawned immediately for LZ (%d,%d,%d) (Cone: %s +/- %d deg, R: %s-%s). No queue needed."):format(
+            count, lzX, lzY, lzZ, tostring(approachAngle), spreadAngle, tostring(minRadius), tostring(maxRadius)))
         return
     end
 
@@ -219,6 +221,8 @@ function RadioTrader_ZombieSpawnQueue.enqueue(lzX, lzY, lzZ, count, approachAngl
             entry.expireHour = now + SPAWN_EXPIRE_HOURS
             entry.approachAngle = approachAngle or entry.approachAngle
             entry.spreadAngle = spreadAngle or entry.spreadAngle
+            entry.minRadius = minRadius or entry.minRadius
+            entry.maxRadius = maxRadius or entry.maxRadius
             return
         end
     end
@@ -229,6 +233,8 @@ function RadioTrader_ZombieSpawnQueue.enqueue(lzX, lzY, lzZ, count, approachAngl
         expireHour = now + SPAWN_EXPIRE_HOURS,
         approachAngle = approachAngle,
         spreadAngle = spreadAngle,
+        minRadius = minRadius,
+        maxRadius = maxRadius,
     })
 end
 
