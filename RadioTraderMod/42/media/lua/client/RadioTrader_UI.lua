@@ -382,6 +382,28 @@ function RadioTrader_UI:buildUI()
 end
 
 -- ---------------------------------------------------------------------------
+-- 契約農園: 種プール取得ヘルパー
+-- ---------------------------------------------------------------------------
+function RadioTrader_UI:getSeedPool()
+    if self.seedPool then return self.seedPool end
+    local uname = (self.player and self.player.getUsername and self.player:getUsername()) or "singleplayer"
+    if uname == "" then uname = "singleplayer" end
+    local gmdKey = "RadioTrader_" .. uname
+    if ModData and ModData.exists and ModData.exists(gmdKey) then
+        local gmd = ModData.get(gmdKey)
+        self.seedPool = (gmd and gmd[RadioTrader_Config.KEY_SEED_POOL]) or {}
+    else
+        self.seedPool = {}
+    end
+    return self.seedPool
+end
+
+function RadioTrader_UI:getSeedPoolCount(poolKey)
+    local pool = self:getSeedPool()
+    return (pool and pool[poolKey]) or 0
+end
+
+-- ---------------------------------------------------------------------------
 -- カテゴリロード（アイテムリストを更新）
 -- ---------------------------------------------------------------------------
 function RadioTrader_UI:loadCategory(categoryKey)
@@ -392,7 +414,11 @@ function RadioTrader_UI:loadCategory(categoryKey)
         local dispName = getItemDisplayName(entry.id, entry.name)
         local effPrice = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(entry.price) or entry.price
         local label
-        if categoryKey == "Daily" then
+        if categoryKey == "Crops" or entry.isCrop then
+            -- 契約農園・農作物交換枠: 「キャベツ（8個） - 5 CR」
+            local poolCount = self:getSeedPoolCount(entry.poolKey or entry.id)
+            label = ("%s (%d)  -  %d CR"):format(dispName, poolCount, effPrice)
+        elseif categoryKey == "Daily" then
             if entry.subCat == "TraderStash" then
                 local stashPrefix = tr("UI_RadioTrader_StashPrefix", "[★Stash] ")
                 label = ("%s%s x %d  -  %d CR"):format(stashPrefix, dispName, entry.count or 1, effPrice)
@@ -427,13 +453,23 @@ function RadioTrader_UI:onItemSelect()
         self.selectedItem = entry
         local dispName   = getItemDisplayName(entry.id, entry.name)
         local effPrice   = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(entry.price) or entry.price
-        local priceLabel = tr("UI_RadioTrader_Price", "Price")
-        local qtyLabel   = tr("UI_RadioTrader_Quantity", "Quantity")
-        local unitLabel  = tr("UI_RadioTrader_Units", "units")
-        local titleText  = (entry.count and entry.count > 1) and ("%s x %d"):format(dispName, entry.count) or dispName
-        self.labelItemDetail:setName(
-            ("[%s]\n%s: %d CR\n%s: %d %s\nID: %s"):format(
-                titleText, priceLabel, effPrice, qtyLabel, entry.count or 1, unitLabel, entry.id))
+
+        if entry.isCrop or self.selectedCategory == "Crops" then
+            -- ユーザー指定: 「選択時詳細: 預け入れプール数 のみ」
+            local poolCount = self:getSeedPoolCount(entry.poolKey or entry.id)
+            local poolLabel = tr("UI_RadioTrader_SeedPoolCount", "Deposited Seeds")
+            self.labelItemDetail:setName(
+                ("[%s]\n%s: %d\nID: %s"):format(
+                    dispName, poolLabel, poolCount, entry.id))
+        else
+            local priceLabel = tr("UI_RadioTrader_Price", "Price")
+            local qtyLabel   = tr("UI_RadioTrader_Quantity", "Quantity")
+            local unitLabel  = tr("UI_RadioTrader_Units", "units")
+            local titleText  = (entry.count and entry.count > 1) and ("%s x %d"):format(dispName, entry.count) or dispName
+            self.labelItemDetail:setName(
+                ("[%s]\n%s: %d CR\n%s: %d %s\nID: %s"):format(
+                    titleText, priceLabel, effPrice, qtyLabel, entry.count or 1, unitLabel, entry.id))
+        end
     else
         self.selectedItem = nil
         self.labelItemDetail:setName(tr("UI_RadioTrader_SelectItem", "Select an item to view details"))
@@ -448,12 +484,17 @@ function RadioTrader_UI:refreshDataFromModData()
     local uname = (self.player and self.player.getUsername and self.player:getUsername()) or "singleplayer"
     if uname == "" then uname = "singleplayer" end
 
-    -- クレジット同期
+    -- クレジット同期 ＆ 種プール同期
     local gmdKey = "RadioTrader_" .. uname
     if ModData and ModData.exists and ModData.exists(gmdKey) then
         local gmd = ModData.get(gmdKey)
-        if gmd and gmd[RadioTrader_Config.KEY_CREDITS] ~= nil then
-            self.credits = tonumber(gmd[RadioTrader_Config.KEY_CREDITS]) or self.credits
+        if gmd then
+            if gmd[RadioTrader_Config.KEY_CREDITS] ~= nil then
+                self.credits = tonumber(gmd[RadioTrader_Config.KEY_CREDITS]) or self.credits
+            end
+            if gmd[RadioTrader_Config.KEY_SEED_POOL] then
+                self.seedPool = gmd[RadioTrader_Config.KEY_SEED_POOL]
+            end
         end
     end
 
@@ -477,12 +518,22 @@ function RadioTrader_UI:refreshDataFromModData()
     end
 
     -- ドロップボックス査定額のリアルタイム直接同期（クライアント即時計算）
+    self.hasDepositItems = false
+    self.assessedItemCount = 0
     if RadioTrader_AssessContainer then
         local assessedItems, totalCredits, err = RadioTrader_AssessContainer(self.player)
-        if not err then
+        if not err and assessedItems then
             self.assessedCredits = totalCredits or 0
+            self.assessedItemCount = #assessedItems
+            for _, entry in ipairs(assessedItems) do
+                if entry.isSeed then
+                    self.hasDepositItems = true
+                    break
+                end
+            end
         else
             self.assessedCredits = 0
+            self.assessedItemCount = 0
         end
     end
 end
@@ -569,15 +620,30 @@ end
 function RadioTrader_UI:onSellClick()
     -- 最新のコンテナ状態を同期
     self:refreshDataFromModData()
-    if (self.assessedCredits or 0) <= 0 then
-        self:addLog(tr("UI_RadioTrader_Err_NO_SELLABLE_ITEMS", "No sellable items in the LZ container."),
+
+    -- LZ座標の存在確認
+    local lzX = RadioTrader_GetLZCoords and RadioTrader_GetLZCoords(self.player)
+    if not lzX then
+        self:addLog(tr("UI_RadioTrader_Err_LZ_NOT_SET", "Drop Box (LZ) has not been designated yet."),
             COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
         local sm = getSoundManager()
         if sm then sm:playUISound("AccessDenied") end
         return
     end
 
-    self:addLog(tr("UI_RadioTrader_Log_Selling", "Sending sell request..."),
+    -- コンテナが見えている環境下で、明確に対象アイテムが0個の場合のみクライアントで早期ガード
+    if (self.assessedCredits or 0) <= 0 and (not self.hasDepositItems) and (self.assessedItemCount or 0) <= 0 then
+        local container = RadioTrader_GetLZContainer and RadioTrader_GetLZContainer(self.player)
+        if container then
+            self:addLog(tr("UI_RadioTrader_Err_NO_SELLABLE_ITEMS", "No sellable or deposit items in the LZ container."),
+                COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
+            local sm = getSoundManager()
+            if sm then sm:playUISound("AccessDenied") end
+            return
+        end
+    end
+
+    self:addLog(tr("UI_RadioTrader_Log_Selling", "Sending sell/deposit request..."),
         COLOR_WARN.r, COLOR_WARN.g, COLOR_WARN.b)
     print("[RadioTrader][UI] onSellClick: Requesting sell from server...")
     sendClientCommand(self.player, "RadioTrader", RadioTrader_Config.CMD_REQUEST_SELL, {})
@@ -633,6 +699,22 @@ function RadioTrader_UI:onAddToCartClick()
     local dispName = getItemDisplayName(entry.id, entry.name)
     local effPrice = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(entry.price) or entry.price
 
+    -- 契約農園: 作物発注時の種プール残数チェック
+    if entry.isCrop or self.selectedCategory == "Crops" then
+        local poolCount = self:getSeedPoolCount(entry.poolKey or entry.id)
+        local curInCart = 0
+        for _, it in ipairs(self.cart) do
+            if it.itemId == entry.id then curInCart = it.quantity; break end
+        end
+        if curInCart + 1 > poolCount then
+            self:addLog(tr("UI_RadioTrader_Err_NOT_ENOUGH_SEEDS", "Not enough seeds in pool for %s (Available: %s)", dispName, tostring(poolCount)),
+                COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
+            local sm = getSoundManager()
+            if sm then sm:playUISound("AccessDenied") end
+            return
+        end
+    end
+
     local found = false
     for _, it in ipairs(self.cart) do
         if it.itemId == entry.id then
@@ -647,6 +729,8 @@ function RadioTrader_UI:onAddToCartClick()
             name     = dispName,
             price    = effPrice,
             quantity = 1,
+            isCrop   = entry.isCrop,
+            poolKey  = entry.poolKey,
         })
     end
 
@@ -686,7 +770,20 @@ function RadioTrader_UI:onOrderClick()
     end
 
     if #self.cart > 0 then
-        -- カート一括発注
+        -- カート一括発注前の種プール最終検証
+        for _, it in ipairs(self.cart) do
+            if it.isCrop then
+                local pCount = self:getSeedPoolCount(it.poolKey or it.itemId)
+                if it.quantity > pCount then
+                    self:addLog(tr("UI_RadioTrader_Err_NOT_ENOUGH_SEEDS", "Not enough seeds in pool for %s (Available: %s, Cart: %s)", it.name, tostring(pCount), tostring(it.quantity)),
+                        COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
+                    local sm = getSoundManager()
+                    if sm then sm:playUISound("AccessDenied") end
+                    return
+                end
+            end
+        end
+
         local totalCost = 0
         local itemsArg = {}
         for _, it in ipairs(self.cart) do
@@ -714,6 +811,19 @@ function RadioTrader_UI:onOrderClick()
         end
         local entry = self.selectedItem
         local dispName = getItemDisplayName(entry.id, entry.name)
+
+        -- 契約農園: 単一発注時の種プールチェック
+        if entry.isCrop or self.selectedCategory == "Crops" then
+            local poolCount = self:getSeedPoolCount(entry.poolKey or entry.id)
+            if poolCount < 1 then
+                self:addLog(tr("UI_RadioTrader_Err_NOT_ENOUGH_SEEDS", "Not enough seeds in pool for %s (Available: 0)", dispName),
+                    COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
+                local sm = getSoundManager()
+                if sm then sm:playUISound("AccessDenied") end
+                return
+            end
+        end
+
         local effPrice = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(entry.price) or entry.price
         local orderMsg = tr("UI_RadioTrader_Log_Ordering", "Ordering: %s (%s CR)...", dispName, tostring(effPrice))
         self:addLog(orderMsg, COLOR_WARN.r, COLOR_WARN.g, COLOR_WARN.b)
@@ -814,8 +924,17 @@ function RadioTrader_UI:onServerNotify(cmd, args)
                 "Sale complete: Sold %s items for %s CR.", count, credits)
         end
         self:addLog(logMsg, COLOR_ACCENT.r, COLOR_ACCENT.g, COLOR_ACCENT.b)
+        if args and args.seedsAdded and args.seedsAdded > 0 then
+            self:addLog(tr("UI_RadioTrader_Log_SeedsDeposited",
+                "Contract Farm: Deposited %s seeds into pool.", tostring(args.seedsAdded)),
+                COLOR_SUCCESS.r, COLOR_SUCCESS.g, COLOR_SUCCESS.b)
+        end
         self.assessedCredits = 0
+        self:refreshDataFromModData()
         self:updateStatusDisplay()
+        if self.selectedCategory == "Crops" then
+            self:loadCategory("Crops")
+        end
 
     elseif cmd == cfg.CMD_TRADE_ACCEPTED then
         self.deliveryState = cfg.STATE_PENDING
@@ -932,7 +1051,22 @@ function RadioTrader_UI:onServerNotify(cmd, args)
         if args.credits ~= nil then
             self.credits = tonumber(args.credits) or self.credits
         end
+        if args.seedPool ~= nil then
+            self.seedPool = args.seedPool
+        end
         self:updateStatusDisplay()
+        if self.selectedCategory == "Crops" then
+            self:loadCategory("Crops")
+        end
+
+    elseif cmd == cfg.CMD_SEED_POOL_UPDATE or cmd == "seedPoolUpdate" then
+        if args and args.seedPool then
+            self.seedPool = args.seedPool
+        end
+        self:updateStatusDisplay()
+        if self.selectedCategory == "Crops" then
+            self:loadCategory("Crops")
+        end
 
     elseif cmd == "rerollSuccess" then
         if args and args.items and RadioTrader_Shop then

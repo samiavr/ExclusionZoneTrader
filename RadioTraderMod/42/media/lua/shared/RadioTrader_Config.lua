@@ -307,6 +307,7 @@ RadioTrader_Config.KEY_CREDITS      = "RadioTrader_Credits"
 RadioTrader_Config.KEY_DELIVERY     = "RadioTrader_DeliveryState"
 RadioTrader_Config.KEY_DELIVER_TIME = "RadioTrader_DeliveryTargetHour"
 RadioTrader_Config.KEY_ORDER        = "RadioTrader_PendingOrder"
+RadioTrader_Config.KEY_SEED_POOL    = "RadioTrader_SeedPool"
 
 -- イベントコマンド名
 RadioTrader_Config.CMD_REQUEST_TRADE   = "requestTrade"
@@ -318,6 +319,7 @@ RadioTrader_Config.CMD_HELI_HOVER_START = "heliHoverStart" -- ヘリLZ到着・�
 RadioTrader_Config.CMD_HELI_HOVER_END   = "heliHoverEnd"   -- ヘリホバリング終了・離脱（サーチライト消灯）
 RadioTrader_Config.CMD_DELIVERY_DONE   = "deliveryComplete"
 RadioTrader_Config.CMD_CREDIT_UPDATE   = "creditUpdate"
+RadioTrader_Config.CMD_SEED_POOL_UPDATE = "seedPoolUpdate" -- 種プール更新同期
 RadioTrader_Config.CMD_ORDER_EXPIRED   = "orderExpired"  -- 要請期限切れ通知
 
 

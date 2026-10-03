@@ -117,5 +117,10 @@
     "UI_RadioTrader_StashPrefix": "[Stash] ",
     "UI_RadioTrader_SubCat_TraderStash": "Private Stash",
     "UI_RadioTrader_Radio_StashAccepted": " '...That was my personal stash, you know. Ah well, enjoy it.'",
-    "UI_RadioTrader_Log_StashAccepted": "[Radio] '...That was my personal stash, you know.'"
+    "UI_RadioTrader_Log_StashAccepted": "[Radio] '...That was my personal stash, you know.'",
+    "UI_RadioTrader_Cat_Crops": "[Crops] Produce Exchange",
+    "UI_RadioTrader_SeedPoolCount": "Deposited Seeds",
+    "UI_RadioTrader_Log_SeedsDeposited": "Contract Farm: Deposited %s seeds into pool.",
+    "UI_RadioTrader_Err_NOT_ENOUGH_SEEDS": "Not enough seeds in pool for %s (Available: %s)",
+    "UI_RadioTrader_Radio_FallbackDropNotice": " [WARNING] Drop box was missing/destroyed. Supplies air-dropped directly onto the ground. Condition and freshness reduced by 10%% from impact."
 }

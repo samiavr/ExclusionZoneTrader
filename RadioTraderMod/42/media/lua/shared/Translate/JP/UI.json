@@ -117,5 +117,10 @@
     "UI_RadioTrader_StashPrefix": "[秘蔵] ",
     "UI_RadioTrader_SubCat_TraderStash": "俺のおやつ",
     "UI_RadioTrader_Radio_StashAccepted": " 「……俺のおやつなんだけどなぁ……。まあいい、大事に食えよ」",
-    "UI_RadioTrader_Log_StashAccepted": "[無線] 「……俺のおやつなんだけどなぁ……」"
+    "UI_RadioTrader_Log_StashAccepted": "[無線] 「……俺のおやつなんだけどなぁ……」",
+    "UI_RadioTrader_Cat_Crops": "[農作] 農作物交換",
+    "UI_RadioTrader_SeedPoolCount": "預け入れプール数",
+    "UI_RadioTrader_Log_SeedsDeposited": "契約農園: 種 %s 個をプールに預託しました。",
+    "UI_RadioTrader_Err_NOT_ENOUGH_SEEDS": "種プールが不足しています: %s (残数: %s)",
+    "UI_RadioTrader_Radio_FallbackDropNotice": " 【警告】投下ボックスが破損・消失していたため地面へ直接投下した。落下の衝撃で耐久や鮮度が1割損耗している、注意しろ。"
 }

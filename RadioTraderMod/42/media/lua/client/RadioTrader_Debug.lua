@@ -25,7 +25,6 @@ local function isDebugEnabled(player)
     if not player then return false end
     if getDebug and getDebug() then return true end
     if getCore and getCore().getDebug and getCore():getDebug() then return true end
-    if not isServer() and not isClient() then return true end
     if player.isAdmin and player:isAdmin() then return true end
     local access = player.getAccessLevel and player:getAccessLevel()
     if access == "Admin" or access == "admin" then return true end

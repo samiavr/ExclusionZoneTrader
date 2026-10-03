@@ -8,7 +8,7 @@
 --     [交易LZ/ドロップボックスを解除]
 --   無線機対象:
 --     [無線取引ネットワークに接続]
--- =============================================================================
+require "TimedActions/ISRadioTrader_RequestDropAction"
 
 RadioTrader_ContextMenu = {}
 
@@ -303,12 +303,15 @@ local function onFillWorldObjectContextMenu(playerNum, context, worldObjects, te
         local deliveryState = getDeliveryState(player)
 
         if hasLZ(player) then
-            -- READY_FOR_DROP 時は「投下要請」ボタンを優先表示
+            -- READY_FOR_DROP 時は「投下要請」ボタンを優先表示（約10秒のボックス操作アクション）
             if deliveryState == cfg.STATE_READY_FOR_DROP then
                 local reqDropLabel = tr("ContextMenu_RadioTrader_RequestDrop", "[Drop] Request Airdrop (Call Heli)")
+                local contParent = container.getParent and container:getParent()
                 context:addOption(reqDropLabel, player, function(pl)
-                    sendClientCommand(pl, "RadioTrader", cfg.CMD_REQUEST_DROP, {})
-                    pl:Say("Requesting supply drop...")
+                    if contParent and contParent.getSquare and luautils and luautils.walkAdj then
+                        luautils.walkAdj(pl, contParent:getSquare())
+                    end
+                    ISTimedActionQueue.add(ISRadioTrader_RequestDropAction:new(pl, contParent))
                 end)
             end
             -- LZ 解除メニュー（常に表示）

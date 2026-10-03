@@ -258,9 +258,16 @@ local function onServerCommand(module, command, args)
             msg = msg .. lunchMsg
         end
 
+        local isFallbackDrop = args and args.isFallbackDrop
+        if isFallbackDrop then
+            local fallbackNotice = tr("UI_RadioTrader_Radio_FallbackDropNotice",
+                " [WARNING] Drop box was missing/destroyed. Supplies air-dropped directly onto the ground. Condition and freshness reduced by 10% from impact.")
+            msg = msg .. fallbackNotice
+        end
+
         showRadioText(player, msg)
         playSound("Helicopter")
-        log("Delivery complete (MegaHorde: " .. tostring(isMega) .. ", Lunchbox: " .. tostring(hasLunchbox) .. "): " .. itemDisplay .. (bonusName and (" + Bonus: " .. bonusName) or ""))
+        log("Delivery complete (MegaHorde: " .. tostring(isMega) .. ", Lunchbox: " .. tostring(hasLunchbox) .. ", Fallback: " .. tostring(isFallbackDrop) .. "): " .. itemDisplay .. (bonusName and (" + Bonus: " .. bonusName) or ""))
 
     -- === クレジット残高更新 ===
     elseif command == RadioTrader_Config.CMD_CREDIT_UPDATE then

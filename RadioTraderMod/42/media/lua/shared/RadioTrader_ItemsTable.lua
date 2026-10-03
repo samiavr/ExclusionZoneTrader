@@ -64,7 +64,7 @@ RadioTrader_FreshFruits = {
     "Base.Apple",
     "Base.Peach",
     "Base.Watermelon",
-    "Base.Strawberry",
+    "Base.Strewberrie",
     "Base.Banana",
     "Base.Orange",
     "Base.Lemon",
@@ -1344,9 +1344,299 @@ RadioTrader_Shop = {
         { id = "Base.Battery",                    name = "Battery",                       price = 90,   count = 2 },
     },
 
+    -- 契約農園・農作物交換枠 (種プールを消費して収穫委託品を受注 / 5 CR固定)
+    -- Build 42 栽培可能作物 全55種
+    Crops = {
+        { id = "Base.BarleySheaf", name = "Barley Sheaf", price = 5, count = 1, isCrop = true, poolKey = "Base.BarleySheaf", seedType = "Barley" },
+        { id = "Base.Basil", name = "Basil", price = 5, count = 1, isCrop = true, poolKey = "Base.Basil", seedType = "Basil" },
+        { id = "Base.BellPepper", name = "Bell Pepper", price = 5, count = 1, isCrop = true, poolKey = "Base.BellPepper", seedType = "BellPepper" },
+        { id = "Base.BlackSage", name = "Black Sage", price = 5, count = 1, isCrop = true, poolKey = "Base.BlackSage", seedType = "BlackSage" },
+        { id = "Base.Broccoli", name = "Broccoli", price = 5, count = 1, isCrop = true, poolKey = "Base.Broccoli", seedType = "Broccoli" },
+        { id = "Base.Cabbage", name = "Cabbage", price = 5, count = 1, isCrop = true, poolKey = "Base.Cabbage", seedType = "Cabbages" },
+        { id = "Base.Carrots", name = "Carrots", price = 5, count = 1, isCrop = true, poolKey = "Base.Carrots", seedType = "Carrots" },
+        { id = "Base.Cauliflower", name = "Cauliflower", price = 5, count = 1, isCrop = true, poolKey = "Base.Cauliflower", seedType = "Cauliflower" },
+        { id = "Base.Chamomile", name = "Chamomile", price = 5, count = 1, isCrop = true, poolKey = "Base.Chamomile", seedType = "Chamomile" },
+        { id = "Base.Chives", name = "Chives", price = 5, count = 1, isCrop = true, poolKey = "Base.Chives", seedType = "Chives" },
+        { id = "Base.Cilantro", name = "Cilantro", price = 5, count = 1, isCrop = true, poolKey = "Base.Cilantro", seedType = "Cilantro" },
+        { id = "Base.Comfrey", name = "Comfrey", price = 5, count = 1, isCrop = true, poolKey = "Base.Comfrey", seedType = "Comfrey" },
+        { id = "Base.CommonMallow", name = "Common Mallow", price = 5, count = 1, isCrop = true, poolKey = "Base.CommonMallow", seedType = "CommonMallow" },
+        { id = "Base.Corn", name = "Corn", price = 5, count = 1, isCrop = true, poolKey = "Base.Corn", seedType = "Corn" },
+        { id = "Base.Cucumber", name = "Cucumber", price = 5, count = 1, isCrop = true, poolKey = "Base.Cucumber", seedType = "Cucumber" },
+        { id = "Base.Flax", name = "Flax", price = 5, count = 1, isCrop = true, poolKey = "Base.Flax", seedType = "Flax" },
+        { id = "Base.Garlic", name = "Garlic", price = 5, count = 1, isCrop = true, poolKey = "Base.Garlic", seedType = "Garlic" },
+        { id = "Base.Greenpeas", name = "Green Peas", price = 5, count = 1, isCrop = true, poolKey = "Base.Greenpeas", seedType = "Greenpeas" },
+        { id = "Base.PepperHabanero", name = "Habanero", price = 5, count = 1, isCrop = true, poolKey = "Base.PepperHabanero", seedType = "Habanero" },
+        { id = "Base.HempBundle", name = "Hemp", price = 5, count = 1, isCrop = true, poolKey = "Base.HempBundle", seedType = "Hemp" },
+        { id = "Base.Hops", name = "Hops", price = 5, count = 1, isCrop = true, poolKey = "Base.Hops", seedType = "Hops" },
+        { id = "Base.PepperJalapeno", name = "Jalapeno", price = 5, count = 1, isCrop = true, poolKey = "Base.PepperJalapeno", seedType = "Jalapeno" },
+        { id = "Base.Kale", name = "Kale", price = 5, count = 1, isCrop = true, poolKey = "Base.Kale", seedType = "Kale" },
+        { id = "Base.Lavender", name = "Lavender", price = 5, count = 1, isCrop = true, poolKey = "Base.Lavender", seedType = "Lavender" },
+        { id = "Base.Leek", name = "Leek", price = 5, count = 1, isCrop = true, poolKey = "Base.Leek", seedType = "Leek" },
+        { id = "Base.LemonGrass", name = "Lemongrass", price = 5, count = 1, isCrop = true, poolKey = "Base.LemonGrass", seedType = "LemonGrass" },
+        { id = "Base.Lettuce", name = "Lettuce", price = 5, count = 1, isCrop = true, poolKey = "Base.Lettuce", seedType = "Lettuce" },
+        { id = "Base.Marigold", name = "Marigold", price = 5, count = 1, isCrop = true, poolKey = "Base.Marigold", seedType = "Marigold" },
+        { id = "Base.MintHerb", name = "Mint", price = 5, count = 1, isCrop = true, poolKey = "Base.MintHerb", seedType = "Mint" },
+        { id = "Base.Onion", name = "Onion", price = 5, count = 1, isCrop = true, poolKey = "Base.Onion", seedType = "Onion" },
+        { id = "Base.Oregano", name = "Oregano", price = 5, count = 1, isCrop = true, poolKey = "Base.Oregano", seedType = "Oregano" },
+        { id = "Base.Parsley", name = "Parsley", price = 5, count = 1, isCrop = true, poolKey = "Base.Parsley", seedType = "Parsley" },
+        { id = "Base.Plantain", name = "Plantain", price = 5, count = 1, isCrop = true, poolKey = "Base.Plantain", seedType = "BroadleafPlantain" },
+        { id = "Base.Poppies", name = "Poppies", price = 5, count = 1, isCrop = true, poolKey = "Base.Poppies", seedType = "Poppies" },
+        { id = "Base.Potato", name = "Potato", price = 5, count = 1, isCrop = true, poolKey = "Base.Potato", seedType = "Potatoes" },
+        { id = "Base.Pumpkin", name = "Pumpkin", price = 5, count = 1, isCrop = true, poolKey = "Base.Pumpkin", seedType = "Pumpkin" },
+        { id = "Base.RedRadish", name = "Radish", price = 5, count = 1, isCrop = true, poolKey = "Base.RedRadish", seedType = "Radishes" },
+        { id = "Base.Rosemary", name = "Rosemary", price = 5, count = 1, isCrop = true, poolKey = "Base.Rosemary", seedType = "Rosemary" },
+        { id = "Base.Roses", name = "Roses", price = 5, count = 1, isCrop = true, poolKey = "Base.Roses", seedType = "Roses" },
+        { id = "Base.RyeSheaf", name = "Rye Sheaf", price = 5, count = 1, isCrop = true, poolKey = "Base.RyeSheaf", seedType = "Rye" },
+        { id = "Base.Sage", name = "Sage", price = 5, count = 1, isCrop = true, poolKey = "Base.Sage", seedType = "Sage" },
+        { id = "Base.Soybeans", name = "Soybeans", price = 5, count = 1, isCrop = true, poolKey = "Base.Soybeans", seedType = "Soybeans" },
+        { id = "Base.Spinach", name = "Spinach", price = 5, count = 1, isCrop = true, poolKey = "Base.Spinach", seedType = "Spinach" },
+        { id = "Base.Strewberrie", name = "Strawberries", price = 5, count = 1, isCrop = true, poolKey = "Base.Strewberrie", seedType = "Strawberryplant" },
+        { id = "Base.SugarBeet", name = "Sugar Beet", price = 5, count = 1, isCrop = true, poolKey = "Base.SugarBeet", seedType = "SugarBeets" },
+        { id = "Base.SunflowerHead", name = "Sunflower Head", price = 5, count = 1, isCrop = true, poolKey = "Base.SunflowerHead", seedType = "Sunflower" },
+        { id = "Base.SweetPotato", name = "Sweet Potato", price = 5, count = 1, isCrop = true, poolKey = "Base.SweetPotato", seedType = "SweetPotato" },
+        { id = "Base.Thyme", name = "Thyme", price = 5, count = 1, isCrop = true, poolKey = "Base.Thyme", seedType = "Thyme" },
+        { id = "Base.Tobacco", name = "Tobacco", price = 5, count = 1, isCrop = true, poolKey = "Base.Tobacco", seedType = "Tobacco" },
+        { id = "Base.Tomato", name = "Tomato", price = 5, count = 1, isCrop = true, poolKey = "Base.Tomato", seedType = "Tomato" },
+        { id = "Base.Turnip", name = "Turnip", price = 5, count = 1, isCrop = true, poolKey = "Base.Turnip", seedType = "Turnip" },
+        { id = "Base.Watermelon", name = "Watermelon", price = 5, count = 1, isCrop = true, poolKey = "Base.Watermelon", seedType = "Watermelon" },
+        { id = "Base.WheatSheaf", name = "Wheat Sheaf", price = 5, count = 1, isCrop = true, poolKey = "Base.WheatSheaf", seedType = "Wheat" },
+        { id = "Base.WildGarlic2", name = "Wild Garlic", price = 5, count = 1, isCrop = true, poolKey = "Base.WildGarlic2", seedType = "WildGarlic" },
+        { id = "Base.Zucchini", name = "Zucchini", price = 5, count = 1, isCrop = true, poolKey = "Base.Zucchini", seedType = "Zucchini" },
+    },
+
     -- 日替わり特売・スポット入荷枠（バニラCrateから動的抽選・初期空テーブル）
     Daily = {},
 }
+
+-- ---------------------------------------------------------------------------
+-- 契約農園: 種・種袋アイテムマッピング
+-- ---------------------------------------------------------------------------
+-- バラ種は1個分、パッケージされた種袋は5個分としてプールにカウント
+RadioTrader_SeedMapping = {
+    ["Base.BarleySeed"] = { cropId = "Base.BarleySheaf", poolKey = "Base.BarleySheaf", count = 1, name = "Barley Sheaf Seeds" },
+    ["Base.BarleyBagSeed"] = { cropId = "Base.BarleySheaf", poolKey = "Base.BarleySheaf", count = 5, name = "Barley Sheaf Seed Packet" },
+    ["Base.BasilSeed"] = { cropId = "Base.Basil", poolKey = "Base.Basil", count = 1, name = "Basil Seeds" },
+    ["Base.BasilBagSeed"] = { cropId = "Base.Basil", poolKey = "Base.Basil", count = 5, name = "Basil Seed Packet" },
+    ["Base.BellPepperSeed"] = { cropId = "Base.BellPepper", poolKey = "Base.BellPepper", count = 1, name = "Bell Pepper Seeds" },
+    ["Base.BellPepperBagSeed"] = { cropId = "Base.BellPepper", poolKey = "Base.BellPepper", count = 5, name = "Bell Pepper Seed Packet" },
+    ["Base.BlackSageSeed"] = { cropId = "Base.BlackSage", poolKey = "Base.BlackSage", count = 1, name = "Black Sage Seeds" },
+    ["Base.BlackSageBagSeed"] = { cropId = "Base.BlackSage", poolKey = "Base.BlackSage", count = 5, name = "Black Sage Seed Packet" },
+    ["Base.BroccoliSeed"] = { cropId = "Base.Broccoli", poolKey = "Base.Broccoli", count = 1, name = "Broccoli Seeds" },
+    ["Base.BroccoliBagSeed2"] = { cropId = "Base.Broccoli", poolKey = "Base.Broccoli", count = 5, name = "Broccoli Seed Packet" },
+    ["Base.CabbageSeed"] = { cropId = "Base.Cabbage", poolKey = "Base.Cabbage", count = 1, name = "Cabbage Seeds" },
+    ["Base.CabbageBagSeed2"] = { cropId = "Base.Cabbage", poolKey = "Base.Cabbage", count = 5, name = "Cabbage Seed Packet" },
+    ["Base.CarrotSeed"] = { cropId = "Base.Carrots", poolKey = "Base.Carrots", count = 1, name = "Carrots Seeds" },
+    ["Base.CarrotBagSeed2"] = { cropId = "Base.Carrots", poolKey = "Base.Carrots", count = 5, name = "Carrots Seed Packet" },
+    ["Base.CauliflowerSeed"] = { cropId = "Base.Cauliflower", poolKey = "Base.Cauliflower", count = 1, name = "Cauliflower Seeds" },
+    ["Base.CauliflowerBagSeed"] = { cropId = "Base.Cauliflower", poolKey = "Base.Cauliflower", count = 5, name = "Cauliflower Seed Packet" },
+    ["Base.ChamomileSeed"] = { cropId = "Base.Chamomile", poolKey = "Base.Chamomile", count = 1, name = "Chamomile Seeds" },
+    ["Base.ChamomileBagSeed"] = { cropId = "Base.Chamomile", poolKey = "Base.Chamomile", count = 5, name = "Chamomile Seed Packet" },
+    ["Base.ChivesSeed"] = { cropId = "Base.Chives", poolKey = "Base.Chives", count = 1, name = "Chives Seeds" },
+    ["Base.ChivesBagSeed"] = { cropId = "Base.Chives", poolKey = "Base.Chives", count = 5, name = "Chives Seed Packet" },
+    ["Base.CilantroSeed"] = { cropId = "Base.Cilantro", poolKey = "Base.Cilantro", count = 1, name = "Cilantro Seeds" },
+    ["Base.CilantroBagSeed"] = { cropId = "Base.Cilantro", poolKey = "Base.Cilantro", count = 5, name = "Cilantro Seed Packet" },
+    ["Base.ComfreySeed"] = { cropId = "Base.Comfrey", poolKey = "Base.Comfrey", count = 1, name = "Comfrey Seeds" },
+    ["Base.ComfreyBagSeed"] = { cropId = "Base.Comfrey", poolKey = "Base.Comfrey", count = 5, name = "Comfrey Seed Packet" },
+    ["Base.CommonMallowSeed"] = { cropId = "Base.CommonMallow", poolKey = "Base.CommonMallow", count = 1, name = "Common Mallow Seeds" },
+    ["Base.CommonMallowBagSeed"] = { cropId = "Base.CommonMallow", poolKey = "Base.CommonMallow", count = 5, name = "Common Mallow Seed Packet" },
+    ["Base.CornSeed"] = { cropId = "Base.Corn", poolKey = "Base.Corn", count = 1, name = "Corn Seeds" },
+    ["Base.CornBagSeed"] = { cropId = "Base.Corn", poolKey = "Base.Corn", count = 5, name = "Corn Seed Packet" },
+    ["Base.CucumberSeed"] = { cropId = "Base.Cucumber", poolKey = "Base.Cucumber", count = 1, name = "Cucumber Seeds" },
+    ["Base.CucumberBagSeed"] = { cropId = "Base.Cucumber", poolKey = "Base.Cucumber", count = 5, name = "Cucumber Seed Packet" },
+    ["Base.FlaxSeed"] = { cropId = "Base.Flax", poolKey = "Base.Flax", count = 1, name = "Flax Seeds" },
+    ["Base.FlaxBagSeed"] = { cropId = "Base.Flax", poolKey = "Base.Flax", count = 5, name = "Flax Seed Packet" },
+    ["Base.GarlicSeed"] = { cropId = "Base.Garlic", poolKey = "Base.Garlic", count = 1, name = "Garlic Seeds" },
+    ["Base.GarlicBagSeed"] = { cropId = "Base.Garlic", poolKey = "Base.Garlic", count = 5, name = "Garlic Seed Packet" },
+    ["Base.GreenpeasSeed"] = { cropId = "Base.Greenpeas", poolKey = "Base.Greenpeas", count = 1, name = "Green Peas Seeds" },
+    ["Base.GreenpeasBagSeed"] = { cropId = "Base.Greenpeas", poolKey = "Base.Greenpeas", count = 5, name = "Green Peas Seed Packet" },
+    ["Base.HabaneroSeed"] = { cropId = "Base.PepperHabanero", poolKey = "Base.PepperHabanero", count = 1, name = "Habanero Seeds" },
+    ["Base.HabaneroBagSeed"] = { cropId = "Base.PepperHabanero", poolKey = "Base.PepperHabanero", count = 5, name = "Habanero Seed Packet" },
+    ["Base.HempSeed"] = { cropId = "Base.HempBundle", poolKey = "Base.HempBundle", count = 1, name = "Hemp Seeds" },
+    ["Base.HempBagSeed"] = { cropId = "Base.HempBundle", poolKey = "Base.HempBundle", count = 5, name = "Hemp Seed Packet" },
+    ["Base.HopsSeed"] = { cropId = "Base.Hops", poolKey = "Base.Hops", count = 1, name = "Hops Seeds" },
+    ["Base.HopsBagSeed"] = { cropId = "Base.Hops", poolKey = "Base.Hops", count = 5, name = "Hops Seed Packet" },
+    ["Base.JalapenoSeed"] = { cropId = "Base.PepperJalapeno", poolKey = "Base.PepperJalapeno", count = 1, name = "Jalapeno Seeds" },
+    ["Base.JalapenoBagSeed"] = { cropId = "Base.PepperJalapeno", poolKey = "Base.PepperJalapeno", count = 5, name = "Jalapeno Seed Packet" },
+    ["Base.KaleSeed"] = { cropId = "Base.Kale", poolKey = "Base.Kale", count = 1, name = "Kale Seeds" },
+    ["Base.KaleBagSeed"] = { cropId = "Base.Kale", poolKey = "Base.Kale", count = 5, name = "Kale Seed Packet" },
+    ["Base.LavenderSeed"] = { cropId = "Base.Lavender", poolKey = "Base.Lavender", count = 1, name = "Lavender Seeds" },
+    ["Base.LavenderBagSeed"] = { cropId = "Base.Lavender", poolKey = "Base.Lavender", count = 5, name = "Lavender Seed Packet" },
+    ["Base.LeekSeed"] = { cropId = "Base.Leek", poolKey = "Base.Leek", count = 1, name = "Leek Seeds" },
+    ["Base.LeekBagSeed"] = { cropId = "Base.Leek", poolKey = "Base.Leek", count = 5, name = "Leek Seed Packet" },
+    ["Base.LemonGrassSeed"] = { cropId = "Base.LemonGrass", poolKey = "Base.LemonGrass", count = 1, name = "Lemongrass Seeds" },
+    ["Base.LemonGrassBagSeed"] = { cropId = "Base.LemonGrass", poolKey = "Base.LemonGrass", count = 5, name = "Lemongrass Seed Packet" },
+    ["Base.LettuceSeed"] = { cropId = "Base.Lettuce", poolKey = "Base.Lettuce", count = 1, name = "Lettuce Seeds" },
+    ["Base.LettuceBagSeed"] = { cropId = "Base.Lettuce", poolKey = "Base.Lettuce", count = 5, name = "Lettuce Seed Packet" },
+    ["Base.MarigoldSeed"] = { cropId = "Base.Marigold", poolKey = "Base.Marigold", count = 1, name = "Marigold Seeds" },
+    ["Base.MarigoldBagSeed"] = { cropId = "Base.Marigold", poolKey = "Base.Marigold", count = 5, name = "Marigold Seed Packet" },
+    ["Base.MintSeed"] = { cropId = "Base.MintHerb", poolKey = "Base.MintHerb", count = 1, name = "Mint Seeds" },
+    ["Base.MintBagSeed"] = { cropId = "Base.MintHerb", poolKey = "Base.MintHerb", count = 5, name = "Mint Seed Packet" },
+    ["Base.OnionSeed"] = { cropId = "Base.Onion", poolKey = "Base.Onion", count = 1, name = "Onion Seeds" },
+    ["Base.OnionBagSeed"] = { cropId = "Base.Onion", poolKey = "Base.Onion", count = 5, name = "Onion Seed Packet" },
+    ["Base.OreganoSeed"] = { cropId = "Base.Oregano", poolKey = "Base.Oregano", count = 1, name = "Oregano Seeds" },
+    ["Base.OreganoBagSeed"] = { cropId = "Base.Oregano", poolKey = "Base.Oregano", count = 5, name = "Oregano Seed Packet" },
+    ["Base.ParsleySeed"] = { cropId = "Base.Parsley", poolKey = "Base.Parsley", count = 1, name = "Parsley Seeds" },
+    ["Base.ParsleyBagSeed"] = { cropId = "Base.Parsley", poolKey = "Base.Parsley", count = 5, name = "Parsley Seed Packet" },
+    ["Base.BroadleafPlantainSeed"] = { cropId = "Base.Plantain", poolKey = "Base.Plantain", count = 1, name = "Plantain Seeds" },
+    ["Base.BroadleafPlantainBagSeed"] = { cropId = "Base.Plantain", poolKey = "Base.Plantain", count = 5, name = "Plantain Seed Packet" },
+    ["Base.PoppySeed"] = { cropId = "Base.Poppies", poolKey = "Base.Poppies", count = 1, name = "Poppies Seeds" },
+    ["Base.PoppyBagSeed"] = { cropId = "Base.Poppies", poolKey = "Base.Poppies", count = 5, name = "Poppies Seed Packet" },
+    ["Base.PotatoSeed"] = { cropId = "Base.Potato", poolKey = "Base.Potato", count = 1, name = "Potato Seeds" },
+    ["Base.PotatoBagSeed2"] = { cropId = "Base.Potato", poolKey = "Base.Potato", count = 5, name = "Potato Seed Packet" },
+    ["Base.PumpkinSeed"] = { cropId = "Base.Pumpkin", poolKey = "Base.Pumpkin", count = 1, name = "Pumpkin Seeds" },
+    ["Base.PumpkinBagSeed"] = { cropId = "Base.Pumpkin", poolKey = "Base.Pumpkin", count = 5, name = "Pumpkin Seed Packet" },
+    ["Base.RedRadishSeed"] = { cropId = "Base.RedRadish", poolKey = "Base.RedRadish", count = 1, name = "Radish Seeds" },
+    ["Base.RedRadishBagSeed2"] = { cropId = "Base.RedRadish", poolKey = "Base.RedRadish", count = 5, name = "Radish Seed Packet" },
+    ["Base.RosemarySeed"] = { cropId = "Base.Rosemary", poolKey = "Base.Rosemary", count = 1, name = "Rosemary Seeds" },
+    ["Base.RosemaryBagSeed"] = { cropId = "Base.Rosemary", poolKey = "Base.Rosemary", count = 5, name = "Rosemary Seed Packet" },
+    ["Base.RoseSeed"] = { cropId = "Base.Roses", poolKey = "Base.Roses", count = 1, name = "Roses Seeds" },
+    ["Base.RoseBagSeed"] = { cropId = "Base.Roses", poolKey = "Base.Roses", count = 5, name = "Roses Seed Packet" },
+    ["Base.RyeSeed"] = { cropId = "Base.RyeSheaf", poolKey = "Base.RyeSheaf", count = 1, name = "Rye Sheaf Seeds" },
+    ["Base.RyeBagSeed"] = { cropId = "Base.RyeSheaf", poolKey = "Base.RyeSheaf", count = 5, name = "Rye Sheaf Seed Packet" },
+    ["Base.SageSeed"] = { cropId = "Base.Sage", poolKey = "Base.Sage", count = 1, name = "Sage Seeds" },
+    ["Base.SageBagSeed"] = { cropId = "Base.Sage", poolKey = "Base.Sage", count = 5, name = "Sage Seed Packet" },
+    ["Base.SoybeansSeed"] = { cropId = "Base.Soybeans", poolKey = "Base.Soybeans", count = 1, name = "Soybeans Seeds" },
+    ["Base.SoybeansBagSeed"] = { cropId = "Base.Soybeans", poolKey = "Base.Soybeans", count = 5, name = "Soybeans Seed Packet" },
+    ["Base.SpinachSeed"] = { cropId = "Base.Spinach", poolKey = "Base.Spinach", count = 1, name = "Spinach Seeds" },
+    ["Base.SpinachBagSeed"] = { cropId = "Base.Spinach", poolKey = "Base.Spinach", count = 5, name = "Spinach Seed Packet" },
+    ["Base.StrewberrieSeed"] = { cropId = "Base.Strewberrie", poolKey = "Base.Strewberrie", count = 1, name = "Strawberries Seeds" },
+    ["Base.StrewberrieBagSeed2"] = { cropId = "Base.Strewberrie", poolKey = "Base.Strewberrie", count = 5, name = "Strawberries Seed Packet" },
+    ["Base.SugarBeetSeed"] = { cropId = "Base.SugarBeet", poolKey = "Base.SugarBeet", count = 1, name = "Sugar Beet Seeds" },
+    ["Base.SugarBeetBagSeed"] = { cropId = "Base.SugarBeet", poolKey = "Base.SugarBeet", count = 5, name = "Sugar Beet Seed Packet" },
+    ["Base.SunflowerSeeds"] = { cropId = "Base.SunflowerHead", poolKey = "Base.SunflowerHead", count = 1, name = "Sunflower Head Seeds" },
+    ["Base.SunflowerBagSeed"] = { cropId = "Base.SunflowerHead", poolKey = "Base.SunflowerHead", count = 5, name = "Sunflower Head Seed Packet" },
+    ["Base.SweetPotatoSeed"] = { cropId = "Base.SweetPotato", poolKey = "Base.SweetPotato", count = 1, name = "Sweet Potato Seeds" },
+    ["Base.SweetPotatoBagSeed"] = { cropId = "Base.SweetPotato", poolKey = "Base.SweetPotato", count = 5, name = "Sweet Potato Seed Packet" },
+    ["Base.ThymeSeed"] = { cropId = "Base.Thyme", poolKey = "Base.Thyme", count = 1, name = "Thyme Seeds" },
+    ["Base.ThymeBagSeed"] = { cropId = "Base.Thyme", poolKey = "Base.Thyme", count = 5, name = "Thyme Seed Packet" },
+    ["Base.TobaccoSeed"] = { cropId = "Base.Tobacco", poolKey = "Base.Tobacco", count = 1, name = "Tobacco Seeds" },
+    ["Base.TobaccoBagSeed"] = { cropId = "Base.Tobacco", poolKey = "Base.Tobacco", count = 5, name = "Tobacco Seed Packet" },
+    ["Base.TomatoSeed"] = { cropId = "Base.Tomato", poolKey = "Base.Tomato", count = 1, name = "Tomato Seeds" },
+    ["Base.TomatoBagSeed2"] = { cropId = "Base.Tomato", poolKey = "Base.Tomato", count = 5, name = "Tomato Seed Packet" },
+    ["Base.TurnipSeed"] = { cropId = "Base.Turnip", poolKey = "Base.Turnip", count = 1, name = "Turnip Seeds" },
+    ["Base.TurnipBagSeed"] = { cropId = "Base.Turnip", poolKey = "Base.Turnip", count = 5, name = "Turnip Seed Packet" },
+    ["Base.WatermelonSeed"] = { cropId = "Base.Watermelon", poolKey = "Base.Watermelon", count = 1, name = "Watermelon Seeds" },
+    ["Base.WatermelonBagSeed"] = { cropId = "Base.Watermelon", poolKey = "Base.Watermelon", count = 5, name = "Watermelon Seed Packet" },
+    ["Base.WheatSeed"] = { cropId = "Base.WheatSheaf", poolKey = "Base.WheatSheaf", count = 1, name = "Wheat Sheaf Seeds" },
+    ["Base.WheatBagSeed"] = { cropId = "Base.WheatSheaf", poolKey = "Base.WheatSheaf", count = 5, name = "Wheat Sheaf Seed Packet" },
+    ["Base.WildGarlicSeed"] = { cropId = "Base.WildGarlic2", poolKey = "Base.WildGarlic2", count = 1, name = "Wild Garlic Seeds" },
+    ["Base.WildGarlicBagSeed"] = { cropId = "Base.WildGarlic2", poolKey = "Base.WildGarlic2", count = 5, name = "Wild Garlic Seed Packet" },
+    ["Base.ZucchiniSeed"] = { cropId = "Base.Zucchini", poolKey = "Base.Zucchini", count = 1, name = "Zucchini Seeds" },
+    ["Base.ZucchiniBagSeed"] = { cropId = "Base.Zucchini", poolKey = "Base.Zucchini", count = 5, name = "Zucchini Seed Packet" },
+    -- 互換性エイリアス (旧種袋ID)
+    ["Base.BroccoliBagSeed"] = { cropId = "Base.Broccoli", poolKey = "Base.Broccoli", count = 5, name = "Seed Packet (Legacy)" },
+    ["Base.CabbageBagSeed"] = { cropId = "Base.Cabbage", poolKey = "Base.Cabbage", count = 5, name = "Seed Packet (Legacy)" },
+    ["Base.CarrotBagSeed"] = { cropId = "Base.Carrots", poolKey = "Base.Carrots", count = 5, name = "Seed Packet (Legacy)" },
+    ["Base.PotatoBagSeed"] = { cropId = "Base.Potato", poolKey = "Base.Potato", count = 5, name = "Seed Packet (Legacy)" },
+    ["Base.RedRadishBagSeed"] = { cropId = "Base.RedRadish", poolKey = "Base.RedRadish", count = 5, name = "Seed Packet (Legacy)" },
+    ["Base.TomatoBagSeed"] = { cropId = "Base.Tomato", poolKey = "Base.Tomato", count = 5, name = "Seed Packet (Legacy)" },
+    ["Base.StrewberrieBagSeed"] = { cropId = "Base.Strewberrie", poolKey = "Base.Strewberrie", count = 5, name = "Seed Packet (Legacy)" },
+}
+
+-- ---------------------------------------------------------------------------
+-- 契約農園: 収穫量計算ヘルパー
+-- ---------------------------------------------------------------------------
+-- 作物IDとプレイヤーの耕作Lvから、1回分の収穫量（30%〜75%乱数）を計算
+RadioTrader_CropYieldDefaults = {
+    ["Base.BarleySheaf"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Barley" },
+    ["Base.Basil"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Basil" },
+    ["Base.BellPepper"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "BellPepper" },
+    ["Base.BlackSage"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "BlackSage" },
+    ["Base.Broccoli"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Broccoli" },
+    ["Base.Cabbage"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Cabbages" },
+    ["Base.Carrots"] = { minVeg = 3, maxVeg = 6, minVegAutorized = 10, maxVegAutorized = 15, seedType = "Carrots" },
+    ["Base.Cauliflower"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Cauliflower" },
+    ["Base.Chamomile"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Chamomile" },
+    ["Base.Chives"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Chives" },
+    ["Base.Cilantro"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Cilantro" },
+    ["Base.Comfrey"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Comfrey" },
+    ["Base.CommonMallow"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "CommonMallow" },
+    ["Base.Corn"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Corn" },
+    ["Base.Cucumber"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Cucumber" },
+    ["Base.Flax"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Flax" },
+    ["Base.Garlic"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "Garlic" },
+    ["Base.Greenpeas"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Greenpeas" },
+    ["Base.PepperHabanero"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Habanero" },
+    ["Base.HempBundle"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Hemp" },
+    ["Base.Hops"] = { minVeg = 3, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 9, seedType = "Hops" },
+    ["Base.PepperJalapeno"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Jalapeno" },
+    ["Base.Kale"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "Kale" },
+    ["Base.Lavender"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Lavender" },
+    ["Base.Leek"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "Leek" },
+    ["Base.LemonGrass"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "LemonGrass" },
+    ["Base.Lettuce"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Lettuce" },
+    ["Base.Marigold"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Marigold" },
+    ["Base.MintHerb"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Mint" },
+    ["Base.Onion"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "Onion" },
+    ["Base.Oregano"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Oregano" },
+    ["Base.Parsley"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Parsley" },
+    ["Base.Plantain"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "BroadleafPlantain" },
+    ["Base.Poppies"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Poppies" },
+    ["Base.Potato"] = { minVeg = 3, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 9, seedType = "Potatoes" },
+    ["Base.Pumpkin"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "Pumpkin" },
+    ["Base.RedRadish"] = { minVeg = 4, maxVeg = 9, minVegAutorized = 11, maxVegAutorized = 15, seedType = "Radishes" },
+    ["Base.Rosemary"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "Rosemary" },
+    ["Base.Roses"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Roses" },
+    ["Base.RyeSheaf"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Rye" },
+    ["Base.Sage"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Sage" },
+    ["Base.Soybeans"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Soybeans" },
+    ["Base.Spinach"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Spinach" },
+    ["Base.Strewberrie"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 8, maxVegAutorized = 14, seedType = "Strawberryplant" },
+    ["Base.SugarBeet"] = { minVeg = 4, maxVeg = 9, minVegAutorized = 11, maxVegAutorized = 15, seedType = "SugarBeets" },
+    ["Base.SunflowerHead"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Sunflower" },
+    ["Base.SweetPotato"] = { minVeg = 3, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 9, seedType = "SweetPotato" },
+    ["Base.Thyme"] = { minVeg = 4, maxVeg = 6, minVegAutorized = 9, maxVegAutorized = 11, seedType = "Thyme" },
+    ["Base.Tobacco"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Tobacco" },
+    ["Base.Tomato"] = { minVeg = 4, maxVeg = 5, minVegAutorized = 6, maxVegAutorized = 10, seedType = "Tomato" },
+    ["Base.Turnip"] = { minVeg = 3, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 9, seedType = "Turnip" },
+    ["Base.Watermelon"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "Watermelon" },
+    ["Base.WheatSheaf"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Wheat" },
+    ["Base.WildGarlic2"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 5, maxVegAutorized = 8, seedType = "WildGarlic" },
+    ["Base.Zucchini"] = { minVeg = 2, maxVeg = 4, minVegAutorized = 6, maxVegAutorized = 8, seedType = "Zucchini" },
+}
+
+function RadioTrader_CalculateCropYield(cropId, farmingLevel)
+    farmingLevel = math.min(10, math.max(0, farmingLevel or 0))
+    local def = RadioTrader_CropYieldDefaults[cropId] or { minVeg = 3, maxVeg = 6, minVegAutorized = 6, maxVegAutorized = 10 }
+
+    local minVeg = def.minVeg
+    local maxVeg = def.maxVeg
+    local minVegAut = def.minVegAutorized
+    local maxVegAut = def.maxVegAutorized
+
+    -- バニラの farming_vegetableconf が存在する場合は実機定義を優先参照
+    if farming_vegetableconf and farming_vegetableconf.props and def.seedType then
+        local prop = farming_vegetableconf.props[def.seedType]
+        if prop then
+            minVeg = prop.minVeg or minVeg
+            maxVeg = prop.maxVeg or maxVeg
+            minVegAut = prop.minVegAutorized or minVegAut
+            maxVegAut = prop.maxVegAutorized or maxVegAut
+        end
+    end
+
+    local minVal = minVeg + (farmingLevel / 10) * (minVegAut - minVeg)
+    local maxVal = maxVeg + (farmingLevel / 10) * (maxVegAut - maxVeg)
+    if maxVal < minVal then maxVal = minVal end
+
+    local fullYield = minVal
+    if ZombRand then
+        fullYield = ZombRand(math.floor(minVal), math.ceil(maxVal) + 1)
+    else
+        fullYield = math.random(math.floor(minVal), math.ceil(maxVal))
+    end
+
+    -- 30% 〜 75% の乱数を適用
+    local ratio = 0.5
+    if ZombRand then
+        ratio = ZombRand(30, 76) / 100
+    else
+        ratio = math.random(30, 75) / 100
+    end
+
+    local finalYield = math.max(1, math.floor(fullYield * ratio + 0.5))
+    return finalYield
+end
 
 -- ---------------------------------------------------------------------------
 -- 売却査定対象テーブル (仕様書 5.2 準拠: 隔離地域遺物・一次資料・貴金属・農作物)
@@ -1501,7 +1791,7 @@ RadioTrader_Sell = {
     { id = "Base.Apple",               name = "Fresh Apple",          basePricePerUnit = 2,   category = "Produce" },
     { id = "Base.Peach",               name = "Fresh Peach",          basePricePerUnit = 2,   category = "Produce" },
     { id = "Base.Watermelon",          name = "Fresh Watermelon",     basePricePerUnit = 2,   category = "Produce" },
-    { id = "Base.Strawberry",          name = "Fresh Strawberry",     basePricePerUnit = 2,   category = "Produce" },
+    { id = "Base.Strewberrie",          name = "Fresh Strawberry",     basePricePerUnit = 2,   category = "Produce" },
     { id = "Base.Onion",               name = "Fresh Onion",          basePricePerUnit = 2,   category = "Produce" },
     { id = "Base.Lettuce",             name = "Fresh Lettuce",        basePricePerUnit = 2,   category = "Produce" },
     { id = "Base.BellPepper",          name = "Fresh Bell Pepper",    basePricePerUnit = 2,   category = "Produce" },
@@ -1545,9 +1835,53 @@ RadioTrader_Sell = {
 function RadioTrader_ItemsTable_GetSellEntry(itemId)
     if not itemId then return nil end
 
+    -- 0. 契約農園の種・種袋マッピングを最優先チェック (Base.有無・大文字小文字に対応)
+    if RadioTrader_SeedMapping then
+        local match = RadioTrader_SeedMapping[itemId]
+        if not match and not string.find(itemId, "%.") then
+            match = RadioTrader_SeedMapping["Base." .. itemId]
+        end
+        if not match and string.find(itemId, "^Base%.") then
+            local stripped = string.gsub(itemId, "^Base%.", "")
+            match = RadioTrader_SeedMapping[stripped]
+        end
+        if match then
+            return {
+                id               = itemId,
+                name             = match.name or "Seeds",
+                basePricePerUnit = 0,
+                category         = "Seed",
+                poolKey          = match.poolKey,
+                poolCount        = match.count or 1,
+            }
+        end
+    end
+
     -- 1. 完全一致
     for _, entry in ipairs(RadioTrader_Sell) do
         if entry.id == itemId then return entry end
+    end
+
+    -- 2. 種・種袋のスマートフォールバック（命名規則から作物を自動特定）
+    if string.find(itemId, "BagSeed") or string.find(itemId, "Seed") then
+        local cleanId = string.gsub(itemId, "^Base%.", "")
+        local isPacket = string.find(cleanId, "Bag") or string.find(cleanId, "Pack")
+        if RadioTrader_Shop and RadioTrader_Shop.Crops then
+            for _, crop in ipairs(RadioTrader_Shop.Crops) do
+                local cropPure = string.gsub(crop.id, "^Base%.", "")
+                local seedPure = crop.seedType or cropPure
+                if string.find(cleanId, cropPure) or string.find(cleanId, seedPure) then
+                    return {
+                        id               = itemId,
+                        name             = crop.name .. (isPacket and " Seed Packet" or " Seeds"),
+                        basePricePerUnit = 0,
+                        category         = "Seed",
+                        poolKey          = crop.id,
+                        poolCount        = isPacket and 5 or 1,
+                    }
+                end
+            end
+        end
     end
 
     -- 2. スマートパターンマッチング (バリエーション・Mod対応フォールバック)
@@ -1694,6 +2028,7 @@ end
 -- 日替わり、種類別バッグ（全種）、特殊機材の3つに集約してすっきり整理
 RadioTrader_ShopCategories = {
     { key = "Daily", label = "[Daily] Daily Deals"           },
+    { key = "Crops", label = "[Crops] Produce Exchange"      },
     { key = "Bags",  label = "[Bags] Supply Bags"            },
     { key = "Misc",  label = "[Misc] Machinery & Gear"       },
 }
@@ -1777,13 +2112,28 @@ function RadioTrader_AssessContainer(player)
     local eggGroup      = { items = {}, count = 0, effectiveUnits = 0 }
     local produceGroup  = { items = {}, count = 0, effectiveUnits = 0 }
 
-    local items = container:getItems()
-    if items then
+    local function scanInventory(targetContainer)
+        if not targetContainer then return end
+        local items = targetContainer:getItems()
+        if not items then return end
+
         for i = 0, items:size() - 1 do
             local item = items:get(i)
             if item then
                 local itemType = item:getFullType()
                 local sellEntry = RadioTrader_ItemsTable_GetSellEntry(itemType)
+
+                -- フォールバック: タグやgetType()での再チェック
+                if not sellEntry then
+                    local isSeedTag = false
+                    if item.hasTag and (item:hasTag("base:isseed") or item:hasTag("isseed")) then
+                        isSeedTag = true
+                    end
+                    if isSeedTag or (item.getDisplayCategory and item:getDisplayCategory() == "Gardening" and string.find(itemType, "Seed")) then
+                        sellEntry = RadioTrader_ItemsTable_GetSellEntry(item:getType())
+                    end
+                end
+
                 if sellEntry then
                     -- コンディション計算（耐久度）
                     local condition = 1.0
@@ -1802,32 +2152,40 @@ function RadioTrader_AssessContainer(player)
                         freshness = 0.5
                     end
 
-                    if freshness > 0 and condition >= cfg.MIN_SELL_CONDITION then
+                    if sellEntry.category == "Seed" then
+                        -- 契約農園: 種・種袋（クレジット0 CR、プール加算用）
+                        table.insert(assessedItems, {
+                            item      = item,
+                            container = targetContainer,
+                            name      = sellEntry.name,
+                            credits   = 0,
+                            condition = 1.0,
+                            isSeed    = true,
+                            poolKey   = sellEntry.poolKey,
+                            poolCount = sellEntry.poolCount or 1,
+                        })
+                    elseif freshness > 0 and condition >= cfg.MIN_SELL_CONDITION then
                         -- カテゴリ別分岐: ロット・重量集計対象
                         if sellEntry.category == "MeatFish" then
-                            -- 切り身・生肉: 重量スケーリング
                             local w = 0.3
                             if item.getActualWeight then
                                 w = item:getActualWeight() or 0.3
                             end
                             local effectiveW = w * freshness
                             meatFishGroup.totalWeight = meatFishGroup.totalWeight + effectiveW
-                            table.insert(meatFishGroup.items, { item = item, name = sellEntry.name, condition = condition })
+                            table.insert(meatFishGroup.items, { item = item, container = targetContainer, name = sellEntry.name, condition = condition })
 
                         elseif sellEntry.category == "Egg" then
-                            -- 卵: パック集計
                             eggGroup.count = eggGroup.count + 1
                             eggGroup.effectiveUnits = eggGroup.effectiveUnits + freshness
-                            table.insert(eggGroup.items, { item = item, name = sellEntry.name, condition = condition })
+                            table.insert(eggGroup.items, { item = item, container = targetContainer, name = sellEntry.name, condition = condition })
 
                         elseif sellEntry.category == "Produce" then
-                            -- 野菜・果物: ロット集計
                             produceGroup.count = produceGroup.count + 1
                             produceGroup.effectiveUnits = produceGroup.effectiveUnits + freshness
-                            table.insert(produceGroup.items, { item = item, name = sellEntry.name, condition = condition })
+                            table.insert(produceGroup.items, { item = item, container = targetContainer, name = sellEntry.name, condition = condition })
 
                         else
-                            -- 通常品目（貴金属、一次資料、時計、通貨など）
                             local basePrice = sellEntry.basePricePerUnit
                             if sellEntry.isRandom or string.find(itemType, "CreditCard") then
                                 local seed = (item.getID and item:getID()) or 0
@@ -1847,9 +2205,10 @@ function RadioTrader_AssessContainer(player)
 
                             if itemCredits > 0 then
                                 table.insert(assessedItems, {
-                                    item = item,
-                                    name = sellEntry.name,
-                                    credits = itemCredits,
+                                    item      = item,
+                                    container = targetContainer,
+                                    name      = sellEntry.name,
+                                    credits   = itemCredits,
                                     condition = condition,
                                 })
                                 totalCredits = totalCredits + itemCredits
@@ -1861,9 +2220,16 @@ function RadioTrader_AssessContainer(player)
                 else
                     table.insert(unacceptedItems, item:getName() or itemType)
                 end
+
+                -- バッグ（コンテナ内に入ったカバン等）の中身も再帰的に走査！
+                if item.getInventory and item:getInventory() then
+                    scanInventory(item:getInventory())
+                end
             end
         end
     end
+
+    scanInventory(container)
 
     local sellMult = RadioTrader_Config.getSellPriceMultiplier and RadioTrader_Config.getSellPriceMultiplier() or 1.0
 
