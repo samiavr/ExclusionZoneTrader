@@ -41,5 +41,7 @@
     "Sandbox_RT_HeliHordeRemoteRatioValue_option2": "Mostly Direct (Remote 25%% / Direct 75%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option3": "Balanced (Remote 50%% / Direct 50%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option4": "Mostly Remote (Remote 75%% / Direct 25%%)",
-    "Sandbox_RT_HeliHordeRemoteRatioValue_option5": "Remote Only (Remote 100%% / Direct 0%%)"
+    "Sandbox_RT_HeliHordeRemoteRatioValue_option5": "Remote Only (Remote 100%% / Direct 0%%)",
+    "Sandbox_RT_DroneDeliveryCost": "Stealth Drone Delivery Cost (CR)",
+    "Sandbox_RT_DroneDeliveryCost_tooltip": "Additional fee charged when ordering via silent stealth drone (no trailing horde, acoustic waves suppressed). (Default: 200 CR)"
 }

@@ -109,6 +109,7 @@ function RadioTrader_DeliveryTimer.reset(player)
     data.startHour      = nil
     data.deliveryHours  = nil
     data.isMegaHorde    = nil
+    data.isDrone        = nil
 end
 
 -- ---------------------------------------------------------------------------
@@ -155,39 +156,19 @@ local function checkTimers()
             local data  = getTimerData(player)
             local state = data.state or cfg.STATE_NONE
 
-            -- PENDING / APPROACHING: 到着時刻チェック
+            -- PENDING / APPROACHING: 到着時刻チェック（到着時に直接 READY_FOR_DROP へ遷移）
             if state == cfg.STATE_PENDING or state == cfg.STATE_APPROACHING then
                 local target = data.targetHour
-                if target then
-                    -- 接近警告チェック（到着 APPROACH_WARNING_MINUTES 分前）
-                    local approachThreshold = target - (cfg.APPROACH_WARNING_MINUTES / 60.0)
-                    if not data.approachWarned and now >= approachThreshold then
-                        data.approachWarned = true
-                        data.state = cfg.STATE_APPROACHING
-                        local approachPayload = {
-                            remainingMinutes = cfg.APPROACH_WARNING_MINUTES,
-                            isMegaHorde      = data.isMegaHorde or false,
-                        }
-                        if RadioTrader_ServerEngine and RadioTrader_ServerEngine.sendToClient then
-                            RadioTrader_ServerEngine.sendToClient(player, cfg.CMD_HELI_APPROACH, approachPayload)
-                        else
-                            sendServerCommand(player, "RadioTrader", cfg.CMD_HELI_APPROACH, approachPayload)
-                        end
-                        log(player:getUsername() .. " heli approaching warning sent (MegaHorde: " .. tostring(data.isMegaHorde) .. ")")
+                if target and now >= target then
+                    data.state    = cfg.STATE_READY_FOR_DROP
+                    data.readyHour = now  -- 有効期限の基準時刻を記録
+                    -- クライアントへ「投下要請可能」連絡（上空到着通知）
+                    if RadioTrader_ServerEngine and RadioTrader_ServerEngine.sendToClient then
+                        RadioTrader_ServerEngine.sendToClient(player, cfg.CMD_REQUEST_DROP, { expireHours = cfg.DROP_EXPIRE_HOURS })
+                    else
+                        sendServerCommand(player, "RadioTrader", cfg.CMD_REQUEST_DROP, { expireHours = cfg.DROP_EXPIRE_HOURS })
                     end
-
-                    -- 到着時刻に達した→ READY_FOR_DROP へ遷移（ヘリは自動発動しない）
-                    if now >= target then
-                        data.state    = cfg.STATE_READY_FOR_DROP
-                        data.readyHour = now  -- 有効期限の基準時刻を記録
-                        -- クライアントへ「投下要請可能」連絡
-                        if RadioTrader_ServerEngine and RadioTrader_ServerEngine.sendToClient then
-                            RadioTrader_ServerEngine.sendToClient(player, cfg.CMD_REQUEST_DROP, { expireHours = cfg.DROP_EXPIRE_HOURS })
-                        else
-                            sendServerCommand(player, "RadioTrader", cfg.CMD_REQUEST_DROP, { expireHours = cfg.DROP_EXPIRE_HOURS })
-                        end
-                        log(player:getUsername() .. " delivery ready, awaiting manual drop request")
-                    end
+                    log(player:getUsername() .. " arrival time reached, awaiting manual drop request")
                 end
 
             -- READY_FOR_DROP: 48h 期限切れチェック
@@ -260,7 +241,7 @@ local function onGameTimeLoaded()
                 local gmd = ModData.getOrCreate("RadioTrader_" .. getUsernameSafe(player))
                 if gmd and gmd[RadioTrader_Config.KEY_ORDER] then
                     log(player:getUsername() .. " resuming interrupted delivery")
-                    RadioTrader_HeliEvent.trigger(player)
+                    RadioTrader_HeliEvent.trigger(player, data.isMegaHorde or false, data.isDrone or false)
                 else
                     log(player:getUsername() .. " delivery order already completed. Resetting timer.")
                     RadioTrader_DeliveryTimer.reset(player)

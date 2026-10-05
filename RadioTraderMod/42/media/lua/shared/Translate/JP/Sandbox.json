@@ -41,5 +41,7 @@
     "Sandbox_RT_HeliHordeRemoteRatioValue_option2": "近接多め (遠隔 25%% / 近接 75%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option3": "バランス (遠隔 50%% / 近接 50%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option4": "遠隔多め (遠隔 75%% / 近接 25%%)",
-    "Sandbox_RT_HeliHordeRemoteRatioValue_option5": "遠隔のみ (遠隔 100%% / 近接 0%%)"
+    "Sandbox_RT_HeliHordeRemoteRatioValue_option5": "遠隔のみ (遠隔 100%% / 近接 0%%)",
+    "Sandbox_RT_DroneDeliveryCost": "ステルスドローン配送基本料金 (CR)",
+    "Sandbox_RT_DroneDeliveryCost_tooltip": "無音ステルスドローンによる物資投下（ホード生成なし・音響波無効化）を利用する際の発注追加料金です。(標準: 200 CR)"
 }

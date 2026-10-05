@@ -13,7 +13,7 @@
     "ContextMenu_RadioTrader_ShowState": "[Info] Query Current State",
     "ContextMenu_RadioTrader_FullReset": "[!] Full Reset (LZ, Timer, Order)",
 
-    "ContextMenu_RadioTrader_RequestDrop": "[Request Drop] Call Delivery Heli",
+    "ContextMenu_RadioTrader_RequestDrop": "[Request Drop]",
     "ContextMenu_RadioTrader_ClearLZ": "[Clear Trading LZ]",
     "ContextMenu_RadioTrader_SetLZ": "[Designate Trading Drop Box / LZ]",
     "ContextMenu_RadioTrader_SetLZ_Indoor": "[Designate Trading Drop Box / LZ] (Outdoor Only)",

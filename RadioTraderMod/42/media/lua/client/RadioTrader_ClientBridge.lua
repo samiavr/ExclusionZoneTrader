@@ -50,36 +50,79 @@ local function tr(key, defaultText, ...)
 end
 
 -- ---------------------------------------------------------------------------
--- アイテム表示名取得（バニラ公式ローカライズ優先）
+-- 英語名/フォールバック名からアイテムIDを逆引き解決するヘルパー
+-- ---------------------------------------------------------------------------
+local function resolveItemIdFromName(name)
+    if not name or name == "" or not RadioTrader_Shop then return nil end
+    local cleanName = tostring(name):gsub("%s*%(%+%d+ more%)", ""):gsub("%s*%(他%s*%d+%s*品%)", ""):gsub("%s*x%d+$", "")
+    for _, catList in pairs(RadioTrader_Shop) do
+        for _, entry in ipairs(catList) do
+            if entry.name == cleanName or entry.id == cleanName then
+                return entry.id
+            end
+        end
+    end
+    return nil
+end
+
+-- ---------------------------------------------------------------------------
+-- アイテム表示名取得（バニラ公式ローカライズ優先 ＆ 逆引きフォールバック）
 -- ---------------------------------------------------------------------------
 local function getItemDisplayName(fullType, fallbackName)
-    if not fullType then return fallbackName or "Goods" end
-    local i18nKey = "UI_RadioTrader_Item_" .. tostring(fullType)
-    local i18nName = tr(i18nKey, nil)
-    if i18nName and i18nName ~= i18nKey and i18nName ~= "" then
-        return i18nName
+    local targetId = fullType
+    if (not targetId or targetId == "") and fallbackName then
+        targetId = resolveItemIdFromName(fallbackName)
     end
-    if string.find(tostring(fullType), "%.") and getItemNameFromFullType then
-        local ok, vanillaName = pcall(getItemNameFromFullType, fullType)
-        if ok and vanillaName and vanillaName ~= "" and vanillaName ~= fullType then
-            return vanillaName
+    if targetId then
+        local i18nKey = "UI_RadioTrader_Item_" .. tostring(targetId)
+        local i18nName = tr(i18nKey, nil)
+        if i18nName and i18nName ~= i18nKey and i18nName ~= "" then
+            return i18nName
+        end
+        if string.find(tostring(targetId), "%.") and getItemNameFromFullType then
+            local ok, vanillaName = pcall(getItemNameFromFullType, targetId)
+            if ok and vanillaName and vanillaName ~= "" and vanillaName ~= targetId then
+                return vanillaName
+            end
+        end
+        if ScriptManager and ScriptManager.instance and ScriptManager.instance.getItem then
+            local ok, item = pcall(function() return ScriptManager.instance:getItem(targetId) end)
+            if ok and item and item.getDisplayName then
+                local dn = item:getDisplayName()
+                if dn and dn ~= "" then return dn end
+            end
+        end
+        if getItem then
+            local ok, itemScript = pcall(getItem, targetId)
+            if ok and itemScript and itemScript.getDisplayName then
+                local dn = itemScript:getDisplayName()
+                if dn and dn ~= "" then return dn end
+            end
         end
     end
-    if ScriptManager and ScriptManager.instance and ScriptManager.instance.getItem then
-        local ok, item = pcall(function() return ScriptManager.instance:getItem(fullType) end)
-        if ok and item and item.getDisplayName then
-            local dn = item:getDisplayName()
-            if dn and dn ~= "" then return dn end
-        end
+    return fallbackName or fullType or "Goods"
+end
+
+-- ---------------------------------------------------------------------------
+-- 注文アイテムの複合表示名フォーマッタ（単一・複数・数量ローカライズ対応）
+-- ---------------------------------------------------------------------------
+local function getOrderDisplayName(args)
+    if not args then return "Goods" end
+    local itemId = args.itemId
+    if not itemId and args.itemName then
+        itemId = resolveItemIdFromName(args.itemName)
     end
-    if getItem then
-        local ok, itemScript = pcall(getItem, fullType)
-        if ok and itemScript and itemScript.getDisplayName then
-            local dn = itemScript:getDisplayName()
-            if dn and dn ~= "" then return dn end
-        end
+    local baseName = getItemDisplayName(itemId, args.itemName)
+    local totalKinds = tonumber(args.totalKinds) or 1
+    local count = tonumber(args.count) or tonumber(args.itemCount) or 1
+
+    if totalKinds > 1 then
+        local moreText = tr("UI_RadioTrader_BatchMoreItems", "(+%s more)", tostring(totalKinds - 1))
+        return baseName .. " " .. moreText
+    elseif count > 1 and not string.find(baseName, " x%d+") then
+        return baseName .. " x" .. tostring(count)
     end
-    return fallbackName or fullType
+    return baseName
 end
 
 -- ---------------------------------------------------------------------------
@@ -165,10 +208,26 @@ local function activateSearchlight(x, y, z, radius)
 end
 
 -- ---------------------------------------------------------------------------
--- サーバーコマンド受信ハンドラ
+-- サーバーコマンド受信ハンドラ (SP/MP二重発火デバウンスガード付き)
 -- ---------------------------------------------------------------------------
+local lastCmdTimes = {}
+local function isDuplicateCommand(cmd, windowMs)
+    local curMs = (getTimestampMs and getTimestampMs() or 0)
+    if curMs <= 0 then return false end
+    local last = lastCmdTimes[cmd] or 0
+    if (curMs - last) < (windowMs or 300) then
+        return true
+    end
+    lastCmdTimes[cmd] = curMs
+    return false
+end
+
 local function onServerCommand(module, command, args)
     if module ~= "RadioTrader" then return end
+    if isDuplicateCommand(command, 300) then
+        log("Ignoring duplicate server command: " .. tostring(command))
+        return
+    end
 
     local player = getPlayer()
     if not player then return end
@@ -177,30 +236,41 @@ local function onServerCommand(module, command, args)
 
     -- === 発注受付通知 ===
     if command == RadioTrader_Config.CMD_TRADE_ACCEPTED then
-        local itemName = args and getItemDisplayName(args.itemId, args.itemName) or "Goods"
+        local itemName = getOrderDisplayName(args)
         local cost     = args and args.cost or 0
-        local msg      = tr("UI_RadioTrader_Radio_Accepted", "Order accepted. Dispatched transport heli for %s. Cost: %s CR. Stay alert.", itemName, tostring(cost))
+        local isDrone  = args and args.isDrone
+        local msg
+        if isDrone then
+            msg = tr("UI_RadioTrader_Radio_OrderAcceptedDrone", "[Stealth Drone Delivery] Order accepted for %s. Dispatched a quiet one. Cost: %s CR.", itemName, tostring(cost))
+        else
+            msg = tr("UI_RadioTrader_Radio_Accepted", "Order accepted. Dispatched transport heli for %s. Cost: %s CR. Stay alert.", itemName, tostring(cost))
+        end
         if args and args.hasTraderStash then
             local stashMsg = tr("UI_RadioTrader_Radio_StashAccepted", " '...That was my personal stash, you know. Ah well, enjoy it.'")
             msg = msg .. stashMsg
         end
         showRadioText(player, msg)
         playSound("RadioStatic")
-        log("Trade accepted: " .. itemName .. (args and args.hasTraderStash and " (Trader's Stash ordered!)" or ""))
+        log("Trade accepted: " .. itemName .. (isDrone and " [Stealth Drone]" or "") .. (args and args.hasTraderStash and " (Trader's Stash ordered!)" or ""))
 
     -- === ヘリ接近警告 ===
     elseif command == RadioTrader_Config.CMD_HELI_APPROACH then
-        local mins   = args and args.remainingMinutes or 10
-        local isMega = args and args.isMegaHorde or false
+        local mins    = args and args.remainingMinutes or 10
+        local isMega  = args and args.isMegaHorde or false
+        local isDrone = args and args.isDrone or false
         local msg
-        if isMega then
+        if isDrone then
+            msg = tr("UI_RadioTrader_Radio_ApproachDrone", "Drone reached LZ airspace. Commencing silent drop shortly.")
+        elseif isMega then
             msg = tr("UI_RadioTrader_Radio_ApproachMega", "Approaching drop point. ETA %s min. ...Hold on, there's an insane swarm gathering down there! Stay sharp!", tostring(mins))
         else
             msg = tr("UI_RadioTrader_Radio_Approach", "Approaching drop point. ETA %s min. Multiple heat signatures nearby--stay sharp.", tostring(mins))
         end
         showRadioText(player, msg)
-        playSound("RadioStatic")
-        log("Heli approaching warning displayed (MegaHorde: " .. tostring(isMega) .. ")")
+        if not isDrone then
+            playSound("RadioStatic")
+        end
+        log("Approach warning displayed (MegaHorde: " .. tostring(isMega) .. ", Drone: " .. tostring(isDrone) .. ")")
 
     -- === ヘリLZ到着・ホバリング開始（サーチライト点灯） ===
     elseif command == RadioTrader_Config.CMD_HELI_HOVER_START then
@@ -216,21 +286,18 @@ local function onServerCommand(module, command, args)
 
     -- === 配達完了通知 ===
     elseif command == RadioTrader_Config.CMD_DELIVERY_DONE then
-        local rawName   = args and getItemDisplayName(args.itemId, args.itemName) or "Goods"
-        local count     = args and args.count or 1
-        local bonusId   = args and args.bonusItemName
-        local bonusName = bonusId and getItemDisplayName(bonusId, bonusId)
-        local isMega    = args and args.isMegaHorde or false
-
-        local itemDisplay = rawName
-        if not string.find(rawName, " x%d+") and not string.find(rawName, "%+%d+") then
-            itemDisplay = rawName .. " x" .. tostring(count)
-        end
+        local itemDisplay = getOrderDisplayName(args)
+        local bonusId     = args and args.bonusItemName
+        local bonusName   = bonusId and getItemDisplayName(bonusId, bonusId)
+        local isMega      = args and args.isMegaHorde or false
+        local isDrone     = args and args.isDrone or false
 
         local hasLunchbox = args and args.hasLunchboxBonus
 
         local msg
-        if isMega then
+        if isDrone then
+            msg = tr("UI_RadioTrader_Radio_DeliveredDrone", "Supplies dropped. Stay out of sight. Disengaging.")
+        elseif isMega then
             if bonusName then
                 msg = tr("UI_RadioTrader_Radio_DeliveredWithBonusMega",
                     "Supply drop complete (%s)! 'Threw in extra (+ %s), but you'd better run!' Swarm's on you! Departing LZ!",
@@ -266,8 +333,10 @@ local function onServerCommand(module, command, args)
         end
 
         showRadioText(player, msg)
-        playSound("Helicopter")
-        log("Delivery complete (MegaHorde: " .. tostring(isMega) .. ", Lunchbox: " .. tostring(hasLunchbox) .. ", Fallback: " .. tostring(isFallbackDrop) .. "): " .. itemDisplay .. (bonusName and (" + Bonus: " .. bonusName) or ""))
+        if not isDrone then
+            playSound("Helicopter")
+        end
+        log("Delivery complete (MegaHorde: " .. tostring(isMega) .. ", Drone: " .. tostring(isDrone) .. ", Lunchbox: " .. tostring(hasLunchbox) .. ", Fallback: " .. tostring(isFallbackDrop) .. "): " .. itemDisplay .. (bonusName and (" + Bonus: " .. bonusName) or ""))
 
     -- === クレジット残高更新 ===
     elseif command == RadioTrader_Config.CMD_CREDIT_UPDATE then

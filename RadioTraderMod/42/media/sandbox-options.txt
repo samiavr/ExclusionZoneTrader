@@ -71,7 +71,7 @@ option BuyPriceMultiplier
     type = double,
     min = 0.2,
     max = 100.0,
-    default = 10.0,
+    default = 2.0,
     page = RadioTrader,
     translation = RT_BuyPriceMultiplier,
 }
@@ -104,5 +104,15 @@ option HeliHordeRemoteRatio
     page = RadioTrader,
     translation = RT_HeliHordeRemoteRatio,
     valueTranslation = RT_HeliHordeRemoteRatioValue,
+}
+
+option DroneDeliveryCost
+{
+    type = integer,
+    min = 0,
+    max = 2000,
+    default = 200,
+    page = RadioTrader,
+    translation = RT_DroneDeliveryCost,
 }
 

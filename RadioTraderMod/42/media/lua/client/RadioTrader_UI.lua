@@ -3,12 +3,14 @@
 -- [Client] 取引パネル画面 (ISPanel / B42 準拠)
 -- =============================================================================
 
+require "ISUI/ISCollapsableWindow"
 require "ISUI/ISPanel"
 require "ISUI/ISButton"
 require "ISUI/ISLabel"
 require "ISUI/ISScrollingListBox"
+require "ISUI/ISTickBox"
 
-RadioTrader_UI = ISPanel:derive("RadioTrader_UI")
+RadioTrader_UI = ISCollapsableWindow:derive("RadioTrader_UI")
 
 -- ---------------------------------------------------------------------------
 -- 翻訳ヘルパー
@@ -51,28 +53,72 @@ local function tr(key, defaultText, ...)
 end
 
 -- ---------------------------------------------------------------------------
--- アイテム表示名取得ヘルパー（PZ公式翻訳を優先取得）
+-- 英語名/フォールバック名からアイテムIDを逆引き解決するヘルパー
+-- ---------------------------------------------------------------------------
+local function resolveItemIdFromName(name)
+    if not name or name == "" or not RadioTrader_Shop then return nil end
+    local cleanName = tostring(name):gsub("%s*%(%+%d+ more%)", ""):gsub("%s*%(他%s*%d+%s*品%)", ""):gsub("%s*x%d+$", "")
+    for _, catList in pairs(RadioTrader_Shop) do
+        for _, entry in ipairs(catList) do
+            if entry.name == cleanName or entry.id == cleanName then
+                return entry.id
+            end
+        end
+    end
+    return nil
+end
+
+-- ---------------------------------------------------------------------------
+-- アイテム表示名取得ヘルパー（PZ公式翻訳優先 ＆ 逆引きフォールバック）
 -- ---------------------------------------------------------------------------
 local function getItemDisplayName(fullType, fallbackName)
-    local i18nKey = "UI_RadioTrader_Item_" .. tostring(fullType)
-    local i18nName = tr(i18nKey, nil)
-    if i18nName and i18nName ~= i18nKey and i18nName ~= "" then
-        return i18nName
+    local targetId = fullType
+    if (not targetId or targetId == "") and fallbackName then
+        targetId = resolveItemIdFromName(fallbackName)
     end
-    if string.find(tostring(fullType), "%.") and getItemNameFromFullType then
-        local ok, name = pcall(getItemNameFromFullType, fullType)
-        if ok and name and name ~= "" and name ~= fullType then
-            return name
+    if targetId then
+        local i18nKey = "UI_RadioTrader_Item_" .. tostring(targetId)
+        local i18nName = tr(i18nKey, nil)
+        if i18nName and i18nName ~= i18nKey and i18nName ~= "" then
+            return i18nName
+        end
+        if string.find(tostring(targetId), "%.") and getItemNameFromFullType then
+            local ok, name = pcall(getItemNameFromFullType, targetId)
+            if ok and name and name ~= "" and name ~= targetId then
+                return name
+            end
+        end
+        if getItem then
+            local itemScript = getItem(targetId)
+            if itemScript and itemScript.getDisplayName then
+                local name = itemScript:getDisplayName()
+                if name and name ~= "" then return name end
+            end
         end
     end
-    if getItem then
-        local itemScript = getItem(fullType)
-        if itemScript and itemScript.getDisplayName then
-            local name = itemScript:getDisplayName()
-            if name and name ~= "" then return name end
-        end
+    return fallbackName or fullType or "Goods"
+end
+
+-- ---------------------------------------------------------------------------
+-- 注文アイテムの複合表示名フォーマッタ（単一・複数・数量ローカライズ対応）
+-- ---------------------------------------------------------------------------
+local function getOrderDisplayName(args)
+    if not args then return "Goods" end
+    local itemId = args.itemId
+    if not itemId and args.itemName then
+        itemId = resolveItemIdFromName(args.itemName)
     end
-    return fallbackName or fullType
+    local baseName = getItemDisplayName(itemId, args.itemName)
+    local totalKinds = tonumber(args.totalKinds) or 1
+    local count = tonumber(args.count) or tonumber(args.itemCount) or 1
+
+    if totalKinds > 1 then
+        local moreText = tr("UI_RadioTrader_BatchMoreItems", "(+%s more)", tostring(totalKinds - 1))
+        return baseName .. " " .. moreText
+    elseif count > 1 and not string.find(baseName, " x%d+") then
+        return baseName .. " x" .. tostring(count)
+    end
+    return baseName
 end
 
 -- ---------------------------------------------------------------------------
@@ -82,7 +128,7 @@ local PANEL_W  = 780
 local PANEL_H  = 520
 local TAB_W    = 120
 local LIST_W   = 360
-local INFO_W   = PANEL_W - TAB_W - LIST_W - 40  -- 右パネル
+local INFO_W   = 260                            -- 右パネル幅
 local MARGIN   = 10
 local ROW_H    = 28
 local LOG_H    = 90
@@ -104,7 +150,7 @@ local COLOR_TEXT_DIM = { r=0.60, g=0.65, b=0.60, a=1.0  }  -- ガイド用控え
 function RadioTrader_UI:new(player)
     local x = (getCore():getScreenWidth()  - PANEL_W) / 2
     local y = (getCore():getScreenHeight() - PANEL_H) / 2
-    local o  = ISPanel.new(self, x, y, PANEL_W, PANEL_H)
+    local o  = ISCollapsableWindow.new(self, x, y, PANEL_W, PANEL_H)
     o.player           = player
     o.selectedCategory = RadioTrader_ShopCategories[1].key
     o.selectedItem     = nil
@@ -126,6 +172,14 @@ function RadioTrader_UI:new(player)
     o.deliveryRemaining= 0
     o.logLines         = {}
     o.cart             = {}
+
+    -- バニラウィンドウ機能の有効化
+    o.resizable        = true
+    o.minimumWidth     = 720
+    o.minimumHeight    = 460
+    o.pin              = true  -- マウスアウト時の自動折りたたみを抑止
+    o.isCollapsed      = false
+    o:setDrawFrame(true)
     return o
 end
 
@@ -133,19 +187,181 @@ end
 -- 初期化
 -- ---------------------------------------------------------------------------
 function RadioTrader_UI:initialise()
-    ISPanel.initialise(self)
-    self:buildUI()
+    ISCollapsableWindow.initialise(self)
     -- サーバーにステート照会を送信
     sendClientCommand(self.player, "RadioTrader", "requestState", {})
     sendClientCommand(self.player, "RadioTrader", "requestAssessment", {})
 end
 
 -- ---------------------------------------------------------------------------
+-- 子要素の生成 (ISCollapsableWindow 準拠)
+-- ---------------------------------------------------------------------------
+function RadioTrader_UI:createChildren()
+    ISCollapsableWindow.createChildren(self)
+    self:buildUI()
+end
+
+-- ---------------------------------------------------------------------------
+-- カテゴリタブのビジュアルスタイル更新 (文字鮮明化 ＆ 選択中ハイライト)
+-- ---------------------------------------------------------------------------
+function RadioTrader_UI:updateCategoryTabStyles()
+    if not self.tabButtons then return end
+    for _, btn in ipairs(self.tabButtons) do
+        btn.textColor = { r=1.0, g=1.0, b=1.0, a=1.0 }
+        if btn.internal == self.selectedCategory then
+            -- 選択中タブ: 明るいグリーン枠と引き締まった背景で強調
+            btn.backgroundColor = { r=0.20, g=0.52, b=0.32, a=0.95 }
+            btn.borderColor     = { r=0.35, g=0.90, b=0.55, a=1.00 }
+        else
+            -- 非選択タブ: バニラ標準のダーク調と白文字
+            btn.backgroundColor = { r=0.14, g=0.14, b=0.18, a=0.90 }
+            btn.borderColor     = { r=0.30, g=0.30, b=0.35, a=0.85 }
+        end
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- レスポンシブレイアウト動的計算 (リサイズ・ウィンドウ伸縮対応)
+-- ---------------------------------------------------------------------------
+function RadioTrader_UI:layoutChildren()
+    local th = self:titleBarHeight()
+    local rh = (self.resizable and self.resizeWidget and self.resizeWidget:getIsVisible()) and self:resizeWidgetHeight() or 0
+    local w = self.width
+    local h = self.height
+
+    local listH = h - th - LOG_H - BTN_H - MARGIN * 4 - rh
+    if listH < 100 then listH = 100 end
+
+    local infoW = INFO_W
+    local listW = w - MARGIN * 3 - TAB_W - infoW
+    if listW < 200 then listW = 200 end
+
+    -- 1. 左ペイン: カテゴリタブ
+    local tabY = th + MARGIN
+    local catCount = #RadioTrader_ShopCategories
+    local tabGap = 3
+    local tabBtnH = math.min(32, math.max(18, math.floor((listH - (catCount - 1) * tabGap) / catCount)))
+    if self.tabButtons then
+        for i, btn in ipairs(self.tabButtons) do
+            btn:setX(MARGIN)
+            btn:setY(tabY + (i-1) * (tabBtnH + tabGap))
+            btn:setWidth(TAB_W - 4)
+            btn:setHeight(tabBtnH)
+        end
+    end
+
+    -- 2. 中央ペイン: アイテムリスト
+    local listX = MARGIN + TAB_W
+    if self.itemList then
+        self.itemList:setX(listX)
+        self.itemList:setY(th + MARGIN)
+        self.itemList:setWidth(listW)
+        self.itemList:setHeight(listH)
+    end
+
+    -- 3. 右ペイン: 情報 & カート
+    local infoX = listX + listW + MARGIN
+    local curY = th + MARGIN
+    if self.labelCredits then
+        self.labelCredits:setX(infoX)
+        self.labelCredits:setY(curY)
+        curY = curY + ROW_H + 4
+    end
+    if self.labelAssess then
+        self.labelAssess:setX(infoX)
+        self.labelAssess:setY(curY)
+        curY = curY + ROW_H + 4
+    end
+    if self.labelDelivery then
+        self.labelDelivery:setX(infoX)
+        self.labelDelivery:setY(curY)
+        curY = curY + ROW_H * 2 + 4
+    end
+    if self.labelItemDetail then
+        self.labelItemDetail:setX(infoX)
+        self.labelItemDetail:setY(curY)
+        self.labelItemDetail:setWidth(infoW)
+        curY = curY + 46 + 4
+    end
+    if self.btnAddToCart then
+        local addW = math.floor(infoW * 0.65)
+        local clrW = infoW - addW - 5
+        self.btnAddToCart:setX(infoX)
+        self.btnAddToCart:setY(curY)
+        self.btnAddToCart:setWidth(addW)
+        if self.btnClearCart then
+            self.btnClearCart:setX(infoX + addW + 5)
+            self.btnClearCart:setY(curY)
+            self.btnClearCart:setWidth(clrW)
+        end
+        curY = curY + 28
+    end
+    if self.labelCartTitle then
+        self.labelCartTitle:setX(infoX)
+        self.labelCartTitle:setY(curY)
+        curY = curY + 20
+    end
+    local cartH = math.max(60, (th + MARGIN + listH) - curY - 4)
+    if self.cartList then
+        self.cartList:setX(infoX)
+        self.cartList:setY(curY)
+        self.cartList:setWidth(infoW)
+        self.cartList:setHeight(cartH)
+    end
+    if self.labelGuideBody then
+        self.labelGuideBody:setX(infoX)
+        self.labelGuideBody:setY(curY)
+        self.labelGuideBody:setWidth(infoW)
+        self.labelGuideBody:setHeight(cartH)
+    end
+
+    -- 4. 下部: 無線通信ログ
+    local logY = th + MARGIN + listH + MARGIN
+    local logW = w - MARGIN * 2
+    if self.logBox then
+        self.logBox:setX(MARGIN)
+        self.logBox:setY(logY)
+        self.logBox:setWidth(logW)
+        self.logBox:setHeight(LOG_H)
+    end
+
+    -- 5. 最下部: ボタンバー
+    local btnY = logY + LOG_H + MARGIN
+    local orderW = 230
+    local rerollW = 190
+    if self.btnOrder then
+        self.btnOrder:setX(MARGIN)
+        self.btnOrder:setY(btnY)
+    end
+    if self.btnReroll then
+        self.btnReroll:setX(MARGIN + orderW + MARGIN)
+        self.btnReroll:setY(btnY)
+    end
+    if self.tickDrone then
+        self.tickDrone:setX(MARGIN + orderW + MARGIN + rerollW + MARGIN)
+        self.tickDrone:setY(btnY + 2)
+    end
+    if self.btnClose then
+        self.btnClose:setX(w - MARGIN - 100)
+        self.btnClose:setY(btnY)
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- リサイズイベントハンドラ
+-- ---------------------------------------------------------------------------
+function RadioTrader_UI:onResize()
+    ISCollapsableWindow.onResize(self)
+    self:layoutChildren()
+end
+
+-- ---------------------------------------------------------------------------
 -- UI 構築
 -- ---------------------------------------------------------------------------
 function RadioTrader_UI:buildUI()
-    local x, y, w = MARGIN, 30, self.width
-    local listH = PANEL_H - 30 - LOG_H - BTN_H - MARGIN * 4
+    local th = self:titleBarHeight()
+    local x, y = MARGIN, th + MARGIN
+    local listH = PANEL_H - th - LOG_H - BTN_H - MARGIN * 4
 
     -- ===== カテゴリタブ =====
     self.tabButtons = {}
@@ -342,17 +558,40 @@ function RadioTrader_UI:buildUI()
     self:addChild(self.labelGuideBody)
 
     -- ===== 無線通信ログ =====
-    local logY = 30 + listH + MARGIN
+    local logY = y + listH + MARGIN
     self.logBox = ISScrollingListBox:new(MARGIN, logY, PANEL_W - MARGIN * 2, LOG_H)
     self.logBox:initialise()
     self.logBox:instantiate()
     self.logBox.font       = FONT
-    self.logBox.itemheight = 18
+    local fontHgt          = getTextManager():getFontHeight(FONT)
+    self.logBox.itemheight = math.max(22, fontHgt + 4)
+
+    -- ログボックス独自描画: 日本語フォントの上下中央揃え ＆ カラー反映 ＆ 下端クリッピング防止
+    function self.logBox:doDrawItem(y, item, alt)
+        if not item.height then item.height = self.itemheight end
+        if (y + self:getYScroll() + item.height < 0) or (y + self:getYScroll() >= self.height) then
+            return y + item.height
+        end
+
+        local entry = item.item
+        local r = (entry and entry.r) or COLOR_ACCENT.r
+        local g = (entry and entry.g) or COLOR_ACCENT.g
+        local b = (entry and entry.b) or COLOR_ACCENT.b
+        local a = 1.0
+
+        -- 日本語フォントを各行の縦中央に配置（ベースラインずれ防止）
+        local fHgt = getTextManager():getFontHeight(self.font)
+        local textY = y + math.floor((item.height - fHgt) / 2)
+        self:drawText(item.text, 8, textY, r, g, b, a, self.font)
+
+        return y + item.height
+    end
+
     self:addChild(self.logBox)
 
     -- ===== ボタンバー =====
     local btnY = logY + LOG_H + MARGIN
-    local orderW = 260
+    local orderW = 230
 
     local orderLabel = tr("UI_RadioTrader_OrderBtn", "[Trade] Place Order & Pickup")
     self.btnOrder = ISButton:new(MARGIN, btnY, orderW, BTN_H,
@@ -361,7 +600,7 @@ function RadioTrader_UI:buildUI()
     self.btnOrder:instantiate()
     self:addChild(self.btnOrder)
 
-    local rerollW = 210
+    local rerollW = 190
     local rerollLabel = tr("UI_RadioTrader_RerollBtn", "[Inquire] Got anything else? (50 CR)")
     self.btnReroll = ISButton:new(MARGIN + orderW + MARGIN, btnY, rerollW, BTN_H,
         rerollLabel, self, RadioTrader_UI.onRerollClick)
@@ -369,12 +608,25 @@ function RadioTrader_UI:buildUI()
     self.btnReroll:instantiate()
     self:addChild(self.btnReroll)
 
+    local droneCost = (RadioTrader_Config.getDroneDeliveryCost and RadioTrader_Config.getDroneDeliveryCost()) or 200
+    local droneLabel = tr("UI_RadioTrader_DroneOption", "[Stealth] Drone (+%s CR)", tostring(droneCost))
+    local tickX = MARGIN + orderW + MARGIN + rerollW + MARGIN
+    local tickW = 210
+    self.tickDrone = ISTickBox:new(tickX, btnY + 2, tickW, BTN_H - 4, "", self, RadioTrader_UI.onToggleDrone)
+    self.tickDrone:initialise()
+    self.tickDrone:addOption(droneLabel, nil)
+    self.tickDrone:setFont(FONT)
+    self:addChild(self.tickDrone)
+
     local closeLabel = tr("UI_RadioTrader_CloseBtn", "[Close]")
     self.btnClose = ISButton:new(PANEL_W - MARGIN - 100, btnY, 100, BTN_H,
         closeLabel, self, RadioTrader_UI.onCloseClick)
     self.btnClose:initialise()
     self.btnClose:instantiate()
     self:addChild(self.btnClose)
+
+    -- 全コントロールのレイアウト確定
+    self:layoutChildren()
 
     -- 初期カテゴリをロード
     self:loadCategory(self.selectedCategory)
@@ -408,6 +660,7 @@ end
 -- ---------------------------------------------------------------------------
 function RadioTrader_UI:loadCategory(categoryKey)
     self.selectedCategory = categoryKey
+    self:updateCategoryTabStyles()
     self.itemList:clear()
     local items = RadioTrader_ItemsTable_GetShopCategory(categoryKey)
     for i, entry in ipairs(items) do
@@ -459,16 +712,16 @@ function RadioTrader_UI:onItemSelect()
             local poolCount = self:getSeedPoolCount(entry.poolKey or entry.id)
             local poolLabel = tr("UI_RadioTrader_SeedPoolCount", "Deposited Seeds")
             self.labelItemDetail:setName(
-                ("[%s]\n%s: %d\nID: %s"):format(
-                    dispName, poolLabel, poolCount, entry.id))
+                ("[%s]\n%s: %d"):format(
+                    dispName, poolLabel, poolCount))
         else
             local priceLabel = tr("UI_RadioTrader_Price", "Price")
             local qtyLabel   = tr("UI_RadioTrader_Quantity", "Quantity")
             local unitLabel  = tr("UI_RadioTrader_Units", "units")
             local titleText  = (entry.count and entry.count > 1) and ("%s x %d"):format(dispName, entry.count) or dispName
             self.labelItemDetail:setName(
-                ("[%s]\n%s: %d CR\n%s: %d %s\nID: %s"):format(
-                    titleText, priceLabel, effPrice, qtyLabel, entry.count or 1, unitLabel, entry.id))
+                ("[%s]\n%s: %d CR\n%s: %d %s"):format(
+                    titleText, priceLabel, effPrice, qtyLabel, entry.count or 1, unitLabel))
         end
     else
         self.selectedItem = nil
@@ -598,15 +851,18 @@ function RadioTrader_UI:addLog(msg, r, g, b)
     b = b or COLOR_ACCENT.b
     self.logBox:addItem("> " .. msg, { r=r, g=g, b=b })
 
-    -- 最新ログへの自動スクロール（最下部へ自動追従）
+    -- 最新ログへの自動スクロール（最下部へ自動追従 ＆ 下端クリッピング防止の余白確保）
     local count = #self.logBox.items
     self.logBox.selected = count
-    if self.logBox.ensureVisible then
-        self.logBox:ensureVisible(count)
-    end
-    local totalH = count * (self.logBox.itemheight or 18)
+    local itemH = self.logBox.itemheight or 22
+    local padBottom = 8  -- 下枠線やステンシル切り落としを防ぐボトムパディング
+    local totalH = count * itemH + padBottom
+    self.logBox:setScrollHeight(totalH)
+
     if totalH > self.logBox:getHeight() then
         self.logBox:setYScroll(self.logBox:getHeight() - totalH)
+    else
+        self.logBox:setYScroll(0)
     end
 end
 
@@ -649,6 +905,23 @@ function RadioTrader_UI:onSellClick()
     sendClientCommand(self.player, "RadioTrader", RadioTrader_Config.CMD_REQUEST_SELL, {})
 end
 
+function RadioTrader_UI:getDroneCostIfSelected()
+    if self.tickDrone and self.tickDrone:isSelected(1) then
+        return (RadioTrader_Config.getDroneDeliveryCost and RadioTrader_Config.getDroneDeliveryCost()) or 200
+    end
+    return 0
+end
+
+function RadioTrader_UI:onToggleDrone(index, selected)
+    self:refreshCartUI()
+    local sm = getSoundManager()
+    if sm then sm:playUISound("UIToggleTickBox") end
+    if selected then
+        self:addLog(tr("UI_RadioTrader_Log_DroneActive", "[Stealth Drone Delivery] Silent airdrop in progress (No horde)"),
+            COLOR_ACCENT.r, COLOR_ACCENT.g, COLOR_ACCENT.b)
+    end
+end
+
 function RadioTrader_UI:refreshCartUI()
     if not self.cartList then return end
     self.cartList:clear()
@@ -661,15 +934,22 @@ function RadioTrader_UI:refreshCartUI()
         totalCount = totalCount + it.quantity
     end
 
+    local isDrone = self.tickDrone and self.tickDrone:isSelected(1)
+    local droneCost = self:getDroneCostIfSelected()
+
     if #self.cart > 0 then
         self.cartList:setVisible(true)
         if self.labelGuideBody then self.labelGuideBody:setVisible(false) end
+        local finalTotal = totalCost + droneCost
         if self.labelCartTitle then
-            local titleText = tr("UI_RadioTrader_CartTitleWithCost", "Order Cart: %s items (%s CR)", tostring(totalCount), tostring(totalCost))
+            local titleText = tr("UI_RadioTrader_CartTitleWithCost", "Order Cart: %s items (%s CR)", tostring(totalCount), tostring(finalTotal))
+            if isDrone then
+                titleText = titleText .. " [Drone]"
+            end
             self.labelCartTitle:setName(titleText)
         end
         if self.btnOrder then
-            local batchOrderText = tr("UI_RadioTrader_OrderBatchBtn", "[Trade] Batch Order & Pickup (%s CR)", tostring(totalCost))
+            local batchOrderText = tr("UI_RadioTrader_OrderBatchBtn", "[Trade] Batch Order & Pickup (%s CR)", tostring(finalTotal))
             self.btnOrder:setTitle(batchOrderText)
         end
     else
@@ -681,9 +961,14 @@ function RadioTrader_UI:refreshCartUI()
         if self.btnOrder then
             if self.selectedItem then
                 local effPrice = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(self.selectedItem.price) or self.selectedItem.price
-                self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Trade] Order & Pickup") .. (" (%s CR)"):format(tostring(effPrice)))
+                local finalItemCost = effPrice + droneCost
+                self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Trade] Order & Pickup") .. (" (%s CR)"):format(tostring(finalItemCost)))
             else
-                self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Trade] Order & Pickup"))
+                if isDrone and droneCost > 0 then
+                    self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Trade] Order & Pickup") .. (" (+%s CR)"):format(tostring(droneCost)))
+                else
+                    self.btnOrder:setTitle(tr("UI_RadioTrader_OrderBtn", "[Trade] Order & Pickup"))
+                end
             end
         end
     end
@@ -794,13 +1079,23 @@ function RadioTrader_UI:onOrderClick()
             })
         end
 
-        local orderMsg = tr("UI_RadioTrader_Log_OrderingBatch", "Ordering %s items (Total: %s CR)...", tostring(#self.cart), tostring(totalCost))
+        local isDrone = (self.tickDrone and self.tickDrone:isSelected(1)) or false
+        local droneCost = self:getDroneCostIfSelected()
+        local totalWithDrone = totalCost + droneCost
+        local orderMsg
+        if isDrone then
+            orderMsg = tr("UI_RadioTrader_Log_OrderingBatch", "Ordering %s items (Total: %s CR)...", tostring(#self.cart), tostring(totalWithDrone)) .. " " .. tr("UI_RadioTrader_Log_DroneActive", "[Stealth Drone Delivery]")
+        else
+            orderMsg = tr("UI_RadioTrader_Log_OrderingBatch", "Ordering %s items (Total: %s CR)...", tostring(#self.cart), tostring(totalCost))
+        end
         self:addLog(orderMsg, COLOR_WARN.r, COLOR_WARN.g, COLOR_WARN.b)
-        print(("[RadioTrader][UI] onOrderClick: Placing batch order for %d items (%d CR)"):format(#self.cart, totalCost))
+        print(("[RadioTrader][UI] onOrderClick: Placing batch order for %d items (%d CR, Drone=%s)"):format(#self.cart, totalWithDrone, tostring(isDrone)))
         sendClientCommand(self.player, "RadioTrader", RadioTrader_Config.CMD_REQUEST_TRADE, {
-            items = itemsArg,
+            items   = itemsArg,
+            isDrone = isDrone,
         })
         self.cart = {}
+        if self.tickDrone then self.tickDrone:setSelected(1, false) end
         self:refreshCartUI()
     else
         -- 単一アイテム発注
@@ -824,39 +1119,70 @@ function RadioTrader_UI:onOrderClick()
             end
         end
 
+        local isDrone = (self.tickDrone and self.tickDrone:isSelected(1)) or false
+        local droneCost = self:getDroneCostIfSelected()
         local effPrice = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(entry.price) or entry.price
-        local orderMsg = tr("UI_RadioTrader_Log_Ordering", "Ordering: %s (%s CR)...", dispName, tostring(effPrice))
+        local totalWithDrone = effPrice + droneCost
+        local orderMsg
+        if isDrone then
+            orderMsg = tr("UI_RadioTrader_Log_Ordering", "Ordering: %s (%s CR)...", dispName, tostring(totalWithDrone)) .. " " .. tr("UI_RadioTrader_Log_DroneActive", "[Stealth Drone Delivery]")
+        else
+            orderMsg = tr("UI_RadioTrader_Log_Ordering", "Ordering: %s (%s CR)...", dispName, tostring(effPrice))
+        end
         self:addLog(orderMsg, COLOR_WARN.r, COLOR_WARN.g, COLOR_WARN.b)
-        print(("[RadioTrader][UI] onOrderClick: Placing order for %s (%s CR)"):format(entry.id, tostring(effPrice)))
+        print(("[RadioTrader][UI] onOrderClick: Placing order for %s (%d CR, Drone=%s)"):format(entry.id, totalWithDrone, tostring(isDrone)))
         sendClientCommand(self.player, "RadioTrader", RadioTrader_Config.CMD_REQUEST_TRADE, {
             itemId   = entry.id,
             quantity = 1,
+            isDrone  = isDrone,
         })
+        if self.tickDrone then self.tickDrone:setSelected(1, false) end
+        self:refreshCartUI()
     end
 end
 
-function RadioTrader_UI:onCloseClick()
+function RadioTrader_UI:close()
     self:setVisible(false)
     self:removeFromUIManager()
+end
+
+function RadioTrader_UI:onCloseClick()
+    self:close()
+end
+
+-- ---------------------------------------------------------------------------
+-- プリレンダリング（子要素の描画前に背景とタイトルバーを更新）
+-- ---------------------------------------------------------------------------
+function RadioTrader_UI:prerender()
+    ISCollapsableWindow.prerender(self)
+
+    -- タイトルバー（多言語対応）の動的更新
+    local credLabel = tr("UI_RadioTrader_Credits", "Credits")
+    local titleText = tr("UI_RadioTrader_Title", "Radio Trading Network") .. " | "
+        .. credLabel .. (": %d CR"):format(self.credits)
+    self:setTitle(titleText)
+
+    if not self.isCollapsed then
+        -- カテゴリタブ列の背景（子要素の描画「前」に下地として描くことで、ボタン文字が上塗りされず鮮明に保たれる）
+        local th = self:titleBarHeight()
+        local rh = (self.resizable and self.resizeWidget and self.resizeWidget:getIsVisible()) and self:resizeWidgetHeight() or 0
+        local listH = self.height - th - LOG_H - BTN_H - MARGIN * 4 - rh
+        if listH > 0 then
+            self:drawRect(MARGIN - 2, th + MARGIN, TAB_W, listH,
+                0.85, COLOR_BG_PANEL.r, COLOR_BG_PANEL.g, COLOR_BG_PANEL.b)
+            self:drawRectBorder(MARGIN - 2, th + MARGIN, TAB_W, listH,
+                0.5, 0.3, 0.3, 0.4)
+        end
+    end
 end
 
 -- ---------------------------------------------------------------------------
 -- レンダリング（フレームごとに呼ばれる）
 -- ---------------------------------------------------------------------------
 function RadioTrader_UI:render()
-    ISPanel.render(self)
+    ISCollapsableWindow.render(self)
 
-    -- タイトルバー（多言語対応）
-    self:drawRect(0, 0, self.width, 28, 1,
-        COLOR_BG_DARK.r, COLOR_BG_DARK.g, COLOR_BG_DARK.b)
-    local titleText = tr("UI_RadioTrader_Title", "Radio Trading Network") .. " | "
-        .. tr("UI_RadioTrader_Credits", "Credits") .. (": %d CR"):format(self.credits)
-    self:drawTextCentre(titleText, self.width / 2, 6, 0.2, 0.9, 0.5, 1, FONT)
-
-    -- カテゴリタブ列の背景（下部ログ欄に被らないよう中央リストの高さ listH までに制限）
-    local listH = PANEL_H - 30 - LOG_H - BTN_H - MARGIN * 4
-    self:drawRect(MARGIN - 2, 30, TAB_W, listH,
-        0.85, COLOR_BG_PANEL.r, COLOR_BG_PANEL.g, COLOR_BG_PANEL.b)
+    if self.isCollapsed then return end
 
     -- リストボックス選択ハイライト（アイテムリストの onItemSelect を毎フレームチェック）
     if self.itemList and self.itemList.selected ~= self._lastSelected then
@@ -938,8 +1264,12 @@ function RadioTrader_UI:onServerNotify(cmd, args)
 
     elseif cmd == cfg.CMD_TRADE_ACCEPTED then
         self.deliveryState = cfg.STATE_PENDING
-        local itemName = args.itemId and getItemDisplayName(args.itemId, args.itemName) or (args.itemName or "Goods")
-        self:addLog(tr("UI_RadioTrader_Log_Accepted", "Order accepted. Dispatched transport heli for %s.", itemName))
+        local itemName = getOrderDisplayName(args)
+        self:addLog(tr("UI_RadioTrader_Log_Accepted", "Order accepted. Dispatched transport for %s. Stay alert.", itemName))
+        if args and args.isDrone then
+            self:addLog(tr("UI_RadioTrader_Log_DroneActive", "[Stealth Drone Delivery] Silent airdrop in progress (No horde)"),
+                COLOR_SUCCESS.r, COLOR_SUCCESS.g, COLOR_SUCCESS.b)
+        end
         if args.tradeInCount and args.tradeInCount > 0 then
             self:addLog(tr("UI_RadioTrader_Log_TradeInOffset", "Trade-in: Collected %s items (+%s CR offset applied).", tostring(args.tradeInCount), tostring(args.tradeInCredits or 0)),
                 COLOR_ACCENT.r, COLOR_ACCENT.g, COLOR_ACCENT.b)
@@ -956,8 +1286,12 @@ function RadioTrader_UI:onServerNotify(cmd, args)
 
     elseif cmd == cfg.CMD_HELI_APPROACH then
         self.deliveryState = cfg.STATE_APPROACHING
-        local isMega = args and args.isMegaHorde
-        if isMega then
+        local isMega  = args and args.isMegaHorde
+        local isDrone = args and args.isDrone
+        if isDrone then
+            self:addLog(tr("UI_RadioTrader_Log_ApproachingDrone", "[!] Stealth drone silently approaching LZ airspace..."),
+                COLOR_ACCENT.r, COLOR_ACCENT.g, COLOR_ACCENT.b)
+        elseif isMega then
             self:addLog(tr("UI_RadioTrader_Log_ApproachingMega", "[!] DANGER: Massive zombie horde converging on LZ!"),
                 COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
         else
@@ -974,19 +1308,18 @@ function RadioTrader_UI:onServerNotify(cmd, args)
 
     elseif cmd == cfg.CMD_DELIVERY_DONE then
         self.deliveryState = cfg.STATE_COMPLETED
-        local rawName   = args.itemId and getItemDisplayName(args.itemId, args.itemName) or (args.itemName or "Goods")
-        local count     = args.count or 1
-        local bonusId   = args.bonusItemName
-        local bonusName = bonusId and getItemDisplayName(bonusId, bonusId)
-        local isMega    = args and args.isMegaHorde
-
-        local itemDisplay = rawName
-        if not string.find(rawName, " x%d+") and not string.find(rawName, "%+%d+") then
-            itemDisplay = rawName .. " x" .. tostring(count)
-        end
+        local itemDisplay = getOrderDisplayName(args)
+        local bonusId     = args.bonusItemName
+        local bonusName   = bonusId and getItemDisplayName(bonusId, bonusId)
+        local isMega      = args and args.isMegaHorde
+        local isDrone     = args and args.isDrone
 
         local logMsg
-        if isMega then
+        if isDrone then
+            logMsg = tr("UI_RadioTrader_Log_DeliveredDrone",
+                "Supply drop complete. Check the LZ.")
+            self:addLog(logMsg, COLOR_SUCCESS.r, COLOR_SUCCESS.g, COLOR_SUCCESS.b)
+        elseif isMega then
             if bonusName then
                 logMsg = tr("UI_RadioTrader_Log_DeliveredWithBonusMega",
                     "[!] Supply drop complete (+ %s)! Massive horde active! Grab %s and evacuate!", bonusName, itemDisplay)
@@ -1101,12 +1434,14 @@ function RadioTrader_UI.open(player)
     if not RadioTrader_UI.instance then
         RadioTrader_UI.instance = RadioTrader_UI:new(player)
         RadioTrader_UI.instance:initialise()
+        RadioTrader_UI.instance:instantiate()
         RadioTrader_UI.instance:addToUIManager()
     else
         RadioTrader_UI.instance:refreshDataFromModData()
         RadioTrader_UI.instance:updateStatusDisplay()
         RadioTrader_UI.instance:setVisible(true)
         RadioTrader_UI.instance:addToUIManager()
+        RadioTrader_UI.instance:bringToTop()
     end
     -- 常に最新ステートと査定額・日替わり品をサーバーに照会
     if not isClient() and RadioTrader_ServerEngine and RadioTrader_ServerEngine.getOrUpdateDailyShop then

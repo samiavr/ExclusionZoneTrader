@@ -1885,29 +1885,98 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
     end
 
     -- 2. スマートパターンマッチング (バリエーション・Mod対応フォールバック)
-    -- 指輪類
-    if string.find(itemId, "Ring_") then
-        if string.find(itemId, "Diamond") or string.find(itemId, "Ruby") then
-            return { id = itemId, name = "Gemstone Ring", basePricePerUnit = 90, category = "Jewelry" }
-        elseif string.find(itemId, "Gold") or string.find(itemId, "Signet") then
+    -- 貴金属・ジュエリー共通素材ヘルパー
+    local isGem = string.find(itemId, "Diamond") or string.find(itemId, "Ruby") or string.find(itemId, "Sapphire")
+               or string.find(itemId, "Emerald") or string.find(itemId, "Amethyst") or string.find(itemId, "Amber")
+               or string.find(itemId, "Pearl")
+    local isGold = string.find(itemId, "Gold") or string.find(itemId, "Signet")
+    local isSilver = string.find(itemId, "Silver")
+
+    -- 指輪類 (Rings)
+    if string.find(itemId, "Ring_") or string.find(itemId, "Finger_") then
+        if isGem and isGold then
+            return { id = itemId, name = "Gold Gemstone Ring", basePricePerUnit = 110, category = "Jewelry" }
+        elseif isGem then
+            return { id = itemId, name = "Gemstone Ring", basePricePerUnit = 70, category = "Jewelry" }
+        elseif isGold then
             return { id = itemId, name = "Gold Ring", basePricePerUnit = 55, category = "Jewelry" }
-        elseif string.find(itemId, "Silver") then
+        elseif isSilver then
             return { id = itemId, name = "Silver Ring", basePricePerUnit = 27, category = "Jewelry" }
+        else
+            return { id = itemId, name = "Ring", basePricePerUnit = 15, category = "Jewelry" }
         end
     end
 
-    -- ネックレス類
-    if string.find(itemId, "Necklace") then
-        if string.find(itemId, "Diamond") or string.find(itemId, "Pearl") then
-            return { id = itemId, name = "Precious Necklace", basePricePerUnit = 110, category = "Jewelry" }
-        elseif string.find(itemId, "Gold") then
+    -- ネックレス・ペンダント類 (Necklace & Locket & DogTag)
+    if string.find(itemId, "Necklace") or string.find(itemId, "Locket") or string.find(itemId, "DogTag") then
+        if isGem and isGold then
+            return { id = itemId, name = "Gold Gemstone Necklace", basePricePerUnit = 120, category = "Jewelry" }
+        elseif isGem then
+            return { id = itemId, name = "Precious Necklace", basePricePerUnit = 80, category = "Jewelry" }
+        elseif isGold then
             return { id = itemId, name = "Gold Necklace", basePricePerUnit = 60, category = "Jewelry" }
-        elseif string.find(itemId, "Silver") then
+        elseif isSilver then
             return { id = itemId, name = "Silver Necklace", basePricePerUnit = 30, category = "Jewelry" }
+        elseif string.find(itemId, "Locket") then
+            return { id = itemId, name = "Vintage Locket", basePricePerUnit = 35, category = "Jewelry" }
+        elseif string.find(itemId, "DogTag") then
+            return { id = itemId, name = "Military Dog Tag", basePricePerUnit = 25, category = "Jewelry" }
+        else
+            return { id = itemId, name = "Symbol Necklace", basePricePerUnit = 20, category = "Jewelry" }
         end
     end
 
-    -- 時計類
+    -- ブレスレット・バングル類 (Bracelet & Bangle)
+    if string.find(itemId, "Bracelet") or string.find(itemId, "Bangle") then
+        if isGem then
+            return { id = itemId, name = "Gemstone Bracelet", basePricePerUnit = 65, category = "Jewelry" }
+        elseif isGold then
+            return { id = itemId, name = "Gold Bracelet", basePricePerUnit = 50, category = "Jewelry" }
+        elseif isSilver then
+            return { id = itemId, name = "Silver Bangle", basePricePerUnit = 25, category = "Jewelry" }
+        else
+            return { id = itemId, name = "Bracelet", basePricePerUnit = 15, category = "Jewelry" }
+        end
+    end
+
+    -- イヤリング・ピアス類 (Earrings & Dangle)
+    if string.find(itemId, "Earring") then
+        if isGem then
+            return { id = itemId, name = "Gemstone Earrings", basePricePerUnit = 55, category = "Jewelry" }
+        elseif isGold then
+            return { id = itemId, name = "Gold Earrings", basePricePerUnit = 40, category = "Jewelry" }
+        elseif isSilver then
+            return { id = itemId, name = "Silver Earrings", basePricePerUnit = 22, category = "Jewelry" }
+        else
+            return { id = itemId, name = "Earrings", basePricePerUnit = 15, category = "Jewelry" }
+        end
+    end
+
+    -- へそピアス・ボディジュエリー (Belly Button & Body Jewelry)
+    if string.find(itemId, "BellyButton") or string.find(itemId, "Belly") then
+        if isGem then
+            return { id = itemId, name = "Gemstone Belly Piercing", basePricePerUnit = 45, category = "Jewelry" }
+        elseif isGold then
+            return { id = itemId, name = "Gold Belly Ring", basePricePerUnit = 35, category = "Jewelry" }
+        elseif isSilver then
+            return { id = itemId, name = "Silver Belly Ring", basePricePerUnit = 20, category = "Jewelry" }
+        else
+            return { id = itemId, name = "Belly Piercing", basePricePerUnit = 12, category = "Jewelry" }
+        end
+    end
+
+    -- 鼻ピアス (Nose Stud & Nose Ring)
+    if string.find(itemId, "NoseRing") or string.find(itemId, "NoseStud") then
+        if isGold then
+            return { id = itemId, name = "Gold Nose Piercing", basePricePerUnit = 30, category = "Jewelry" }
+        elseif isSilver then
+            return { id = itemId, name = "Silver Nose Piercing", basePricePerUnit = 18, category = "Jewelry" }
+        else
+            return { id = itemId, name = "Nose Piercing", basePricePerUnit = 10, category = "Jewelry" }
+        end
+    end
+
+    -- 時計類 (Watches)
     if string.find(itemId, "WristWatch_") or string.find(itemId, "Pocketwatch") then
         if string.find(itemId, "Gold") or string.find(itemId, "Expensive") or string.find(itemId, "Pocketwatch") then
             return { id = itemId, name = "Luxury Watch", basePricePerUnit = 75, category = "Antiques" }
@@ -1916,12 +1985,20 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
         end
     end
 
-    -- 一次資料・手紙・メモ・チラシ類
+    -- 一次資料・手紙・メモ・チラシ・写真・記念カード類 (Archives & Memorabilia)
     if string.find(itemId, "Letter") or string.find(itemId, "Mail") then
         return { id = itemId, name = "Survivor Letter", basePricePerUnit = 22, category = "Archives" }
-    elseif string.find(itemId, "Brochure") or string.find(itemId, "Flyer") then
-        return { id = itemId, name = "Old Flyer", basePricePerUnit = 10, category = "Archives" }
-    elseif string.find(itemId, "Note") or string.find(itemId, "Postcard") then
+    elseif string.find(itemId, "Brochure") or string.find(itemId, "Flyer") or string.find(itemId, "Flier") then
+        return { id = itemId, name = "Historic Flyer", basePricePerUnit = 12, category = "Archives" }
+    elseif string.find(itemId, "Photograph") or string.find(itemId, "Photo") then
+        return { id = itemId, name = "Old Photograph", basePricePerUnit = 18, category = "Archives" }
+    elseif string.find(itemId, "Card") and not string.find(itemId, "CreditCard") then
+        return { id = itemId, name = "Vintage Greeting Card", basePricePerUnit = 14, category = "Archives" }
+    elseif string.find(itemId, "Doodle") or string.find(itemId, "Drawing") then
+        return { id = itemId, name = "Hand-drawn Sketch", basePricePerUnit = 15, category = "Archives" }
+    elseif string.find(itemId, "Document") then
+        return { id = itemId, name = "Official Document", basePricePerUnit = 25, category = "Archives" }
+    elseif string.find(itemId, "Note") or string.find(itemId, "Postcard") or string.find(itemId, "SheetPaper") then
         return { id = itemId, name = "Handwritten Note", basePricePerUnit = 12, category = "Archives" }
     end
 
@@ -2123,15 +2200,9 @@ function RadioTrader_AssessContainer(player)
                 local itemType = item:getFullType()
                 local sellEntry = RadioTrader_ItemsTable_GetSellEntry(itemType)
 
-                -- フォールバック: タグやgetType()での再チェック
+                -- フォールバック: getType()での再チェック
                 if not sellEntry then
-                    local isSeedTag = false
-                    if item.hasTag and (item:hasTag("base:isseed") or item:hasTag("isseed")) then
-                        isSeedTag = true
-                    end
-                    if isSeedTag or (item.getDisplayCategory and item:getDisplayCategory() == "Gardening" and string.find(itemType, "Seed")) then
-                        sellEntry = RadioTrader_ItemsTable_GetSellEntry(item:getType())
-                    end
+                    sellEntry = RadioTrader_ItemsTable_GetSellEntry(item:getType())
                 end
 
                 if sellEntry then

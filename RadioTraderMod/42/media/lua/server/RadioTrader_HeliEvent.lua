@@ -103,15 +103,18 @@ local function updateVirtualHelis()
         if dtHours > 1.0 then dtHours = 1.0 end
 
         -- オーディオエミッターの初期化（3D距離減衰用）
-        if not heli.emitter and getWorld():getFreeEmitter() then
-            heli.emitter = getWorld():getFreeEmitter()
-            heli.emitter:setPos(heli.x, heli.y, heli.z or 0)
-        end
-        -- オーディオエミッターの座標更新と再生
-        if heli.emitter then
-            heli.emitter:setPos(heli.x, heli.y, heli.z or 0)
-            if not heli.emitter:isPlaying("Helicopter") then
-                heli.emitter:playSound("Helicopter")
+        -- ドローン時は巨大爆音 Helicopter を再生せず無音ステルス飛行
+        if not heli.isDrone then
+            if not heli.emitter and getWorld():getFreeEmitter() then
+                heli.emitter = getWorld():getFreeEmitter()
+                heli.emitter:setPos(heli.x, heli.y, heli.z or 0)
+            end
+            -- オーディオエミッターの座標更新と再生
+            if heli.emitter then
+                heli.emitter:setPos(heli.x, heli.y, heli.z or 0)
+                if not heli.emitter:isPlaying("Helicopter") then
+                    heli.emitter:playSound("Helicopter")
+                end
             end
         end
 
@@ -128,10 +131,10 @@ local function updateVirtualHelis()
                     heli.y = heli.targetY
                     heli.state = STATE_HOVERING
                     heli.hoverStartTime = now
-                    log(("VirtualHeli arrived at LZ (%d,%d). State -> HOVERING"):format(heli.x, heli.y))
+                    log(("VirtualHeli arrived at LZ (%d,%d). State -> HOVERING (Drone: %s)"):format(heli.x, heli.y, tostring(heli.isDrone)))
                     
-                    -- サーチライト点灯通知 (LZ直上を照射, 半径20)
-                    if RadioTrader_ServerEngine and RadioTrader_ServerEngine.broadcastToClients then
+                    -- サーチライト点灯通知 (LZ直上を照射, 半径20) / ドローン時は無灯火
+                    if not heli.isDrone and RadioTrader_ServerEngine and RadioTrader_ServerEngine.broadcastToClients then
                         RadioTrader_ServerEngine.broadcastToClients(RadioTrader_Config.CMD_HELI_HOVER_START, {
                             x = heli.targetX,
                             y = heli.targetY,
@@ -140,8 +143,12 @@ local function updateVirtualHelis()
                         })
                     end
                     
-                    -- 音響
-                    fireAcousticWave(heli.x, heli.y, heli.z, heli.isMegaHorde)
+                    -- 音響（ドローン時は音響誘引波を完全スキップ）
+                    if not heli.isDrone then
+                        fireAcousticWave(heli.x, heli.y, heli.z, heli.isMegaHorde)
+                    else
+                        log("  [Stealth Drone] Arrived silently at LZ. Acoustic wave skipped.")
+                    end
                     
                     -- 残りのゾンビがいればここで最終湧き (仮想ホードに失敗した残存分のみ)
                     local leftFallback = heli.fallbackDirect - heli.spawnedDirect
@@ -220,13 +227,13 @@ local function updateVirtualHelis()
                 end
             end
             
-            if (now - heli.lastSoundTime) > 0.05 then
+            if not heli.isDrone and (now - heli.lastSoundTime) > 0.05 then
                 heli.lastSoundTime = now
                 triggerWorldSound(heli.x, heli.y, heli.z, 200, 200)
             end
 
         elseif heli.state == STATE_HOVERING then
-            if (now - heli.lastSoundTime) > 0.05 then
+            if not heli.isDrone and (now - heli.lastSoundTime) > 0.05 then
                 heli.lastSoundTime = now
                 triggerWorldSound(heli.x, heli.y, heli.z, 400, 400)
             end
@@ -237,10 +244,10 @@ local function updateVirtualHelis()
                 local rad = math.rad(angle)
                 heli.leaveTargetX = heli.x + SPAWN_DISTANCE * math.cos(rad)
                 heli.leaveTargetY = heli.y + SPAWN_DISTANCE * math.sin(rad)
-                log("VirtualHeli finished hover. State -> LEAVING")
+                log("VirtualHeli finished hover. State -> LEAVING (Drone: " .. tostring(heli.isDrone) .. ")")
                 
                 -- サーチライト消灯通知
-                if RadioTrader_ServerEngine and RadioTrader_ServerEngine.broadcastToClients then
+                if not heli.isDrone and RadioTrader_ServerEngine and RadioTrader_ServerEngine.broadcastToClients then
                     RadioTrader_ServerEngine.broadcastToClients(RadioTrader_Config.CMD_HELI_HOVER_END, {})
                 end
             end
@@ -274,7 +281,7 @@ local function updateVirtualHelis()
 end
 Events.OnTick.Add(updateVirtualHelis)
 
-function RadioTrader_HeliEvent.trigger(player, isMegaHorde)
+function RadioTrader_HeliEvent.trigger(player, isMegaHorde, isDrone)
     local gmd = ModData.getOrCreate("RadioTrader_" .. getUsernameSafe(player))
     local lzX = gmd[RadioTrader_Config.KEY_LZ_X]
     local lzY = gmd[RadioTrader_Config.KEY_LZ_Y]
@@ -286,8 +293,9 @@ function RadioTrader_HeliEvent.trigger(player, isMegaHorde)
         return
     end
 
-    log(("HeliEvent triggered for %s (MegaHorde: %s). Spawning Virtual Heli targeting LZ (%d,%d,%d)"):format(
-        player:getUsername(), tostring(isMegaHorde), lzX, lzY, lzZ))
+    isDrone = isDrone or false
+    log(("HeliEvent triggered for %s (MegaHorde: %s, Drone: %s). Spawning Virtual Aircraft targeting LZ (%d,%d,%d)"):format(
+        player:getUsername(), tostring(isMegaHorde), tostring(isDrone), lzX, lzY, lzZ))
 
     local angle = ZombRand(360)
     local rad = math.rad(angle)
@@ -296,7 +304,11 @@ function RadioTrader_HeliEvent.trigger(player, isMegaHorde)
     
     local count = 0
     local cfg = RadioTrader_Config
-    if cfg.HORDE_ENABLED then
+    if isDrone then
+        count = 0
+        isMegaHorde = false
+        log("  [Stealth Drone] Horde generation completely suppressed (count = 0). Acoustic wave disabled.")
+    elseif cfg.HORDE_ENABLED then
         local minCount, maxCount = cfg.getHordeCountRange()
         if maxCount > 0 then
             count = minCount + ZombRand(maxCount - minCount + 1)
@@ -308,7 +320,7 @@ function RadioTrader_HeliEvent.trigger(player, isMegaHorde)
         end
     end
     
-    log(("  Heli horde planned: %d total (primary: virtual Popman horde at flight coordinates, fallback: direct spawn)"):format(count))
+    log(("  Aircraft horde planned: %d total (Drone: %s)"):format(count, tostring(isDrone)))
     
     local now = getCurrentGameHour()
     table.insert(virtualHelis, {
@@ -328,5 +340,6 @@ function RadioTrader_HeliEvent.trigger(player, isMegaHorde)
         nextSpawnDist = 200,
         approachAngle = angle,
         isMegaHorde = isMegaHorde or false,
+        isDrone = isDrone,
     })
 end

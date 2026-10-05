@@ -1,7 +1,7 @@
 name=Exclusion Zone Trader (B42) - 隔離地域外トレーダー
 id=RadioTraderMod
 author=Developer
-modversion=1.0.0
+modversion=1.0.2
 description=Trade with the outside world beyond the Knox Exclusion Zone via emergency radio (104.8 MHz). Supply drops delivered by helicopter with searchlights and incoming zombie horde threats. Fully supports Build 42 single and multiplayer.
 poster=poster.png
 icon=icon.png

@@ -178,6 +178,18 @@ function RadioTrader_ServerEngine.assessContainer(player)
     end
     log(("assessContainer: Summary for %s -> %d items sellable, %d unaccepted, Total: %d CR"):format(
         username, #assessedItems, unacceptedCount or 0, totalCredits))
+    if unacceptedItems and #unacceptedItems > 0 then
+        local counts = {}
+        for _, name in ipairs(unacceptedItems) do
+            counts[name] = (counts[name] or 0) + 1
+        end
+        local breakdown = {}
+        for name, c in pairs(counts) do
+            table.insert(breakdown, string.format("%s x%d", name, c))
+        end
+        log(("assessContainer: Unaccepted items breakdown (%d types): %s"):format(
+            #breakdown, table.concat(breakdown, ", ")))
+    end
     return assessedItems, totalCredits, nil, unacceptedCount, unacceptedItems
 end
 
@@ -371,6 +383,14 @@ function RadioTrader_ServerEngine.processTrade(player, args)
         end
     end
 
+    -- ステルスドローン配送判定
+    local isDrone = args and (args.isDrone == true)
+    local droneCost = isDrone and (RadioTrader_Config.getDroneDeliveryCost and RadioTrader_Config.getDroneDeliveryCost() or 200) or 0
+    if droneCost > 0 then
+        totalCost = totalCost + droneCost
+        log(("processTrade: Stealth Drone Delivery option active (+%d CR, total=%d CR)"):format(droneCost, totalCost))
+    end
+
     -- ドロップボックス内の不用品査定（下取り相殺用）
     local container, obj = RadioTrader_GetLZContainer and RadioTrader_GetLZContainer(player)
     local assessedItems = {}
@@ -465,6 +485,7 @@ function RadioTrader_ServerEngine.processTrade(player, args)
 
     -- 注文内容を保存（投下要請待ち・ヘリ到着後に配達される）
     local timerData = ModData.getOrCreate("RadioTrader_Timer_" .. getUsernameSafe(player))
+    timerData.isDrone = isDrone
     local gmd = getPlayerGMD(player)
     gmd[RadioTrader_Config.KEY_ORDER] = {
         items         = orderItems,
@@ -472,7 +493,9 @@ function RadioTrader_ServerEngine.processTrade(player, args)
         totalItems    = #orderItems,
         count         = totalItemCount,
         paidCredits   = totalCost,   -- 返金計算用：発注時の支払額を記録
-        isMegaHorde   = timerData and timerData.isMegaHorde or false,
+        isMegaHorde   = (not isDrone) and (timerData and timerData.isMegaHorde or false),
+        isDrone       = isDrone,
+        droneCost     = droneCost,
         bonusLunchbox = bonusLunchbox,
     }
 
@@ -488,17 +511,35 @@ function RadioTrader_ServerEngine.processTrade(player, args)
         end
     end
 
-    -- クライアントへ受注通知（下取り相殺情報・俺のおやつフラグも同封）
+    -- 代表アイテムの選定: 複数品ある場合、「不用品回収依頼」よりも通常物資（食料・武器・機材など）を優先して代表名にする
+    local primaryItem = orderItems[1]
+    if #orderItems > 1 then
+        for _, it in ipairs(orderItems) do
+            if it.itemId ~= "RadioTrader_Crate_Pickup" then
+                primaryItem = it
+                break
+            end
+        end
+    end
+    local firstItemId = primaryItem and primaryItem.itemId
+    local firstItemCount = primaryItem and primaryItem.count or 1
+    local totalKinds = #orderItems
+
     RadioTrader_ServerEngine.sendToClient(player, RadioTrader_Config.CMD_TRADE_ACCEPTED, {
+        itemId         = firstItemId,
+        itemCount      = firstItemCount,
+        totalKinds     = totalKinds,
         itemName       = summaryName,
         cost           = totalCost,
         tradeInCredits = assessedCredits,
         tradeInCount   = removedTradeInCount,
         newCredits     = RadioTrader_ServerEngine.getCredits(player),
         hasTraderStash = hasTraderStash,
+        isDrone        = isDrone,
+        droneCost      = droneCost,
     })
 
-    log(player:getUsername() .. " placed order: " .. summaryName .. " (Cost: " .. totalCost .. " CR, TradeIn: " .. assessedCredits .. " CR)")
+    log(player:getUsername() .. " placed order: " .. summaryName .. " (Cost: " .. totalCost .. " CR, TradeIn: " .. assessedCredits .. " CR, Drone: " .. tostring(isDrone) .. ")")
 end
 
 -- ---------------------------------------------------------------------------
@@ -818,13 +859,31 @@ function RadioTrader_ServerEngine.deliverItems(player)
     end
     orderCount = orderCount or 1
 
+    local isDrone = (order and order.isDrone) or false
+
+    -- 配達完了時の代表アイテム選定: 複数品ある場合は通常物資を優先
+    local primaryItem = order and order.items and order.items[1]
+    if order and order.items and #order.items > 1 then
+        for _, it in ipairs(order.items) do
+            if it.itemId ~= "RadioTrader_Crate_Pickup" then
+                primaryItem = it
+                break
+            end
+        end
+    end
+    local firstItemId = primaryItem and primaryItem.itemId
+    local totalKinds = (order and order.items and #order.items) or 1
+
     RadioTrader_ServerEngine.sendToClient(player, RadioTrader_Config.CMD_DELIVERY_DONE, {
+        itemId           = firstItemId,
+        totalKinds       = totalKinds,
         itemName         = orderItemName,
         count            = orderCount,
         bonusItemName    = bonusId,
         hasLunchboxBonus = hasLunchboxBonus,
         isMegaHorde      = isMega,
         isFallbackDrop   = isFallbackDrop,
+        isDrone          = isDrone,
     })
 
     log("Delivered " .. tostring(orderItemName) .. " (count: " .. tostring(orderCount) .. ")"
@@ -967,11 +1026,11 @@ local function onClientCommand(module, command, player, args)
             return
         end
 
-        -- 要請受理: DELIVERING へ遷移しヘリイベント発動
+        -- 要請受理: DELIVERING へ遷移しヘリ/ドローンイベント発動
         local data = ModData.getOrCreate("RadioTrader_Timer_" .. getUsernameSafe(player))
         data.state = cfg.STATE_DELIVERING
-        RadioTrader_HeliEvent.trigger(player, data.isMegaHorde or false)
-        log(getUsernameSafe(player) .. " manually requested drop (MegaHorde: " .. tostring(data.isMegaHorde) .. ") at dist=" .. math.floor(dist))
+        RadioTrader_HeliEvent.trigger(player, data.isMegaHorde or false, data.isDrone or false)
+        log(getUsernameSafe(player) .. " manually requested drop (MegaHorde: " .. tostring(data.isMegaHorde) .. ", Drone: " .. tostring(data.isDrone) .. ") at dist=" .. math.floor(dist))
 
     elseif command == "requestDailyShop" then
         -- 日替わりショップ同期リクエスト

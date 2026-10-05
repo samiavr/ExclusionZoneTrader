@@ -62,6 +62,9 @@ local DEFAULTS = {
     -- 価格倍率設定 (山荘経済 / サンドボックス連携)
     BUY_PRICE_MULTIPLIER  = 2.0,    -- 購入価格倍率 (デフォルト: 2.0倍)
     SELL_PRICE_MULTIPLIER = 1.0,    -- 売却価格倍率 (デフォルト: 1.0倍)
+
+    -- ステルスドローン配送設定
+    DRONE_DELIVERY_COST   = 200,    -- ドローン配送料金 (CR)
 }
 
 -- ---------------------------------------------------------------------------
@@ -177,12 +180,30 @@ function RadioTrader_Config.init()
     RadioTrader_Config.MEGA_HORDE_ENABLED    = DEFAULTS.MEGA_HORDE_ENABLED
     RadioTrader_Config.MEGA_HORDE_MULTIPLIER = DEFAULTS.MEGA_HORDE_MULTIPLIER
 
-    print(("[RadioTrader][Config] Initialized: HORDE_SIZE=%s (%d-%d, raw=%s), BuyMult=%.1f, SellMult=%.1f, MegaChance=%.0f%%, RemoteRatio=%.0f%%"):format(
+    -- ステルスドローン配送
+    RadioTrader_Config.DRONE_DELIVERY_COST   = RadioTrader_Config.getDroneDeliveryCost()
+
+    print(("[RadioTrader][Config] Initialized: HORDE_SIZE=%s (%d-%d, raw=%s), BuyMult=%.1f, SellMult=%.1f, MegaChance=%.0f%%, RemoteRatio=%.0f%%, DroneCost=%d CR"):format(
         tostring(RadioTrader_Config.HORDE_SIZE), minCount, maxCount, tostring(rawHorde),
         RadioTrader_Config.getBuyPriceMultiplier(),
         RadioTrader_Config.getSellPriceMultiplier(),
         RadioTrader_Config.getMegaHordeChance() * 100,
-        RadioTrader_Config.getHordeRemoteRatio() * 100))
+        RadioTrader_Config.getHordeRemoteRatio() * 100,
+        RadioTrader_Config.DRONE_DELIVERY_COST))
+end
+
+-- ---------------------------------------------------------------------------
+-- ゲッター: ステルスドローン配送料金 (CR)
+-- ---------------------------------------------------------------------------
+function RadioTrader_Config.getDroneDeliveryCost()
+    local raw = RadioTrader_Config.getSandboxOption("DroneDeliveryCost")
+    if raw ~= nil then
+        local num = tonumber(raw)
+        if num and num >= 0 then
+            return num
+        end
+    end
+    return DEFAULTS.DRONE_DELIVERY_COST or 200
 end
 
 -- ---------------------------------------------------------------------------
