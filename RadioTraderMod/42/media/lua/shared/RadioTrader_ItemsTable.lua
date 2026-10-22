@@ -2638,85 +2638,89 @@ RadioTrader_Sell = {
     -- カテゴリ2: 貴金属・ジュエリー・高級時計 (Precious & Jewelry)
     -- =========================================================================
     -- 封鎖地域から持ち出される本物の金・宝石・高級アンティーク
+    -- （※未分解のアクセサリー完成品は鑑定・解体手間賃を引いた安価設定。プライヤーで宝石を外すと高額換金）
     -- 金・ルビー・ダイヤ指輪
-    { id = "Base.Ring_Right_RingFinger_GoldDiamond",   name = "Gold Diamond Ring",   basePricePerUnit = 140, category = "Jewelry" },
-    { id = "Base.Ring_Left_RingFinger_GoldDiamond",    name = "Gold Diamond Ring",   basePricePerUnit = 140, category = "Jewelry" },
-    { id = "Base.Ring_Right_MiddleFinger_GoldDiamond", name = "Gold Diamond Ring",   basePricePerUnit = 140, category = "Jewelry" },
-    { id = "Base.Ring_Left_MiddleFinger_GoldDiamond",  name = "Gold Diamond Ring",   basePricePerUnit = 140, category = "Jewelry" },
-    { id = "Base.Ring_Right_RingFinger_GoldRuby",      name = "Gold Ruby Ring",      basePricePerUnit = 110, category = "Jewelry" },
-    { id = "Base.Ring_Left_RingFinger_GoldRuby",       name = "Gold Ruby Ring",      basePricePerUnit = 110, category = "Jewelry" },
-    { id = "Base.Ring_Right_MiddleFinger_GoldRuby",    name = "Gold Ruby Ring",      basePricePerUnit = 110, category = "Jewelry" },
-    { id = "Base.Ring_Left_MiddleFinger_GoldRuby",     name = "Gold Ruby Ring",      basePricePerUnit = 110, category = "Jewelry" },
+    { id = "Base.Ring_Right_RingFinger_GoldDiamond",   name = "Gold Diamond Ring",   basePricePerUnit = 25,  category = "Jewelry" },
+    { id = "Base.Ring_Left_RingFinger_GoldDiamond",    name = "Gold Diamond Ring",   basePricePerUnit = 25,  category = "Jewelry" },
+    { id = "Base.Ring_Right_MiddleFinger_GoldDiamond", name = "Gold Diamond Ring",   basePricePerUnit = 25,  category = "Jewelry" },
+    { id = "Base.Ring_Left_MiddleFinger_GoldDiamond",  name = "Gold Diamond Ring",   basePricePerUnit = 25,  category = "Jewelry" },
+    { id = "Base.Ring_Right_RingFinger_GoldRuby",      name = "Gold Ruby Ring",      basePricePerUnit = 20,  category = "Jewelry" },
+    { id = "Base.Ring_Left_RingFinger_GoldRuby",       name = "Gold Ruby Ring",      basePricePerUnit = 20,  category = "Jewelry" },
+    { id = "Base.Ring_Right_MiddleFinger_GoldRuby",    name = "Gold Ruby Ring",      basePricePerUnit = 20,  category = "Jewelry" },
+    { id = "Base.Ring_Left_MiddleFinger_GoldRuby",     name = "Gold Ruby Ring",      basePricePerUnit = 20,  category = "Jewelry" },
 
     -- 金の指輪・シグネットリング
-    { id = "Base.Ring_Right_RingFinger_Gold",          name = "Gold Ring",           basePricePerUnit = 60,  category = "Jewelry" },
-    { id = "Base.Ring_Left_RingFinger_Gold",           name = "Gold Ring",           basePricePerUnit = 60,  category = "Jewelry" },
-    { id = "Base.Ring_Right_MiddleFinger_Gold",        name = "Gold Ring",           basePricePerUnit = 60,  category = "Jewelry" },
-    { id = "Base.Ring_Left_MiddleFinger_Gold",         name = "Gold Ring",           basePricePerUnit = 60,  category = "Jewelry" },
-    { id = "Base.Ring_Right_RingFinger_Signet",        name = "Signet Ring",         basePricePerUnit = 50,  category = "Jewelry" },
-    { id = "Base.Ring_Left_RingFinger_Signet",         name = "Signet Ring",         basePricePerUnit = 50,  category = "Jewelry" },
-    { id = "Base.Ring_Right_MiddleFinger_Signet",      name = "Signet Ring",         basePricePerUnit = 50,  category = "Jewelry" },
-    { id = "Base.Ring_Left_MiddleFinger_Signet",       name = "Signet Ring",         basePricePerUnit = 50,  category = "Jewelry" },
+    { id = "Base.Ring_Right_RingFinger_Gold",          name = "Gold Ring",           basePricePerUnit = 12,  category = "Jewelry" },
+    { id = "Base.Ring_Left_RingFinger_Gold",           name = "Gold Ring",           basePricePerUnit = 12,  category = "Jewelry" },
+    { id = "Base.Ring_Right_MiddleFinger_Gold",        name = "Gold Ring",           basePricePerUnit = 12,  category = "Jewelry" },
+    { id = "Base.Ring_Left_MiddleFinger_Gold",         name = "Gold Ring",           basePricePerUnit = 12,  category = "Jewelry" },
+    { id = "Base.Ring_Right_RingFinger_Signet",        name = "Signet Ring",         basePricePerUnit = 10,  category = "Jewelry" },
+    { id = "Base.Ring_Left_RingFinger_Signet",         name = "Signet Ring",         basePricePerUnit = 10,  category = "Jewelry" },
+    { id = "Base.Ring_Right_MiddleFinger_Signet",      name = "Signet Ring",         basePricePerUnit = 10,  category = "Jewelry" },
+    { id = "Base.Ring_Left_MiddleFinger_Signet",       name = "Signet Ring",         basePricePerUnit = 10,  category = "Jewelry" },
 
     -- 銀・ダイヤ指輪
-    { id = "Base.Ring_Right_RingFinger_SilverDiamond",   name = "Silver Diamond Ring", basePricePerUnit = 90,  category = "Jewelry" },
-    { id = "Base.Ring_Left_RingFinger_SilverDiamond",    name = "Silver Diamond Ring", basePricePerUnit = 90,  category = "Jewelry" },
-    { id = "Base.Ring_Right_MiddleFinger_SilverDiamond", name = "Silver Diamond Ring", basePricePerUnit = 90,  category = "Jewelry" },
-    { id = "Base.Ring_Left_MiddleFinger_SilverDiamond",  name = "Silver Diamond Ring", basePricePerUnit = 90,  category = "Jewelry" },
-    { id = "Base.Ring_Right_RingFinger_Silver",          name = "Silver Ring",         basePricePerUnit = 30,  category = "Jewelry" },
-    { id = "Base.Ring_Left_RingFinger_Silver",           name = "Silver Ring",         basePricePerUnit = 30,  category = "Jewelry" },
-    { id = "Base.Ring_Right_MiddleFinger_Silver",        name = "Silver Ring",         basePricePerUnit = 30,  category = "Jewelry" },
-    { id = "Base.Ring_Left_MiddleFinger_Silver",         name = "Silver Ring",         basePricePerUnit = 30,  category = "Jewelry" },
+    { id = "Base.Ring_Right_RingFinger_SilverDiamond",   name = "Silver Diamond Ring", basePricePerUnit = 15,  category = "Jewelry" },
+    { id = "Base.Ring_Left_RingFinger_SilverDiamond",    name = "Silver Diamond Ring", basePricePerUnit = 15,  category = "Jewelry" },
+    { id = "Base.Ring_Right_MiddleFinger_SilverDiamond", name = "Silver Diamond Ring", basePricePerUnit = 15,  category = "Jewelry" },
+    { id = "Base.Ring_Left_MiddleFinger_SilverDiamond",  name = "Silver Diamond Ring", basePricePerUnit = 15,  category = "Jewelry" },
+    { id = "Base.Ring_Right_RingFinger_Silver",          name = "Silver Ring",         basePricePerUnit = 6,   category = "Jewelry" },
+    { id = "Base.Ring_Left_RingFinger_Silver",           name = "Silver Ring",         basePricePerUnit = 6,   category = "Jewelry" },
+    { id = "Base.Ring_Right_MiddleFinger_Silver",        name = "Silver Ring",         basePricePerUnit = 6,   category = "Jewelry" },
+    { id = "Base.Ring_Left_MiddleFinger_Silver",         name = "Silver Ring",         basePricePerUnit = 6,   category = "Jewelry" },
 
     -- ネックレス・チョーカー
-    { id = "Base.Necklace_GoldDiamond",     name = "Gold Diamond Necklace",   basePricePerUnit = 130, category = "Jewelry" },
-    { id = "Base.NecklaceLong_GoldDiamond", name = "Gold Diamond Necklace",   basePricePerUnit = 130, category = "Jewelry" },
-    { id = "Base.Necklace_Choker_Diamond",  name = "Diamond Choker",          basePricePerUnit = 120, category = "Jewelry" },
-    { id = "Base.Necklace_GoldRuby",        name = "Gold Ruby Necklace",      basePricePerUnit = 100, category = "Jewelry" },
-    { id = "Base.Necklace_Pearl",           name = "Pearl Necklace",          basePricePerUnit = 110, category = "Jewelry" },
-    { id = "Base.Necklace_Gold",            name = "Gold Necklace",           basePricePerUnit = 65,  category = "Jewelry" },
-    { id = "Base.NecklaceLong_Gold",        name = "Gold Necklace",           basePricePerUnit = 65,  category = "Jewelry" },
-    { id = "Base.Necklace_SilverDiamond",   name = "Silver Diamond Necklace", basePricePerUnit = 80,  category = "Jewelry" },
-    { id = "Base.Necklace_SilverSapphire",  name = "Silver Sapphire Necklace",basePricePerUnit = 65,  category = "Jewelry" },
-    { id = "Base.Necklace_Silver",          name = "Silver Necklace",         basePricePerUnit = 30,  category = "Jewelry" },
-    { id = "Base.NecklaceLong_Silver",      name = "Silver Necklace",         basePricePerUnit = 30,  category = "Jewelry" },
-    { id = "Base.Necklace_Crucifix",        name = "Crucifix Necklace",       basePricePerUnit = 20,  category = "Jewelry" },
-    { id = "Base.Necklace_SilverCrucifix",  name = "Silver Crucifix",         basePricePerUnit = 40,  category = "Jewelry" },
+    { id = "Base.Necklace_GoldDiamond",     name = "Gold Diamond Necklace",   basePricePerUnit = 25,  category = "Jewelry" },
+    { id = "Base.NecklaceLong_GoldDiamond", name = "Gold Diamond Necklace",   basePricePerUnit = 25,  category = "Jewelry" },
+    { id = "Base.Necklace_Choker_Diamond",  name = "Diamond Choker",          basePricePerUnit = 25,  category = "Jewelry" },
+    { id = "Base.Necklace_GoldRuby",        name = "Gold Ruby Necklace",      basePricePerUnit = 20,  category = "Jewelry" },
+    { id = "Base.Necklace_Pearl",           name = "Pearl Necklace",          basePricePerUnit = 20,  category = "Jewelry" },
+    { id = "Base.Necklace_Gold",            name = "Gold Necklace",           basePricePerUnit = 12,  category = "Jewelry" },
+    { id = "Base.NecklaceLong_Gold",        name = "Gold Necklace",           basePricePerUnit = 12,  category = "Jewelry" },
+    { id = "Base.Necklace_SilverDiamond",   name = "Silver Diamond Necklace", basePricePerUnit = 15,  category = "Jewelry" },
+    { id = "Base.Necklace_SilverSapphire",  name = "Silver Sapphire Necklace",basePricePerUnit = 12,  category = "Jewelry" },
+    { id = "Base.Necklace_Silver",          name = "Silver Necklace",         basePricePerUnit = 6,   category = "Jewelry" },
+    { id = "Base.NecklaceLong_Silver",      name = "Silver Necklace",         basePricePerUnit = 6,   category = "Jewelry" },
+    { id = "Base.Necklace_Crucifix",        name = "Crucifix Necklace",       basePricePerUnit = 4,   category = "Jewelry" },
+    { id = "Base.Necklace_SilverCrucifix",  name = "Silver Crucifix",         basePricePerUnit = 8,   category = "Jewelry" },
 
     -- イヤリング
-    { id = "Base.Earring_LoopLrg_Gold",        name = "Gold Hoop Earrings",   basePricePerUnit = 45,  category = "Jewelry" },
-    { id = "Base.Earring_LoopMed_Gold",        name = "Gold Hoop Earrings",   basePricePerUnit = 37,  category = "Jewelry" },
-    { id = "Base.Earring_LoopSmall_Gold_Both", name = "Gold Stud Earrings",   basePricePerUnit = 30,  category = "Jewelry" },
-    { id = "Base.Earring_LoopLrg_Silver",      name = "Silver Hoop Earrings", basePricePerUnit = 25,  category = "Jewelry" },
-    { id = "Base.Earring_LoopMed_Silver",      name = "Silver Hoop Earrings", basePricePerUnit = 20,  category = "Jewelry" },
+    { id = "Base.Earring_LoopLrg_Gold",        name = "Gold Hoop Earrings",   basePricePerUnit = 10,  category = "Jewelry" },
+    { id = "Base.Earring_LoopMed_Gold",        name = "Gold Hoop Earrings",   basePricePerUnit = 8,   category = "Jewelry" },
+    { id = "Base.Earring_LoopSmall_Gold_Both", name = "Gold Stud Earrings",   basePricePerUnit = 6,   category = "Jewelry" },
+    { id = "Base.Earring_LoopLrg_Silver",      name = "Silver Hoop Earrings", basePricePerUnit = 5,   category = "Jewelry" },
+    { id = "Base.Earring_LoopMed_Silver",      name = "Silver Hoop Earrings", basePricePerUnit = 4,   category = "Jewelry" },
 
-    -- 高級時計・懐中時計
-    { id = "Base.Pocketwatch",                    name = "Antique Pocketwatch", basePricePerUnit = 90,  category = "Antiques" },
-    { id = "Base.WristWatch_Right_Expensive",     name = "Luxury Watch",        basePricePerUnit = 90,  category = "Antiques" },
-    { id = "Base.WristWatch_Right_ClassicGold",   name = "Classic Gold Watch",  basePricePerUnit = 75,  category = "Antiques" },
-    { id = "Base.WristWatch_Left_ClassicGold",    name = "Classic Gold Watch",  basePricePerUnit = 75,  category = "Antiques" },
-    { id = "Base.WristWatch_Right_ClassicBlack",  name = "Classic Watch",       basePricePerUnit = 30,  category = "Antiques" },
-    { id = "Base.WristWatch_Left_ClassicBlack",   name = "Classic Watch",       basePricePerUnit = 30,  category = "Antiques" },
-    { id = "Base.WristWatch_Right_ClassicBrown",  name = "Classic Watch",       basePricePerUnit = 30,  category = "Antiques" },
-    { id = "Base.WristWatch_Left_ClassicBrown",   name = "Classic Watch",       basePricePerUnit = 30,  category = "Antiques" },
-    { id = "Base.WristWatch_Right_ClassicMilitary", name = "Military Watch",    basePricePerUnit = 40,  category = "Antiques" },
-    { id = "Base.WristWatch_Left_ClassicMilitary",  name = "Military Watch",    basePricePerUnit = 40,  category = "Antiques" },
+    -- 高級時計・懐中時計 (Antiques)
+    { id = "Base.Pocketwatch",                    name = "Antique Pocketwatch", basePricePerUnit = 25,  category = "Antiques" },
+    { id = "Base.WristWatch_Right_Expensive",     name = "Luxury Watch",        basePricePerUnit = 25,  category = "Antiques" },
+    { id = "Base.WristWatch_Right_ClassicGold",   name = "Classic Gold Watch",  basePricePerUnit = 20,  category = "Antiques" },
+    { id = "Base.WristWatch_Left_ClassicGold",    name = "Classic Gold Watch",  basePricePerUnit = 20,  category = "Antiques" },
+    { id = "Base.WristWatch_Right_ClassicBlack",  name = "Classic Watch",       basePricePerUnit = 6,   category = "Antiques" },
+    { id = "Base.WristWatch_Left_ClassicBlack",   name = "Classic Watch",       basePricePerUnit = 6,   category = "Antiques" },
+    { id = "Base.WristWatch_Right_ClassicBrown",  name = "Classic Watch",       basePricePerUnit = 6,   category = "Antiques" },
+    { id = "Base.WristWatch_Left_ClassicBrown",   name = "Classic Watch",       basePricePerUnit = 6,   category = "Antiques" },
+    { id = "Base.WristWatch_Right_ClassicMilitary", name = "Military Watch",    basePricePerUnit = 12,  category = "Antiques" },
+    { id = "Base.WristWatch_Left_ClassicMilitary",  name = "Military Watch",    basePricePerUnit = 12,  category = "Antiques" },
 
-    -- 分解した宝石（ルース宝石 / 重量比価値が高いため換金効率良）
-    { id = "Base.Diamond",                        name = "Cut Diamond",         basePricePerUnit = 120, category = "Gems" },
-    { id = "Base.Ruby",                           name = "Cut Ruby",            basePricePerUnit = 95,  category = "Gems" },
-    { id = "Base.Sapphire",                       name = "Cut Sapphire",        basePricePerUnit = 75,  category = "Gems" },
-    { id = "Base.Emerald",                        name = "Cut Emerald",         basePricePerUnit = 75,  category = "Gems" },
+    -- 分解した宝石（ルース宝石 / プライヤー等で取り外した純粋な宝石 ★高額査定）
+    { id = "Base.Diamond",                        name = "Cut Diamond",         basePricePerUnit = 50,  category = "Gems" },
+    { id = "Base.Ruby",                           name = "Cut Ruby",            basePricePerUnit = 35,  category = "Gems" },
+    { id = "Base.Sapphire",                       name = "Cut Sapphire",        basePricePerUnit = 30,  category = "Gems" },
+    { id = "Base.Emerald",                        name = "Cut Emerald",         basePricePerUnit = 30,  category = "Gems" },
+    { id = "Base.Amethyst",                       name = "Cut Amethyst",        basePricePerUnit = 25,  category = "Gems" },
 
-    -- 金・銀・金属インゴット（地金類 / 重量があるため輸送手数料を差し引き）
-    { id = "Base.GoldBar",                        name = "Gold Ingot (Large)",  basePricePerUnit = 275, category = "Ingots" },
-    { id = "Base.SmallGoldBar",                   name = "Gold Ingot (Small)",  basePricePerUnit = 110, category = "Ingots" },
-    { id = "Base.SilverBar",                      name = "Silver Ingot (Large)",basePricePerUnit = 130, category = "Ingots" },
-    { id = "Base.SmallSilverBar",                 name = "Silver Ingot (Small)",basePricePerUnit = 50,  category = "Ingots" },
-    { id = "Base.SteelIngot",                     name = "Steel Ingot",         basePricePerUnit = 35,  category = "Ingots" },
-    { id = "Base.BrassIngot",                     name = "Brass Ingot",         basePricePerUnit = 22,  category = "Ingots" },
-    { id = "Base.CopperIngot",                    name = "Copper Ingot",        basePricePerUnit = 17,  category = "Ingots" },
-    { id = "Base.IronIngot",                      name = "Iron Ingot",          basePricePerUnit = 12,  category = "Ingots" },
+    -- 金属スクラップ・金銀インゴット（地金類）
+    { id = "Base.GoldScrap",                      name = "Gold Scrap",          basePricePerUnit = 3,   category = "Ingots" },
+    { id = "Base.SilverScrap",                    name = "Silver Scrap",        basePricePerUnit = 1.5, category = "Ingots" },
+    { id = "Base.GoldBar",                        name = "Gold Ingot (Large)",  basePricePerUnit = 120, category = "Ingots" },
+    { id = "Base.SmallGoldBar",                   name = "Gold Ingot (Small)",  basePricePerUnit = 30,  category = "Ingots" },
+    { id = "Base.SilverBar",                      name = "Silver Ingot (Large)",basePricePerUnit = 60,  category = "Ingots" },
+    { id = "Base.SmallSilverBar",                 name = "Silver Ingot (Small)",basePricePerUnit = 15,  category = "Ingots" },
+    { id = "Base.SteelIngot",                     name = "Steel Ingot",         basePricePerUnit = 20,  category = "Ingots" },
+    { id = "Base.BrassIngot",                     name = "Brass Ingot",         basePricePerUnit = 15,  category = "Ingots" },
+    { id = "Base.CopperIngot",                    name = "Copper Ingot",        basePricePerUnit = 12,  category = "Ingots" },
+    { id = "Base.IronIngot",                      name = "Iron Ingot",          basePricePerUnit = 8,   category = "Ingots" },
 
     -- =========================================================================
     -- カテゴリ3: 終末サバイバーハンドクラフト・工芸 (Handcrafts)
@@ -3196,93 +3200,95 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
     -- 指輪類 (Rings)
     if string.find(itemId, "Ring_") or string.find(itemId, "Finger_") then
         if isGem and isGold then
-            return { id = itemId, name = "Gold Gemstone Ring", basePricePerUnit = 110, category = "Jewelry" }
+            return { id = itemId, name = "Gold Gemstone Ring", basePricePerUnit = 25, category = "Jewelry" }
         elseif isGem then
-            return { id = itemId, name = "Gemstone Ring", basePricePerUnit = 70, category = "Jewelry" }
+            return { id = itemId, name = "Gemstone Ring", basePricePerUnit = 15, category = "Jewelry" }
         elseif isGold then
-            return { id = itemId, name = "Gold Ring", basePricePerUnit = 55, category = "Jewelry" }
+            return { id = itemId, name = "Gold Ring", basePricePerUnit = 12, category = "Jewelry" }
         elseif isSilver then
-            return { id = itemId, name = "Silver Ring", basePricePerUnit = 27, category = "Jewelry" }
+            return { id = itemId, name = "Silver Ring", basePricePerUnit = 6, category = "Jewelry" }
         else
-            return { id = itemId, name = "Ring", basePricePerUnit = 15, category = "Jewelry" }
+            return { id = itemId, name = "Ring", basePricePerUnit = 3, category = "Jewelry" }
         end
     end
 
     -- ネックレス・ペンダント類 (Necklace & Locket & DogTag)
     if string.find(itemId, "Necklace") or string.find(itemId, "Locket") or string.find(itemId, "DogTag") then
         if isGem and isGold then
-            return { id = itemId, name = "Gold Gemstone Necklace", basePricePerUnit = 120, category = "Jewelry" }
+            return { id = itemId, name = "Gold Gemstone Necklace", basePricePerUnit = 25, category = "Jewelry" }
         elseif isGem then
-            return { id = itemId, name = "Precious Necklace", basePricePerUnit = 80, category = "Jewelry" }
+            return { id = itemId, name = "Precious Necklace", basePricePerUnit = 15, category = "Jewelry" }
         elseif isGold then
-            return { id = itemId, name = "Gold Necklace", basePricePerUnit = 60, category = "Jewelry" }
+            return { id = itemId, name = "Gold Necklace", basePricePerUnit = 12, category = "Jewelry" }
         elseif isSilver then
-            return { id = itemId, name = "Silver Necklace", basePricePerUnit = 30, category = "Jewelry" }
+            return { id = itemId, name = "Silver Necklace", basePricePerUnit = 6, category = "Jewelry" }
         elseif string.find(itemId, "Locket") then
-            return { id = itemId, name = "Vintage Locket", basePricePerUnit = 35, category = "Jewelry" }
+            return { id = itemId, name = "Vintage Locket", basePricePerUnit = 8, category = "Jewelry" }
         elseif string.find(itemId, "DogTag") then
-            return { id = itemId, name = "Military Dog Tag", basePricePerUnit = 25, category = "Jewelry" }
+            return { id = itemId, name = "Military Dog Tag", basePricePerUnit = 6, category = "Jewelry" }
         else
-            return { id = itemId, name = "Symbol Necklace", basePricePerUnit = 20, category = "Jewelry" }
+            return { id = itemId, name = "Symbol Necklace", basePricePerUnit = 4, category = "Jewelry" }
         end
     end
 
     -- ブレスレット・バングル類 (Bracelet & Bangle)
     if string.find(itemId, "Bracelet") or string.find(itemId, "Bangle") then
         if isGem then
-            return { id = itemId, name = "Gemstone Bracelet", basePricePerUnit = 65, category = "Jewelry" }
+            return { id = itemId, name = "Gemstone Bracelet", basePricePerUnit = 20, category = "Jewelry" }
         elseif isGold then
-            return { id = itemId, name = "Gold Bracelet", basePricePerUnit = 50, category = "Jewelry" }
+            return { id = itemId, name = "Gold Bracelet", basePricePerUnit = 12, category = "Jewelry" }
         elseif isSilver then
-            return { id = itemId, name = "Silver Bangle", basePricePerUnit = 25, category = "Jewelry" }
+            return { id = itemId, name = "Silver Bangle", basePricePerUnit = 6, category = "Jewelry" }
         else
-            return { id = itemId, name = "Bracelet", basePricePerUnit = 15, category = "Jewelry" }
+            return { id = itemId, name = "Bracelet", basePricePerUnit = 3, category = "Jewelry" }
         end
     end
 
     -- イヤリング・ピアス類 (Earrings & Dangle)
     if string.find(itemId, "Earring") then
         if isGem then
-            return { id = itemId, name = "Gemstone Earrings", basePricePerUnit = 55, category = "Jewelry" }
+            return { id = itemId, name = "Gemstone Earrings", basePricePerUnit = 15, category = "Jewelry" }
         elseif isGold then
-            return { id = itemId, name = "Gold Earrings", basePricePerUnit = 40, category = "Jewelry" }
+            return { id = itemId, name = "Gold Earrings", basePricePerUnit = 8, category = "Jewelry" }
         elseif isSilver then
-            return { id = itemId, name = "Silver Earrings", basePricePerUnit = 22, category = "Jewelry" }
+            return { id = itemId, name = "Silver Earrings", basePricePerUnit = 4, category = "Jewelry" }
         else
-            return { id = itemId, name = "Earrings", basePricePerUnit = 15, category = "Jewelry" }
+            return { id = itemId, name = "Earrings", basePricePerUnit = 2, category = "Jewelry" }
         end
     end
 
     -- へそピアス・ボディジュエリー (Belly Button & Body Jewelry)
     if string.find(itemId, "BellyButton") or string.find(itemId, "Belly") then
         if isGem then
-            return { id = itemId, name = "Gemstone Belly Piercing", basePricePerUnit = 45, category = "Jewelry" }
+            return { id = itemId, name = "Gemstone Belly Piercing", basePricePerUnit = 12, category = "Jewelry" }
         elseif isGold then
-            return { id = itemId, name = "Gold Belly Ring", basePricePerUnit = 35, category = "Jewelry" }
+            return { id = itemId, name = "Gold Belly Ring", basePricePerUnit = 6, category = "Jewelry" }
         elseif isSilver then
-            return { id = itemId, name = "Silver Belly Ring", basePricePerUnit = 20, category = "Jewelry" }
+            return { id = itemId, name = "Silver Belly Ring", basePricePerUnit = 3, category = "Jewelry" }
         else
-            return { id = itemId, name = "Belly Piercing", basePricePerUnit = 12, category = "Jewelry" }
+            return { id = itemId, name = "Belly Piercing", basePricePerUnit = 2, category = "Jewelry" }
         end
     end
 
     -- 鼻ピアス (Nose Stud & Nose Ring)
     if string.find(itemId, "NoseRing") or string.find(itemId, "NoseStud") then
         if isGold then
-            return { id = itemId, name = "Gold Nose Piercing", basePricePerUnit = 30, category = "Jewelry" }
+            return { id = itemId, name = "Gold Nose Piercing", basePricePerUnit = 6, category = "Jewelry" }
         elseif isSilver then
-            return { id = itemId, name = "Silver Nose Piercing", basePricePerUnit = 18, category = "Jewelry" }
+            return { id = itemId, name = "Silver Nose Piercing", basePricePerUnit = 3, category = "Jewelry" }
         else
-            return { id = itemId, name = "Nose Piercing", basePricePerUnit = 10, category = "Jewelry" }
+            return { id = itemId, name = "Nose Piercing", basePricePerUnit = 1, category = "Jewelry" }
         end
     end
 
     -- 時計類 (Watches)
     if string.find(itemId, "WristWatch_") or string.find(itemId, "Pocketwatch") then
         if string.find(itemId, "Gold") or string.find(itemId, "Expensive") or string.find(itemId, "Pocketwatch") then
-            return { id = itemId, name = "Luxury Watch", basePricePerUnit = 75, category = "Antiques" }
+            return { id = itemId, name = "Luxury Watch", basePricePerUnit = 20, category = "Antiques" }
+        elseif string.find(itemId, "Military") then
+            return { id = itemId, name = "Military Watch", basePricePerUnit = 12, category = "Antiques" }
         else
-            return { id = itemId, name = "Classic Watch", basePricePerUnit = 25, category = "Antiques" }
+            return { id = itemId, name = "Classic Watch", basePricePerUnit = 6, category = "Antiques" }
         end
     end
 
@@ -3343,26 +3349,33 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
 
     -- インゴット・地金類
     if string.find(itemId, "Ingot") or string.find(itemId, "Bar") then
+        local isSmall = string.find(itemId, "Small")
         if string.find(itemId, "Gold") then
-            return { id = itemId, name = "Gold Ingot", basePricePerUnit = 110, category = "Ingots" }
+            return { id = itemId, name = isSmall and "Gold Ingot (Small)" or "Gold Ingot", basePricePerUnit = isSmall and 30 or 120, category = "Ingots" }
         elseif string.find(itemId, "Silver") then
-            return { id = itemId, name = "Silver Ingot", basePricePerUnit = 55, category = "Ingots" }
+            return { id = itemId, name = isSmall and "Silver Ingot (Small)" or "Silver Ingot", basePricePerUnit = isSmall and 15 or 60, category = "Ingots" }
         elseif string.find(itemId, "Steel") then
-            return { id = itemId, name = "Steel Ingot", basePricePerUnit = 35, category = "Ingots" }
-        elseif string.find(itemId, "Brass") or string.find(itemId, "Copper") then
-            return { id = itemId, name = "Metal Ingot", basePricePerUnit = 20, category = "Ingots" }
+            return { id = itemId, name = "Steel Ingot", basePricePerUnit = 20, category = "Ingots" }
+        elseif string.find(itemId, "Brass") then
+            return { id = itemId, name = "Brass Ingot", basePricePerUnit = 15, category = "Ingots" }
+        elseif string.find(itemId, "Copper") then
+            return { id = itemId, name = "Copper Ingot", basePricePerUnit = 12, category = "Ingots" }
+        elseif string.find(itemId, "Iron") then
+            return { id = itemId, name = "Iron Ingot", basePricePerUnit = 8, category = "Ingots" }
         end
     end
 
     -- 単体宝石類
     if string.find(itemId, "Diamond") then
-        return { id = itemId, name = "Cut Diamond", basePricePerUnit = 120, category = "Gems" }
+        return { id = itemId, name = "Cut Diamond", basePricePerUnit = 50, category = "Gems" }
     elseif string.find(itemId, "Ruby") then
-        return { id = itemId, name = "Cut Ruby", basePricePerUnit = 95, category = "Gems" }
+        return { id = itemId, name = "Cut Ruby", basePricePerUnit = 35, category = "Gems" }
     elseif string.find(itemId, "Sapphire") then
-        return { id = itemId, name = "Cut Sapphire", basePricePerUnit = 75, category = "Gems" }
+        return { id = itemId, name = "Cut Sapphire", basePricePerUnit = 30, category = "Gems" }
     elseif string.find(itemId, "Emerald") then
-        return { id = itemId, name = "Cut Emerald", basePricePerUnit = 75, category = "Gems" }
+        return { id = itemId, name = "Cut Emerald", basePricePerUnit = 30, category = "Gems" }
+    elseif string.find(itemId, "Amethyst") then
+        return { id = itemId, name = "Cut Amethyst", basePricePerUnit = 25, category = "Gems" }
     end
 
     -- 魚の切り身・各種生肉

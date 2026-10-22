@@ -130,6 +130,17 @@ B42で追加された畜産・狩猟・革なめしの成果物を3段階で適�
 | **ロープ** | `Base.Rope` | **8 CR** | 4.0 CR | 結束・牽引資材 |
 | **防水シート (タープ)** | `Base.Tarp` | **15 CR** | 7.5 CR | 工業用厚手防水布 |
 
+### ⑫ 貴金属・宝石・時計・地金経済 (Precious Metals, Gems, Watches & Ingots - v1.2.2)
+B42バニラのクラフト機能（プライヤー等でアクセサリーを分解して宝石を取り外し、金属スクラップを精錬する）に合わせ、**「そのまま売るより、分解・クラフトした方が2倍以上高く売れる」**経済インセンティブ設計を採用しています：
+- **アクセサリー完成品（買い叩きペナルティ）**: 未分解のまま売ると、鑑定・解体手間賃が引かれ安価（金ダイヤ指輪 25 CR、金指輪 12 CR、銀指輪 6 CR）。
+- **分解した宝石（ルース宝石 / 高額買取）**: ダイヤモンド (50 CR)、ルビー (35 CR)、サファイア (30 CR)、エメラルド (30 CR)、アメジスト (25 CR)。
+- **金属スクラップ・地金インゴット（クラフト成果換金）**: 金インゴット (120 CR)、銀インゴット (60 CR)、小型金インゴット (30 CR)、金スクラップ (3 CR)。
+- **時計類（引き締め適正化）**: 高級・金時計 (20〜25 CR)、ミリタリーウォッチ (12 CR)、一般クラシック時計 (6 CR)。
+
+> **クラフト実例**:
+> - **金ダイヤ指輪をそのまま売却**: 25 CR（実効 12.5 CR）
+> - **プライヤーで分解して売却**: ダイヤモンド (50 CR) + 金スクラップ (3 CR) = **53 CR（実効 26.5 CR / +28 CRのクラフトボーナス！）**
+
 ---
 
 ## 3. 静的買取品目一覧
@@ -168,55 +179,98 @@ B42で追加された畜産・狩猟・革なめしの成果物を3段階で適�
 | Receipt | `Base.Receipt` | **4 CR** | 2 CR |
 | Newspaper | `Base.Newspaper` | **3 CR** | 1.5 CR |
 
-### 3.2 貴金属・宝石・高級時計 (Precious & Jewelry)
+### 3.2 貴金属・アクセサリー (Jewelry: 完成品・買い叩き価格)
 登録件数: **42 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
 | :--- | :--- | :---: | :---: |
-| Gold Diamond Ring | `Base.Ring_Right_RingFinger_GoldDiamond` | **140 CR** | 70 CR |
-| Gold Diamond Ring | `Base.Ring_Left_RingFinger_GoldDiamond` | **140 CR** | 70 CR |
-| Gold Diamond Ring | `Base.Ring_Right_MiddleFinger_GoldDiamond` | **140 CR** | 70 CR |
-| Gold Diamond Ring | `Base.Ring_Left_MiddleFinger_GoldDiamond` | **140 CR** | 70 CR |
-| Gold Diamond Necklace | `Base.Necklace_GoldDiamond` | **130 CR** | 65 CR |
-| Gold Diamond Necklace | `Base.NecklaceLong_GoldDiamond` | **130 CR** | 65 CR |
-| Diamond Choker | `Base.Necklace_Choker_Diamond` | **120 CR** | 60 CR |
-| Gold Ruby Ring | `Base.Ring_Right_RingFinger_GoldRuby` | **110 CR** | 55 CR |
-| Gold Ruby Ring | `Base.Ring_Left_RingFinger_GoldRuby` | **110 CR** | 55 CR |
-| Gold Ruby Ring | `Base.Ring_Right_MiddleFinger_GoldRuby` | **110 CR** | 55 CR |
-| Gold Ruby Ring | `Base.Ring_Left_MiddleFinger_GoldRuby` | **110 CR** | 55 CR |
-| Pearl Necklace | `Base.Necklace_Pearl` | **110 CR** | 55 CR |
-| Gold Ruby Necklace | `Base.Necklace_GoldRuby` | **100 CR** | 50 CR |
-| Silver Diamond Ring | `Base.Ring_Right_RingFinger_SilverDiamond` | **90 CR** | 45 CR |
-| Silver Diamond Ring | `Base.Ring_Left_RingFinger_SilverDiamond` | **90 CR** | 45 CR |
-| Silver Diamond Ring | `Base.Ring_Right_MiddleFinger_SilverDiamond` | **90 CR** | 45 CR |
-| Silver Diamond Ring | `Base.Ring_Left_MiddleFinger_SilverDiamond` | **90 CR** | 45 CR |
-| Silver Diamond Necklace | `Base.Necklace_SilverDiamond` | **80 CR** | 40 CR |
-| Gold Necklace | `Base.Necklace_Gold` | **65 CR** | 32.5 CR |
-| Gold Necklace | `Base.NecklaceLong_Gold` | **65 CR** | 32.5 CR |
-| Silver Sapphire Necklace | `Base.Necklace_SilverSapphire` | **65 CR** | 32.5 CR |
-| Gold Ring | `Base.Ring_Right_RingFinger_Gold` | **60 CR** | 30 CR |
-| Gold Ring | `Base.Ring_Left_RingFinger_Gold` | **60 CR** | 30 CR |
-| Gold Ring | `Base.Ring_Right_MiddleFinger_Gold` | **60 CR** | 30 CR |
-| Gold Ring | `Base.Ring_Left_MiddleFinger_Gold` | **60 CR** | 30 CR |
-| Signet Ring | `Base.Ring_Right_RingFinger_Signet` | **50 CR** | 25 CR |
-| Signet Ring | `Base.Ring_Left_RingFinger_Signet` | **50 CR** | 25 CR |
-| Signet Ring | `Base.Ring_Right_MiddleFinger_Signet` | **50 CR** | 25 CR |
-| Signet Ring | `Base.Ring_Left_MiddleFinger_Signet` | **50 CR** | 25 CR |
-| Gold Hoop Earrings | `Base.Earring_LoopLrg_Gold` | **45 CR** | 22.5 CR |
-| Silver Crucifix | `Base.Necklace_SilverCrucifix` | **40 CR** | 20 CR |
-| Gold Hoop Earrings | `Base.Earring_LoopMed_Gold` | **37 CR** | 18.5 CR |
-| Gold Stud Earrings | `Base.Earring_LoopSmall_Gold_Both` | **30 CR** | 15 CR |
-| Silver Necklace | `Base.Necklace_Silver` | **30 CR** | 15 CR |
-| Silver Necklace | `Base.NecklaceLong_Silver` | **30 CR** | 15 CR |
-| Silver Ring | `Base.Ring_Right_RingFinger_Silver` | **30 CR** | 15 CR |
-| Silver Ring | `Base.Ring_Left_RingFinger_Silver` | **30 CR** | 15 CR |
-| Silver Ring | `Base.Ring_Right_MiddleFinger_Silver` | **30 CR** | 15 CR |
-| Silver Ring | `Base.Ring_Left_MiddleFinger_Silver` | **30 CR** | 15 CR |
-| Silver Hoop Earrings | `Base.Earring_LoopLrg_Silver` | **25 CR** | 12.5 CR |
-| Crucifix Necklace | `Base.Necklace_Crucifix` | **20 CR** | 10 CR |
-| Silver Hoop Earrings | `Base.Earring_LoopMed_Silver` | **20 CR** | 10 CR |
+| Gold Diamond Ring | `Base.Ring_Right_RingFinger_GoldDiamond` | **25 CR** | 12.5 CR |
+| Gold Diamond Ring | `Base.Ring_Left_RingFinger_GoldDiamond` | **25 CR** | 12.5 CR |
+| Gold Diamond Ring | `Base.Ring_Right_MiddleFinger_GoldDiamond` | **25 CR** | 12.5 CR |
+| Gold Diamond Ring | `Base.Ring_Left_MiddleFinger_GoldDiamond` | **25 CR** | 12.5 CR |
+| Gold Diamond Necklace | `Base.Necklace_GoldDiamond` | **25 CR** | 12.5 CR |
+| Gold Diamond Necklace | `Base.NecklaceLong_GoldDiamond` | **25 CR** | 12.5 CR |
+| Diamond Choker | `Base.Necklace_Choker_Diamond` | **25 CR** | 12.5 CR |
+| Gold Ruby Ring | `Base.Ring_Right_RingFinger_GoldRuby` | **20 CR** | 10 CR |
+| Gold Ruby Ring | `Base.Ring_Left_RingFinger_GoldRuby` | **20 CR** | 10 CR |
+| Gold Ruby Ring | `Base.Ring_Right_MiddleFinger_GoldRuby` | **20 CR** | 10 CR |
+| Gold Ruby Ring | `Base.Ring_Left_MiddleFinger_GoldRuby` | **20 CR** | 10 CR |
+| Pearl Necklace | `Base.Necklace_Pearl` | **20 CR** | 10 CR |
+| Gold Ruby Necklace | `Base.Necklace_GoldRuby` | **20 CR** | 10 CR |
+| Silver Diamond Ring | `Base.Ring_Right_RingFinger_SilverDiamond` | **15 CR** | 7.5 CR |
+| Silver Diamond Ring | `Base.Ring_Left_RingFinger_SilverDiamond` | **15 CR** | 7.5 CR |
+| Silver Diamond Ring | `Base.Ring_Right_MiddleFinger_SilverDiamond` | **15 CR** | 7.5 CR |
+| Silver Diamond Ring | `Base.Ring_Left_MiddleFinger_SilverDiamond` | **15 CR** | 7.5 CR |
+| Silver Diamond Necklace | `Base.Necklace_SilverDiamond` | **15 CR** | 7.5 CR |
+| Gold Ring | `Base.Ring_Right_RingFinger_Gold` | **12 CR** | 6 CR |
+| Gold Ring | `Base.Ring_Left_RingFinger_Gold` | **12 CR** | 6 CR |
+| Gold Ring | `Base.Ring_Right_MiddleFinger_Gold` | **12 CR** | 6 CR |
+| Gold Ring | `Base.Ring_Left_MiddleFinger_Gold` | **12 CR** | 6 CR |
+| Gold Necklace | `Base.Necklace_Gold` | **12 CR** | 6 CR |
+| Gold Necklace | `Base.NecklaceLong_Gold` | **12 CR** | 6 CR |
+| Silver Sapphire Necklace | `Base.Necklace_SilverSapphire` | **12 CR** | 6 CR |
+| Signet Ring | `Base.Ring_Right_RingFinger_Signet` | **10 CR** | 5 CR |
+| Signet Ring | `Base.Ring_Left_RingFinger_Signet` | **10 CR** | 5 CR |
+| Signet Ring | `Base.Ring_Right_MiddleFinger_Signet` | **10 CR** | 5 CR |
+| Signet Ring | `Base.Ring_Left_MiddleFinger_Signet` | **10 CR** | 5 CR |
+| Gold Hoop Earrings | `Base.Earring_LoopLrg_Gold` | **10 CR** | 5 CR |
+| Gold Hoop Earrings | `Base.Earring_LoopMed_Gold` | **8 CR** | 4 CR |
+| Silver Crucifix | `Base.Necklace_SilverCrucifix` | **8 CR** | 4 CR |
+| Gold Stud Earrings | `Base.Earring_LoopSmall_Gold_Both` | **6 CR** | 3 CR |
+| Silver Necklace | `Base.Necklace_Silver` | **6 CR** | 3 CR |
+| Silver Necklace | `Base.NecklaceLong_Silver` | **6 CR** | 3 CR |
+| Silver Ring | `Base.Ring_Right_RingFinger_Silver` | **6 CR** | 3 CR |
+| Silver Ring | `Base.Ring_Left_RingFinger_Silver` | **6 CR** | 3 CR |
+| Silver Ring | `Base.Ring_Right_MiddleFinger_Silver` | **6 CR** | 3 CR |
+| Silver Ring | `Base.Ring_Left_MiddleFinger_Silver` | **6 CR** | 3 CR |
+| Silver Hoop Earrings | `Base.Earring_LoopLrg_Silver` | **5 CR** | 2.5 CR |
+| Silver Hoop Earrings | `Base.Earring_LoopMed_Silver` | **4 CR** | 2 CR |
+| Crucifix Necklace | `Base.Necklace_Crucifix` | **4 CR** | 2 CR |
 
-### 3.3 現金・紙幣・金融カード (Currency & Financials)
+### 3.3 単体宝石類 (Gems: ルース宝石・高額買取)
+登録件数: **5 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Cut Diamond | `Base.Diamond` | **50 CR** | 25 CR |
+| Cut Ruby | `Base.Ruby` | **35 CR** | 17.5 CR |
+| Cut Sapphire | `Base.Sapphire` | **30 CR** | 15 CR |
+| Cut Emerald | `Base.Emerald` | **30 CR** | 15 CR |
+| Cut Amethyst | `Base.Amethyst` | **25 CR** | 12.5 CR |
+
+### 3.4 地金・インゴット・金属スクラップ (Ingots & Metal Scrap)
+登録件数: **10 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Gold Ingot (Large) | `Base.GoldBar` | **120 CR** | 60 CR |
+| Silver Ingot (Large) | `Base.SilverBar` | **60 CR** | 30 CR |
+| Gold Ingot (Small) | `Base.SmallGoldBar` | **30 CR** | 15 CR |
+| Steel Ingot | `Base.SteelIngot` | **20 CR** | 10 CR |
+| Silver Ingot (Small) | `Base.SmallSilverBar` | **15 CR** | 7.5 CR |
+| Brass Ingot | `Base.BrassIngot` | **15 CR** | 7.5 CR |
+| Copper Ingot | `Base.CopperIngot` | **12 CR** | 6 CR |
+| Iron Ingot | `Base.IronIngot` | **8 CR** | 4 CR |
+| Gold Scrap | `Base.GoldScrap` | **3 CR** | 1.5 CR |
+| Silver Scrap | `Base.SilverScrap` | **1.5 CR** | 0.75 CR |
+
+### 3.5 時計・懐中時計・アンティーク (Antiques & Watches)
+登録件数: **10 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Antique Pocketwatch | `Base.Pocketwatch` | **25 CR** | 12.5 CR |
+| Luxury Watch | `Base.WristWatch_Right_Expensive` | **25 CR** | 12.5 CR |
+| Classic Gold Watch | `Base.WristWatch_Right_ClassicGold` | **20 CR** | 10 CR |
+| Classic Gold Watch | `Base.WristWatch_Left_ClassicGold` | **20 CR** | 10 CR |
+| Military Watch | `Base.WristWatch_Right_ClassicMilitary` | **12 CR** | 6 CR |
+| Military Watch | `Base.WristWatch_Left_ClassicMilitary` | **12 CR** | 6 CR |
+| Classic Watch | `Base.WristWatch_Right_ClassicBlack` | **6 CR** | 3 CR |
+| Classic Watch | `Base.WristWatch_Left_ClassicBlack` | **6 CR** | 3 CR |
+| Classic Watch | `Base.WristWatch_Right_ClassicBrown` | **6 CR** | 3 CR |
+| Classic Watch | `Base.WristWatch_Left_ClassicBrown` | **6 CR** | 3 CR |
+
+### 3.6 現金・紙幣・金融カード (Currency & Financials)
 登録件数: **4 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
@@ -226,7 +280,7 @@ B42で追加された畜産・狩猟・革なめしの成果物を3段階で適�
 | Stolen Credit Card | `Base.CreditCard_Stolen` | **2 CR** | 1 CR |
 | Cash (Bill/Coin) | `Base.Money` | **1 CR** | 0.5 CR |
 
-### 3.4 金属素材・工業資源 (Industrial Materials)
+### 3.7 金属素材・工業資源 (Industrial Materials)
 登録件数: **5 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
@@ -237,7 +291,7 @@ B42で追加された畜産・狩猟・革なめしの成果物を3段階で適�
 | Thread | `Base.Thread` | **4 CR** | 2 CR |
 | Twine | `Base.Twine` | **3 CR** | 1.5 CR |
 
-### 3.5 電線・電子部品・通信機器 (Electronics & Components)
+### 3.8 電線・電子部品・通信機器 (Electronics & Components)
 登録件数: **9 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
@@ -252,7 +306,7 @@ B42で追加された畜産・狩猟・革なめしの成果物を3段階で適�
 | Electric Wire | `Base.ElectricWire` | **4 CR** | 2 CR |
 | Scrap Metal | `Base.ScrapMetal` | **2 CR** | 1 CR |
 
-### 3.6 銃器・弾薬箱・マガジン (Firearms & Tactical)
+### 3.9 銃器・弾薬箱・マガジン (Firearms & Tactical)
 登録件数: **16 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
@@ -274,7 +328,7 @@ B42で追加された畜産・狩猟・革なめしの成果物を3段階で適�
 | Revolver (.38) | `Base.Revolver` | **25 CR** | 12.5 CR |
 | Snubnose Revolver | `Base.Revolver_Short` | **25 CR** | 12.5 CR |
 
-### 3.7 新鮮な農作物 (Fresh Farm Produce)
+### 3.10 新鮮な農作物 (Fresh Farm Produce)
 登録件数: **34 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
