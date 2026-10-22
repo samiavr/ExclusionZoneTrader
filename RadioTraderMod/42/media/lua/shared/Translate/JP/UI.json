@@ -77,7 +77,7 @@
     "UI_RadioTrader_Log_AssessedEmpty": "査定完了: 0 CR (ドロップボックスは空です)",
     "UI_RadioTrader_Log_AssessedNone": "査定完了: ドロップボックス内に売却可能アイテムはありません (0 CR)",
     "UI_RadioTrader_GuideTitle": "[主な買取品目]",
-    "UI_RadioTrader_GuideBody": "・一次資料/メディア (日記, 雑誌, 書籍, VHS, CD)\n・電子廃材 (電線, 基板, 回路部品, 金属屑)\n・貴金属/宝石/現金/札束/クレジットカード\n・銃器/装填マガジン(弾薬合算)/バラ弾/近接武器\n・自作家具/カバン・ケース類/新鮮な農作物・種\n・大量納品で積載重量ボーナス (25kg〜55kg)\n※商品を「＋カートに追加」で一括発注可能！\n  同一弾薬箱2箱以上でマガジン等の特典付！",
+    "UI_RadioTrader_GuideBody": "・一次資料/書籍 (スキル本, レシピ雑誌, 書籍, VHS, CD)\n・電子廃材 (電線, 基板, 回路部品, 金属屑)\n・貴金属/宝石/現金/札束/クレジットカード\n・銃器/装填マガジン(弾薬合算)/バラ弾/近接武器\n・自作家具/カバン・ケース類/新鮮な農作物・種\n・大量納品で積載重量ボーナス (25kg〜55kg)\n※商品を「＋カートに追加」で一括発注可能！\n  同一弾薬箱2箱以上でマガジン等の特典付！",
     "UI_RadioTrader_Log_Error": "[!] エラー: %s",
     "UI_RadioTrader_Radio_Prefix": "[無線] ",
     "UI_RadioTrader_Radio_Accepted": "受注完了。%s 手配しておくぜ。コスト: %s CR。",

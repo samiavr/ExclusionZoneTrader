@@ -3610,6 +3610,98 @@ function RadioTrader_ItemsTable_AssessContainerItem(item, fallbackId)
 end
 
 -- ---------------------------------------------------------------------------
+-- ユーティリティ: スキル本・レシピ雑誌・文庫本の動的査定 (Literature Appraisal)
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_AssessLiterature(item, itemType)
+    if not item then return nil end
+    local typeStr = itemType or (item.getFullType and item:getFullType()) or ""
+    local dispCat = item.getDisplayCategory and item:getDisplayCategory()
+    local name = (item.getName and item:getName()) or "Book"
+
+    -- 1. スキル本 (SkillBook: Vol 1〜5)
+    -- B42では LvlSkillTrained が 1 (Vol1), 3 (Vol2), 5 (Vol3), 7 (Vol4), 9 (Vol5)
+    local isSkillBook = (dispCat == "SkillBook")
+        or (item.getSkillTrained and item:getSkillTrained() ~= nil and item:getSkillTrained() ~= "")
+        or string.find(typeStr, "Book[A-Z]")
+        or (string.find(typeStr, "Book") and (string.find(typeStr, "1") or string.find(typeStr, "2") or string.find(typeStr, "3") or string.find(typeStr, "4") or string.find(typeStr, "5")))
+
+    local lvlTrained = (item.getLvlSkillTrained and item:getLvlSkillTrained()) or 0
+
+    if isSkillBook or lvlTrained > 0 then
+        local price = 6 -- デフォルト
+
+        -- LvlSkillTrained による厳密判定
+        if lvlTrained == 1 then
+            price = 4  -- Vol 1 (初級)
+        elseif lvlTrained == 3 or lvlTrained == 2 then
+            price = 6  -- Vol 2 (中級)
+        elseif lvlTrained == 5 or lvlTrained == 4 then
+            price = 8  -- Vol 3 (上級)
+        elseif lvlTrained == 7 or lvlTrained == 6 then
+            price = 10 -- Vol 4 (熟練)
+        elseif lvlTrained >= 8 then
+            price = 12 -- Vol 5 (達人)
+        else
+            -- ID末尾やVol表記によるフォールバック
+            if string.find(typeStr, "1$") or string.find(typeStr, "Vol1") or string.find(typeStr, "Vol%.%s*1") then
+                price = 4
+            elseif string.find(typeStr, "2$") or string.find(typeStr, "Vol2") or string.find(typeStr, "Vol%.%s*2") then
+                price = 6
+            elseif string.find(typeStr, "3$") or string.find(typeStr, "Vol3") or string.find(typeStr, "Vol%.%s*3") then
+                price = 8
+            elseif string.find(typeStr, "4$") or string.find(typeStr, "Vol4") or string.find(typeStr, "Vol%.%s*4") then
+                price = 10
+            elseif string.find(typeStr, "5$") or string.find(typeStr, "Vol5") or string.find(typeStr, "Vol%.%s*5") then
+                price = 12
+            end
+        end
+
+        return {
+            id               = typeStr,
+            name             = name,
+            basePricePerUnit = price,
+            category         = "Archives",
+        }
+    end
+
+    -- 2. レシピ雑誌・技術解禁マニュアル (RecipeResource)
+    local hasLearnedRecipes = false
+    if item.getLearnedRecipes then
+        local lr = item:getLearnedRecipes()
+        if lr and not lr:isEmpty() then hasLearnedRecipes = true end
+    end
+    if not hasLearnedRecipes and item.getTeachedRecipes then
+        local tr = item:getTeachedRecipes()
+        if tr and not tr:isEmpty() then hasLearnedRecipes = true end
+    end
+
+    local isRecipeMag = (dispCat == "RecipeResource") or hasLearnedRecipes
+        or string.find(typeStr, "Mag%d") or string.find(typeStr, "Magazine%d")
+        or string.find(typeStr, "Recipe") or string.find(typeStr, "Manual")
+
+    if isRecipeMag then
+        return {
+            id               = typeStr,
+            name             = name,
+            basePricePerUnit = 10, -- 一律 10 CR
+            category         = "Archives",
+        }
+    end
+
+    -- 3. 一般文庫本・文学小説 (Literature)
+    if (instanceof and instanceof(item, "Literature")) or dispCat == "Literature" or string.find(typeStr, "Book") then
+        return {
+            id               = typeStr,
+            name             = name,
+            basePricePerUnit = 10,
+            category         = "Archives",
+        }
+    end
+
+    return nil
+end
+
+-- ---------------------------------------------------------------------------
 -- ユーティリティ: カテゴリ名からショップリストを取得
 -- ---------------------------------------------------------------------------
 function RadioTrader_ItemsTable_GetShopCategory(categoryName)
@@ -3796,14 +3888,9 @@ function RadioTrader_AssessContainer(player)
                                     sellEntry = RadioTrader_ItemsTable_GetSellEntry(item:getType())
                                 end
                             end
-                            -- Build 42 文庫本・小説（Literature）オブジェクトフォールバック
-                            if not sellEntry and (instanceof and instanceof(item, "Literature")) then
-                                local cat = item.getDisplayCategory and item:getDisplayCategory()
-                                local isSkillOrRecipe = (item.getNumberOfPages and item.getLvlSkillTrained and item:getLvlSkillTrained() > 0)
-                                    or (item.getTeachedRecipes and not item:getTeachedRecipes():isEmpty())
-                                if not isSkillOrRecipe then
-                                    sellEntry = { id = itemType, name = "Literature Book", basePricePerUnit = 10, category = "Archives" }
-                                end
+                            -- Build 42 書籍・スキル本・レシピ雑誌（Literature）オブジェクト動的査定フォールバック
+                            if not sellEntry and ((instanceof and instanceof(item, "Literature")) or string.find(itemType, "Book") or string.find(itemType, "Mag")) then
+                                sellEntry = RadioTrader_ItemsTable_AssessLiterature(item, itemType)
                             end
                             -- 銃器および近接武器（HandWeapon）オブジェクトフォールバック
                             if not sellEntry and (instanceof and instanceof(item, "HandWeapon")) then
