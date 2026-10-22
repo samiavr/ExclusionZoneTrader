@@ -3719,8 +3719,8 @@ function RadioTrader_ItemsTable_AssessLeather(item, itemType)
     local typeStr = itemType or (item.getFullType and item:getFullType()) or ""
     local name = (item.getName and item:getName()) or "Leather"
 
-    -- 未完成の濡れた状態（_Wet）はなめし途中品のため除外
-    if string.find(typeStr, "_Wet") then return nil end
+    -- 未完成の濡れた状態（_Wet）や革ひも・革端切れ（Strips）は無限量産防止のため除外
+    if string.find(typeStr, "_Wet") or string.find(typeStr, "Strips") then return nil end
 
     -- 1. 大（本格資材: 25 CR）
     -- 成牛・鹿・成豚フルサイズ、大型なめし粗皮
@@ -3752,12 +3752,11 @@ function RadioTrader_ItemsTable_AssessLeather(item, itemType)
         }
     end
 
-    -- 3. 小（はした金 / 重量判定品: 3 CR）
-    -- 小型なめし粗皮、ウサギ・アライグマ革、小判毛皮、革ひも・革端切れ
+    -- 3. 小（はした金 / 小型動物皮革: 3 CR）
+    -- 小型なめし粗皮、ウサギ・アライグマ革、小判毛皮
     if string.find(typeStr, "Small_Tan") or string.find(typeStr, "Tan_Small")
         or string.find(typeStr, "RabbitLeather")
-        or string.find(typeStr, "RaccoonLeather")
-        or string.find(typeStr, "LeatherStrips") then
+        or string.find(typeStr, "RaccoonLeather") then
         return {
             id               = typeStr,
             name             = name,
