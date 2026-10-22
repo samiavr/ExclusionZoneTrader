@@ -1,0 +1,282 @@
+# 交易ドロップボックス 買取品価格カタログ (Trade-In Price Catalog)
+
+**MOD名**: Exclusion Zone Trader (Project Zomboid Build 42)  
+**対象バージョン**: v1.1.9 以降  
+**更新日**: 2026-10-22  
+
+拠点屋外に設置した「交易ドロップボックス（回収用コンテナ）」にアイテムを投入し、無線機から査定・回収を要請した際に買い取られるアイテムの一覧です。
+
+---
+
+## 目次
+1. [買取査定の基本ルールと倍率](#1-買取査定の基本ルールと倍率)
+2. [動的査定アイテム（スキル本・メディア・武器・カバン等）](#2-動的査定アイテム動的算出)
+3. [静的買取品目一覧（カテゴリ別）](#3-静的買取品目一覧)
+   - [一次資料・記録・書籍・メディア (Archives)](#31-一次資料記録書籍メディア-archives--literature)
+   - [貴金属・宝石・高級時計 (Jewelry)](#32-貴金属宝石高級時計-jewelry)
+   - [現金・紙幣・金融カード (Currency)](#33-現金紙幣金融カード-currency--financials)
+   - [電線・電子部品・通信機器 (Electronics)](#34-電線電子部品通信機器-electronics--components)
+   - [銃器・弾薬箱・マガジン (Firearms)](#35-銃器弾薬箱マガジン-firearms--tactical)
+   - [新鮮な農作物 (Produce)](#36-新鮮な農作物-fresh-farm-produce)
+4. [買取対象外アイテム（回収スキップ）](#4-買取対象外アイテム回収スキップ)
+
+---
+
+## 1. 買取査定の基本ルールと倍率
+
+最終査定額は以下の計算式で決定されます：
+$$\text{実効買取額} = \text{基準単価} \times \text{サンドボックス買取倍率 (既定: 0.5)} \times \text{耐久度係数} \times \text{新鮮度係数} \times (1 + \text{積載重量ボーナス})$$
+
+- **サンドボックス買取倍率**: デフォルトは `0.5`（基準単価の50%）。サンドボックス設定で調整可能。
+- **コンディション（耐久度）**: 破損しているアイテムは耐久残量に応じて減額（最低0.1倍）。
+- **新鮮度（食品・農作物）**: 新鮮な状態は1.0倍、鮮度が落ちた食品（not fresh）は0.5倍、腐敗（rotten）は0 CR。
+- **積載重量マイルストーンボーナス (Cargo Weight Bonus)**:
+  - コンテナ内の総納品重量が **25.0 kg** 以上: **+10% CR ボーナス**
+  - コンテナ内の総納品重量が **40.0 kg** 以上: **+20% CR ボーナス**
+  - コンテナ内の総納品重量が **55.0 kg** 以上: **+30% CR ボーナス**
+
+---
+
+## 2. 動的査定アイテム（動的算出）
+
+静的リストに載っていないアイテムでも、以下の条件に該当するものはJava/Luaエンジンが動的に種別や状態を判定して適正価格で買い取ります。
+
+### ① 技能スキル本 (Skill Books Vol 1〜5)
+| 段階 | 対象レベル | 基準単価 (CR) | 備考 |
+| :--- | :--- | :---: | :--- |
+| **Vol 1 (初級)** | レベル 1〜2 | **4 CR** | Carpentry, Cooking, Farming, Mechanics, Electricity 等全種 |
+| **Vol 2 (中級)** | レベル 3〜4 | **6 CR** | 初級に続く技能修得書 |
+| **Vol 3 (上級)** | レベル 5〜6 | **8 CR** | 専門技能書 |
+| **Vol 4 (熟練)** | レベル 7〜8 | **10 CR** | 高度な専門書 |
+| **Vol 5 (達人)** | レベル 9〜10 | **12 CR** | 達人級の学術技術書 |
+| **未知・MODスキル本** | 不明 | **6 CR** | 判定フォールバック |
+
+### ② レシピ雑誌・クラフト解禁マニュアル (Recipes & Manuals)
+| アイテム分類 | 基準単価 (CR) | 備考 |
+| :--- | :---: | :--- |
+| **レシピ雑誌全種 (全86種)** | **10 CR** | 発電機取扱説明書 (`ElectronicsMag4`)、鍛冶・金属加工 (`SmithingMag1〜11`)、防具、料理、罠、車両マニュアル等すべて対象（転売防止のため一律10 CR） |
+| **一般文庫本・文学小説** | **10 CR** | `Base.Book` および文庫本オブジェクト（一次資料枠） |
+
+### ③ 記録メディア (VHSビデオテープ & 音楽CD)
+| メディア種別 | 基準単価 (CR) | 備考 |
+| :--- | :---: | :--- |
+| **技能スキルVHSテープ** | **15 CR** | Woodcraft, Cook Show, Exposure Survival, Carzone, Tailoring 101 等全72種（番組データまたはタイトル判定で高額買取） |
+| **一般映画・ホームビデオ** | **6 CR** | `Base.VHS_Retail`, `Base.VHS_Home`（娯楽文化記録） |
+| **音楽CD (Disc)** | **4 CR** | `Base.Disc_Retail`（音楽ディスク） |
+| **ポータブルCDプレイヤー** | **12 CR** | オーディオ・電化製品枠 |
+
+### ④ 銃器・装填マガジン・バラ弾・パーツ
+| 種別 | 基準単価 (CR) | 備考 |
+| :--- | :---: | :--- |
+| **ライフル / ショットガン** | **45 CR** | M16, M14, レミントン, ダブルバレル等長物銃器 |
+| **ハンドガン / リボルバー** | **25 CR** | M9, コルト, マグナム, .38等ピストル類 |
+| **マガジン (弾薬装填済)** | **マガジン単価 + 中身弾薬** | 中身の弾薬数を自動合算して査定（空マガジンは10〜15 CR） |
+| **バラ弾 (Loose Ammo)** | **ロット集計** | 種類ごとにコンテナ内の全バラ弾を集計して適正単価で換金 |
+| **銃器アタッチメント・パーツ** | **12 CR** | スコープ、チョーク、スリング、レーザーサイト等 |
+
+### ⑤ 近接武器・工具・刃物 (Melee Weapons)
+| 武器ランク | 基準単価 (CR) | 主な対象アイテム |
+| :--- | :---: | :--- |
+| **Tier 1: 大型・高威力・希少品** | **15〜20 CR** | スレッジハンマー (20), 消防斧 (18), 日本刀 (20), バール (15), マチェット (15), ピッケル (16) 等 |
+| **Tier 2: 一般近接工具・長柄** | **8〜10 CR** | 手斧, 鉄パイプ, 金属棒, ゴルフクラブ, 野球バット, シャベル, ハンマー, レンチ等 |
+| **Tier 3: 短剣・小型刃物・槍** | **6 CR** | サバイバルナイフ, 狩猟ナイフ, キッチン包丁, 手製槍, 警棒, アイスピック等 |
+| **Tier 4: 簡易・カトラリー** | **2〜3 CR** | 木の杭 (3), 木板 (3), バターナイフ (2), スプーン・フォーク (2), レターオープナー (2) 等 |
+
+### ⑥ カバン・コンテナ類 (Bags & Containers)
+| コンテナランク | 基準単価 (CR) | 主な対象アイテム |
+| :--- | :---: | :--- |
+| **Tier 1: 大型バッグ・ハードケース** | **8 CR** | 大型登山リュック, 軍用アリスパック, サバイバーバッグ, ガンケース, 弾薬缶等 |
+| **Tier 2: 一般バッグ・木箱・工具箱** | **4 CR** | スクールバッグ, ダッフルバッグ, トートバッグ, 工具箱, 救急箱, クーラーボックス等 |
+| **Tier 3: 簡易袋・ポーチ・小箱** | **2 CR** | ごみ袋, レジ袋, 麻袋, サッチェル, ウエストポーチ, 財布, ランチボックス等 |
+※**安全保護機能**: カバンの中に「回収対象外のアイテム」が残っている場合、プレイヤーの大切な私物を誤消滅させないよう、カバン自体の売却が自動的にスキップされます。
+
+### ⑦ 家具・設備 (Moveables)
+- プレイヤーが製作・運搬可能な木工家具、椅子、テーブル、箱などは、解体素材以上の価値として動的に査定・買取されます。
+
+### ⑧ スカベンジャー募集チラシ (討伐褒章・特別一次資料)
+- **基準単価**: **100 CR**
+- ゾンビ討伐数や生存日数などの戦果が記録された募集チラシは、本土の軍部・民間軍事会社への貴重な戦闘データとして高額買取されます。
+
+---
+
+## 3. 静的買取品目一覧
+
+### 3.1 一次資料・記録・書籍・メディア (Archives & Literature)
+登録件数: **28 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Diary | `Base.Diary1` | **40 CR** | 20 CR |
+| Diary | `Base.Diary2` | **40 CR** | 20 CR |
+| Journal | `Base.Journal` | **40 CR** | 20 CR |
+| Handwritten Letter | `Base.LetterHandwritten` | **30 CR** | 15 CR |
+| Notebook | `Base.Notebook` | **25 CR** | 12.5 CR |
+| Notepad | `Base.Notepad` | **25 CR** | 12.5 CR |
+| Official Document | `Base.OfficialDocument` | **25 CR** | 12.5 CR |
+| Sheet Music | `Base.SheetMusic` | **20 CR** | 10 CR |
+| Stock Certificate | `Base.StockCertificate` | **20 CR** | 10 CR |
+| Postal Mail | `Base.GenericMail` | **17 CR** | 8.5 CR |
+| Survivor Note | `Base.Note` | **17 CR** | 8.5 CR |
+| Adult Magazine | `Base.HottieZ` | **15 CR** | 7.5 CR |
+| Postcard | `Base.Postcard` | **15 CR** | 7.5 CR |
+| Brochure / Flyer | `Base.Brochure` | **12 CR** | 6 CR |
+| Comic Book | `Base.ComicBook` | **12 CR** | 6 CR |
+| Paperwork / File | `Base.Paperwork` | **12 CR** | 6 CR |
+| Book | `Base.Book` | **10 CR** | 5 CR |
+| Piece of Paper | `Base.SheetPaper2` | **7 CR** | 3.5 CR |
+| Crossword Magazine | `Base.MagazineCrossword` | **6 CR** | 3 CR |
+| Magazine | `Base.Magazine` | **6 CR** | 3 CR |
+| Mail Order Catalog | `Base.Catalog` | **6 CR** | 3 CR |
+| TV Guide Magazine | `Base.TVMagazine` | **6 CR** | 3 CR |
+| VHS Tape (Home) | `Base.VHS_Home` | **6 CR** | 3 CR |
+| VHS Tape (Retail) | `Base.VHS_Retail` | **6 CR** | 3 CR |
+| Wordsearch Magazine | `Base.MagazineWordsearch` | **6 CR** | 3 CR |
+| CD Disc (Music) | `Base.Disc_Retail` | **4 CR** | 2 CR |
+| Receipt | `Base.Receipt` | **4 CR** | 2 CR |
+| Newspaper | `Base.Newspaper` | **3 CR** | 1.5 CR |
+
+### 3.2 貴金属・宝石・高級時計 (Precious & Jewelry)
+登録件数: **42 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Gold Diamond Ring | `Base.Ring_Right_RingFinger_GoldDiamond` | **140 CR** | 70 CR |
+| Gold Diamond Ring | `Base.Ring_Left_RingFinger_GoldDiamond` | **140 CR** | 70 CR |
+| Gold Diamond Ring | `Base.Ring_Right_MiddleFinger_GoldDiamond` | **140 CR** | 70 CR |
+| Gold Diamond Ring | `Base.Ring_Left_MiddleFinger_GoldDiamond` | **140 CR** | 70 CR |
+| Gold Diamond Necklace | `Base.Necklace_GoldDiamond` | **130 CR** | 65 CR |
+| Gold Diamond Necklace | `Base.NecklaceLong_GoldDiamond` | **130 CR** | 65 CR |
+| Diamond Choker | `Base.Necklace_Choker_Diamond` | **120 CR** | 60 CR |
+| Gold Ruby Ring | `Base.Ring_Right_RingFinger_GoldRuby` | **110 CR** | 55 CR |
+| Gold Ruby Ring | `Base.Ring_Left_RingFinger_GoldRuby` | **110 CR** | 55 CR |
+| Gold Ruby Ring | `Base.Ring_Right_MiddleFinger_GoldRuby` | **110 CR** | 55 CR |
+| Gold Ruby Ring | `Base.Ring_Left_MiddleFinger_GoldRuby` | **110 CR** | 55 CR |
+| Pearl Necklace | `Base.Necklace_Pearl` | **110 CR** | 55 CR |
+| Gold Ruby Necklace | `Base.Necklace_GoldRuby` | **100 CR** | 50 CR |
+| Silver Diamond Ring | `Base.Ring_Right_RingFinger_SilverDiamond` | **90 CR** | 45 CR |
+| Silver Diamond Ring | `Base.Ring_Left_RingFinger_SilverDiamond` | **90 CR** | 45 CR |
+| Silver Diamond Ring | `Base.Ring_Right_MiddleFinger_SilverDiamond` | **90 CR** | 45 CR |
+| Silver Diamond Ring | `Base.Ring_Left_MiddleFinger_SilverDiamond` | **90 CR** | 45 CR |
+| Silver Diamond Necklace | `Base.Necklace_SilverDiamond` | **80 CR** | 40 CR |
+| Gold Necklace | `Base.Necklace_Gold` | **65 CR** | 32.5 CR |
+| Gold Necklace | `Base.NecklaceLong_Gold` | **65 CR** | 32.5 CR |
+| Silver Sapphire Necklace | `Base.Necklace_SilverSapphire` | **65 CR** | 32.5 CR |
+| Gold Ring | `Base.Ring_Right_RingFinger_Gold` | **60 CR** | 30 CR |
+| Gold Ring | `Base.Ring_Left_RingFinger_Gold` | **60 CR** | 30 CR |
+| Gold Ring | `Base.Ring_Right_MiddleFinger_Gold` | **60 CR** | 30 CR |
+| Gold Ring | `Base.Ring_Left_MiddleFinger_Gold` | **60 CR** | 30 CR |
+| Signet Ring | `Base.Ring_Right_RingFinger_Signet` | **50 CR** | 25 CR |
+| Signet Ring | `Base.Ring_Left_RingFinger_Signet` | **50 CR** | 25 CR |
+| Signet Ring | `Base.Ring_Right_MiddleFinger_Signet` | **50 CR** | 25 CR |
+| Signet Ring | `Base.Ring_Left_MiddleFinger_Signet` | **50 CR** | 25 CR |
+| Gold Hoop Earrings | `Base.Earring_LoopLrg_Gold` | **45 CR** | 22.5 CR |
+| Silver Crucifix | `Base.Necklace_SilverCrucifix` | **40 CR** | 20 CR |
+| Gold Hoop Earrings | `Base.Earring_LoopMed_Gold` | **37 CR** | 18.5 CR |
+| Gold Stud Earrings | `Base.Earring_LoopSmall_Gold_Both` | **30 CR** | 15 CR |
+| Silver Necklace | `Base.Necklace_Silver` | **30 CR** | 15 CR |
+| Silver Necklace | `Base.NecklaceLong_Silver` | **30 CR** | 15 CR |
+| Silver Ring | `Base.Ring_Right_RingFinger_Silver` | **30 CR** | 15 CR |
+| Silver Ring | `Base.Ring_Left_RingFinger_Silver` | **30 CR** | 15 CR |
+| Silver Ring | `Base.Ring_Right_MiddleFinger_Silver` | **30 CR** | 15 CR |
+| Silver Ring | `Base.Ring_Left_MiddleFinger_Silver` | **30 CR** | 15 CR |
+| Silver Hoop Earrings | `Base.Earring_LoopLrg_Silver` | **25 CR** | 12.5 CR |
+| Crucifix Necklace | `Base.Necklace_Crucifix` | **20 CR** | 10 CR |
+| Silver Hoop Earrings | `Base.Earring_LoopMed_Silver` | **20 CR** | 10 CR |
+
+### 3.3 現金・紙幣・金融カード (Currency & Financials)
+登録件数: **4 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Money Bundle | `Base.MoneyBundle` | **50 CR** | 25 CR |
+| Credit Card | `Base.CreditCard` | **2 CR** | 1 CR |
+| Stolen Credit Card | `Base.CreditCard_Stolen` | **2 CR** | 1 CR |
+| Cash (Bill/Coin) | `Base.Money` | **1 CR** | 0.5 CR |
+
+### 3.4 電線・電子部品・通信機器 (Electronics & Components)
+登録件数: **9 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Motion Sensor | `Base.MotionSensor` | **25 CR** | 12.5 CR |
+| Radio Transmitter Unit | `Base.RadioTransmitter` | **25 CR** | 12.5 CR |
+| Radio Receiver Unit | `Base.RadioReceiver` | **20 CR** | 10 CR |
+| Signal Amplifier | `Base.Amplifier` | **20 CR** | 10 CR |
+| Receiver Board | `Base.Receiver` | **15 CR** | 7.5 CR |
+| CD Player | `Base.CDPlayer` | **12 CR** | 6 CR |
+| Electronics Scrap | `Base.ElectronicsScrap` | **5 CR** | 2.5 CR |
+| Electric Wire | `Base.ElectricWire` | **4 CR** | 2 CR |
+| Scrap Metal | `Base.ScrapMetal` | **2 CR** | 1 CR |
+
+### 3.5 銃器・弾薬箱・マガジン (Firearms & Tactical)
+登録件数: **16 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Double Barrel Shotgun | `Base.DoubleBarrelShotgun` | **45 CR** | 22.5 CR |
+| Hunting Rifle | `Base.HuntingRifle` | **45 CR** | 22.5 CR |
+| L92 Lever-Action Carbine | `Base.L92_Carbine` | **45 CR** | 22.5 CR |
+| L94 Lever-Action Rifle | `Base.L94_Rifle` | **45 CR** | 22.5 CR |
+| M14 Rifle | `Base.AssaultRifle2` | **45 CR** | 22.5 CR |
+| M16 Assault Rifle | `Base.AssaultRifle` | **45 CR** | 22.5 CR |
+| Sawnoff Double Barrel | `Base.DoubleBarrelShotgunSawnoff` | **45 CR** | 22.5 CR |
+| Sawnoff Shotgun | `Base.ShotgunSawnoff` | **45 CR** | 22.5 CR |
+| Shotgun | `Base.Shotgun` | **45 CR** | 22.5 CR |
+| Varmint Rifle | `Base.VarmintRifle` | **45 CR** | 22.5 CR |
+| Magnum Pistol (.44) | `Base.Pistol3` | **25 CR** | 12.5 CR |
+| Magnum Revolver (.44) | `Base.Revolver_Long` | **25 CR** | 12.5 CR |
+| Pistol (.45) | `Base.Pistol2` | **25 CR** | 12.5 CR |
+| Pistol (9mm) | `Base.Pistol` | **25 CR** | 12.5 CR |
+| Revolver (.38) | `Base.Revolver` | **25 CR** | 12.5 CR |
+| Snubnose Revolver | `Base.Revolver_Short` | **25 CR** | 12.5 CR |
+
+### 3.6 新鮮な農作物 (Fresh Farm Produce)
+登録件数: **34 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Ginseng | `Base.Ginseng` | **3 CR** | 1.5 CR |
+| Lemongrass | `Base.Lemongrass` | **3 CR** | 1.5 CR |
+| Black Sage | `Base.BlackSage` | **2 CR** | 1 CR |
+| Common Mallow | `Base.CommonMallow` | **2 CR** | 1 CR |
+| Fresh Apple | `Base.Apple` | **2 CR** | 1 CR |
+| Fresh Avocado | `Base.Avocado` | **2 CR** | 1 CR |
+| Fresh Banana | `Base.Banana` | **2 CR** | 1 CR |
+| Fresh Bell Pepper | `Base.BellPepper` | **2 CR** | 1 CR |
+| Fresh Broccoli | `Base.Broccoli` | **2 CR** | 1 CR |
+| Fresh Cabbage | `Base.Cabbage` | **2 CR** | 1 CR |
+| Fresh Carrots | `Base.Carrots` | **2 CR** | 1 CR |
+| Fresh Cherry | `Base.Cherry` | **2 CR** | 1 CR |
+| Fresh Corn | `Base.Corn` | **2 CR** | 1 CR |
+| Fresh Eggplant | `Base.Eggplant` | **2 CR** | 1 CR |
+| Fresh Grapes | `Base.Grapes` | **2 CR** | 1 CR |
+| Fresh Leek | `Base.Leek` | **2 CR** | 1 CR |
+| Fresh Lemon | `Base.Lemon` | **2 CR** | 1 CR |
+| Fresh Lettuce | `Base.Lettuce` | **2 CR** | 1 CR |
+| Fresh Lime | `Base.Lime` | **2 CR** | 1 CR |
+| Fresh Onion | `Base.Onion` | **2 CR** | 1 CR |
+| Fresh Orange | `Base.Orange` | **2 CR** | 1 CR |
+| Fresh Peach | `Base.Peach` | **2 CR** | 1 CR |
+| Fresh Pineapple | `Base.Pineapple` | **2 CR** | 1 CR |
+| Fresh Potato | `Base.Potato` | **2 CR** | 1 CR |
+| Fresh Pumpkin | `Base.Pumpkin` | **2 CR** | 1 CR |
+| Fresh Radish | `Base.RedRadish` | **2 CR** | 1 CR |
+| Fresh Strawberry | `Base.Strewberrie` | **2 CR** | 1 CR |
+| Fresh Tomato | `Base.Tomato` | **2 CR** | 1 CR |
+| Fresh Watermelon | `Base.Watermelon` | **2 CR** | 1 CR |
+| Fresh Zucchini | `Base.Zucchini` | **2 CR** | 1 CR |
+| Plantain | `Base.Plantain` | **2 CR** | 1 CR |
+| Sweet Potato | `Base.SweetPotato` | **2 CR** | 1 CR |
+| Wild Garlic | `Base.WildGarlic` | **2 CR** | 1 CR |
+| Wild Onion | `Base.WildOnion` | **2 CR** | 1 CR |
+
+---
+
+## 4. 買取対象外アイテム（回収スキップ）
+
+以下のアイテムは、ドロップボックスに投入されていても**回収されずにコンテナ内に安全に残存**します（UIログに黄色で残存リストが表示されます）：
+
+1. **腐敗した食品 (Rotten Food)**: 衛生上、回収対象外となります。
+2. **回収対象外アイテムが入ったままのカバン**: 内部アイテムの誤消滅を防ぐためスキップされます。
+3. **一般的な生活ゴミ・汚れた衣服・鍵**: 価値のない端切れ、汚れた包帯、不要な鍵など。
+4. **リスト未定義のアイテム**: 本一覧および動的査定条件のいずれにも合致しないMODアイテムなど。
