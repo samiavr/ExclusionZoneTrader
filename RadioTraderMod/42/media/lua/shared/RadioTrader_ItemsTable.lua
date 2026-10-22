@@ -478,11 +478,12 @@ RadioTrader_CrateDefinitions = {
 
     RadioTrader_Crate_Recipes = {
         id = "RadioTrader_Crate_Recipes",
-        name = "DIY & Crafting Recipes Duffel Bag",
+        name = "DIY & Media Recipes Duffel Bag",
         price = 700,
         container = "Base.Bag_DuffelBag",
         minItems = 4,
         maxItems = 8,
+        isMediaRecipeBag = true,
         customItems = {
             -- 電子工学・発電機・無線
             "Base.ElectronicsMag1",
@@ -1786,6 +1787,238 @@ function RadioTrader_ItemsTable_FillWeaponsBag(bagContainer, crateDef)
 end
 
 -- ---------------------------------------------------------------------------
+-- 技能スキルビデオテープ定義 (Woodcraft, Cook Show, Survival, Carzone等)
+-- ---------------------------------------------------------------------------
+RadioTrader_SkillVHSList = {
+    "9953e7f7-396c-4400-82d7-0fc24fbfe0b7", -- VHS: Tired in Toronto
+    "31a726b7-0ee6-408b-8599-95c80aa8a6c5", -- VHS: Dead Wrong
+    "9ec23879-13eb-4b6a-ab44-e9038952104f", -- VHS: Mother's Boy
+    "4255a86b-d9f7-45e3-bf9f-060c8a35858d", -- VHS: Z-Squad S2.02
+    "4f3f30d6-df77-4e85-b1cb-4ca7e67addd9", -- VHS: Z-Squad S2.03
+    "9fcadfea-5b3b-4c72-ac30-d03839a3e86d", -- VHS: Survival Instinct
+    "21411665-0ce7-4200-83a1-43ae2e6cbbb3", -- VHS: The Dog Goblin
+    "0bac9338-28c4-4a72-94fe-9d47cf956f7b", -- VHS: Global Warrior
+    "e6fd44a9-1774-4204-ab45-9b316301aa2b", -- VHS: The Cook Show E1
+    "a754fdaf-5bac-40cd-9a69-da90e8a0cac7", -- VHS: The Cook Show E2
+    "7933a371-a8a6-4c31-8886-7a97d89f2c7e", -- VHS: The Cook Show E3
+    "4cc3b806-4630-4dfc-a935-efa700fbd7fb", -- VHS: The Cook Show E4
+    "2695eb00-ee79-4b39-833a-1023a28ce397", -- VHS: The Cook Show E5
+    "01b3d832-602c-4566-b8d6-c2b74a4a0b00", -- VHS: The Cook Show E6
+    "2c2a052d-097c-4507-85f4-7fda90f3e3d1", -- VHS: The Cook Show E7
+    "dedd4e83-6e3b-4f4f-9c9b-72a5ed08969d", -- VHS: Woodcraft E1
+    "c2d01da8-8e04-4889-8676-bb633e98df2d", -- VHS: Woodcraft E2
+    "3e9c5cf0-bf40-40eb-bcd7-4fd6c5ae58ca", -- VHS: Woodcraft E3
+    "0627a89a-a32b-4e80-9926-815aa9d22b2b", -- VHS: Woodcraft E4
+    "2bf49f71-0d46-43aa-bbfd-f311e5bda9b2", -- VHS: Woodcraft E5
+    "968591cd-d4aa-4ef1-9632-7771a1f5b9ab", -- VHS: Woodcraft E6
+    "01dedfea-62eb-4ae6-a4bc-5e629b7ba54b", -- VHS: Woodcraft E7
+    "ccfd97d7-6b57-432c-bca7-f9a271f8012f", -- VHS: Exposure Survival E1
+    "6f1be5b5-d871-4ebf-bc44-2657f7c89bb5", -- VHS: Exposure Survival E2
+    "7402fb83-b5b3-4b08-99f9-82bc67f4572b", -- VHS: Exposure Survival E3
+    "a628a723-ac78-4bcb-927a-f84ad8c6c286", -- VHS: Exposure Survival E4
+    "1123df57-5e9b-4d61-88f1-7561949132e3", -- VHS: Exposure Survival E5
+    "75928dcd-c613-4a1e-afb5-20c4c671b835", -- VHS: Exposure Survival E6
+    "2dcd687b-ac76-4b33-b0b7-79ddfba2feb4", -- VHS: Exposure Survival E7
+    "f74df7fc-20ae-4600-b2d2-f504d9355440", -- VHS: Exposure Survival E8
+    "98406d57-3f55-4f36-afc4-b78554acc0aa", -- VHS: Simon's Fitness Club E5
+    "07b0cd73-7563-4699-9fb4-99316a0fc0bd", -- VHS: Carzone E1
+    "7b192b30-ea36-4395-a5e4-ac2d825d3b91", -- VHS: Carzone E2
+    "313fa630-d448-44ab-b1f0-7cff1d1db830", -- VHS: Carzone E3
+    "a8c4eccf-53d9-42ad-8091-b9e562621c8f", -- Home VHS: English Cup (4.12.91)
+    "1559a55a-bfc9-4cfc-967b-e26b860894c6", -- Home VHS: OSCC '92
+    "8904b5c7-86f6-4b49-a163-cf37d4421895", -- Home VHS: stock cars
+    "00a8b565-a566-44f3-b6d2-7a1ae2eafb0c", -- Home VHS: Granny Nani
+    "af941537-39ac-42fb-8c7a-ed346ded282e", -- Home VHS: Tailoring 101
+    "1c6745f6-70b8-49e8-9087-b1bbb9263985", -- Home VHS: nof vid
+    "fe4ede3c-a153-4e46-aebe-9681d14fe196", -- Home VHS: no 9
+    "ffe28381-b743-4300-8c5a-89b4c4983d05", -- Home VHS: Muldraugh AV Club
+    "c23539e8-c5eb-4f58-850f-18522250c470", -- Home VHS: TV repair
+    "14fca23a-86ca-44b3-8342-264791175421", -- Home VHS: RMFA
+}
+
+RadioTrader_SkillVHSMap = {}
+for _, vid in ipairs(RadioTrader_SkillVHSList) do
+    RadioTrader_SkillVHSMap[vid] = true
+end
+
+-- 一般・娯楽メディアプール (25% 枠)
+RadioTrader_CasualMediaPool = {
+    "Base.ComicBook",
+    "Base.Magazine",
+    "Base.Book",
+    "Base.Newspaper",
+    "Base.MagazineCrossword",
+    "Base.MagazineWordsearch",
+    "Base.HottieZ",
+    "Base.Disc_Retail", -- 音楽CD
+    "Base.VHS_Retail",  -- 一般映画VHS
+    "Base.VHS_Home",    -- 一般ホームVHS
+}
+
+-- ---------------------------------------------------------------------------
+-- ビデオテープへのメディアデータ設定ヘルパー
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_SetVHSMedia(vhsItem, mediaId)
+    if not vhsItem or not mediaId then return end
+    if getZomboidRadio then
+        local radio = getZomboidRadio()
+        if radio and radio.getRecordedMedia then
+            local rm = radio:getRecordedMedia()
+            if rm and rm.getMediaDataFromId then
+                local mData = rm:getMediaDataFromId(mediaId)
+                if mData and vhsItem.setRecordedMediaData then
+                    vhsItem:setRecordedMediaData(mData)
+                end
+            end
+        end
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- 記録メディア（VHSビデオテープ・音楽CD）の動的査定ヘルパー
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_AssessRecordedMedia(item, itemType)
+    if not item then return nil end
+    local typeStr = itemType or (item.getFullType and item:getFullType()) or ""
+
+    -- 1. ビデオテープ (VHS)
+    if typeStr == "Base.VHS_Retail" or typeStr == "Base.VHS_Home" or string.find(typeStr, "VHS") or string.find(typeStr, "VideoTape") then
+        local isSkillTape = false
+        local mediaTitle = nil
+
+        -- メディアデータの検査
+        if item.getRecordedMediaData then
+            local mData = item:getRecordedMediaData()
+            if mData then
+                local mId = mData.getId and mData:getId()
+                if mId and RadioTrader_SkillVHSMap and RadioTrader_SkillVHSMap[mId] then
+                    isSkillTape = true
+                end
+                mediaTitle = mData.getTranslatedItemDisplayName and mData:getTranslatedItemDisplayName()
+            end
+        end
+
+        -- 名前によるフォールバック判定 (Woodcraft, Cook, Survival, Carzone 等)
+        if not isSkillTape and item.getName then
+            local nm = item:getName() or ""
+            local lowerNm = string.lower(nm)
+            if string.find(lowerNm, "woodcraft") or string.find(lowerNm, "cook")
+                or string.find(lowerNm, "survival") or string.find(lowerNm, "carzone")
+                or string.find(lowerNm, "tailor") or string.find(lowerNm, "repair")
+                or string.find(lowerNm, "mechanic") or string.find(lowerNm, "metal") then
+                isSkillTape = true
+            end
+            if not mediaTitle then mediaTitle = nm end
+        end
+
+        if isSkillTape then
+            return {
+                id               = typeStr,
+                name             = mediaTitle or "Skill VHS Tape",
+                basePricePerUnit = 15, -- スキルビデオは高額買取 (15 CR)
+                category         = "Archives",
+            }
+        else
+            return {
+                id               = typeStr,
+                name             = mediaTitle or "VHS Tape",
+                basePricePerUnit = 6,  -- 一般ビデオ (6 CR)
+                category         = "Archives",
+            }
+        end
+    end
+
+    -- 2. 音楽CD・ディスク (Disc / CD) ※CDプレイヤー等の機器は除外
+    if (typeStr == "Base.Disc_Retail" or string.find(typeStr, "Disc") or string.find(typeStr, "CD")) and not string.find(typeStr, "Player") then
+        local cdTitle = item.getName and item:getName()
+        return {
+            id               = typeStr,
+            name             = cdTitle or "CD Disc",
+            basePricePerUnit = 4,  -- 音楽CD (4 CR)
+            category         = "Archives",
+        }
+    end
+
+    return nil
+end
+
+-- ---------------------------------------------------------------------------
+-- DIY技術・メディアまぜこぜダッフルバッグ充填処理 (DIY & Media Recipes Bag)
+-- ---------------------------------------------------------------------------
+-- 有用枠（75%: レシピ本 50% / スキルVHS 50%）と一般枠（25%: 雑誌・書籍・映画VHS・音楽CD）のハイブリッド充填
+function RadioTrader_ItemsTable_FillMediaRecipeBag(bagContainer, crateDef)
+    if not bagContainer or not crateDef then return 0 end
+
+    local minItems = crateDef.minItems or 4
+    local maxItems = crateDef.maxItems or 8
+    local targetCount = minItems
+    if ZombRand then
+        targetCount = ZombRand(minItems, maxItems + 1)
+    else
+        targetCount = math.random(minItems, maxItems)
+    end
+
+    local recipePool = crateDef.customItems or {}
+    local addedCount = 0
+    local attempts = 0
+
+    while addedCount < targetCount and attempts < 100 do
+        attempts = attempts + 1
+        local rollVal = (ZombRand and ZombRand(100)) or math.random(0, 99)
+
+        if rollVal < 75 then
+            -- 75% 有用・技能枠 (レシピ本 50% / スキルVHS 50%)
+            local subRoll = (ZombRand and ZombRand(100)) or math.random(0, 99)
+            if subRoll < 50 and #recipePool > 0 then
+                -- レシピ本 (全86種)
+                local idx = (ZombRand and (ZombRand(#recipePool) + 1)) or math.random(1, #recipePool)
+                local recipeId = recipePool[idx]
+                local script = getItem(recipeId)
+                if script then
+                    local spawned = instanceItem(recipeId)
+                    if spawned then
+                        bagContainer:AddItem(spawned)
+                        addedCount = addedCount + 1
+                    end
+                end
+            else
+                -- スキルビデオテープ (VHS)
+                local tapeType = (ZombRand and ZombRand(100) < 50 or math.random(0, 99) < 50) and "Base.VHS_Retail" or "Base.VHS_Home"
+                local script = getItem(tapeType)
+                if script then
+                    local tapeItem = instanceItem(tapeType)
+                    if tapeItem then
+                        if RadioTrader_SkillVHSList and #RadioTrader_SkillVHSList > 0 then
+                            local vIdx = (ZombRand and (ZombRand(#RadioTrader_SkillVHSList) + 1)) or math.random(1, #RadioTrader_SkillVHSList)
+                            local chosenMediaId = RadioTrader_SkillVHSList[vIdx]
+                            RadioTrader_ItemsTable_SetVHSMedia(tapeItem, chosenMediaId)
+                        end
+                        bagContainer:AddItem(tapeItem)
+                        addedCount = addedCount + 1
+                    end
+                end
+            end
+        else
+            -- 25% 一般・娯楽・文化枠 (雑誌・書籍・映画VHS・CD)
+            if RadioTrader_CasualMediaPool and #RadioTrader_CasualMediaPool > 0 then
+                local idx = (ZombRand and (ZombRand(#RadioTrader_CasualMediaPool) + 1)) or math.random(1, #RadioTrader_CasualMediaPool)
+                local itemId = RadioTrader_CasualMediaPool[idx]
+                local script = getItem(itemId)
+                if script then
+                    local spawned = instanceItem(itemId)
+                    if spawned then
+                        bagContainer:AddItem(spawned)
+                        addedCount = addedCount + 1
+                    end
+                end
+            end
+        end
+    end
+
+    return addedCount
+end
+
+-- ---------------------------------------------------------------------------
 -- ダッフルバッグにバニラルートアイテムを充填（全体乱数カウント 3〜10 に収まるまで抽選）
 -- ---------------------------------------------------------------------------
 function RadioTrader_ItemsTable_FillDuffelBag(bagItem, crateDef)
@@ -1796,6 +2029,11 @@ function RadioTrader_ItemsTable_FillDuffelBag(bagItem, crateDef)
     -- 銃器・弾薬・マガジンワンセットダッフルバッグの場合は専用充填処理を実行
     if crateDef.isWeaponsBag then
         return RadioTrader_ItemsTable_FillWeaponsBag(bagContainer, crateDef)
+    end
+
+    -- DIY技術・メディアまぜこぜダッフルバッグの場合は専用充填処理を実行
+    if crateDef.isMediaRecipeBag then
+        return RadioTrader_ItemsTable_FillMediaRecipeBag(bagContainer, crateDef)
     end
 
     -- ゴミ袋の場合は専用の複合・重み付け抽選処理を実行
@@ -2391,6 +2629,10 @@ RadioTrader_Sell = {
     { id = "Base.StockCertificate",    name = "Stock Certificate",    basePricePerUnit = 20,  category = "Archives" },
     { id = "Base.Paperwork",           name = "Paperwork / File",     basePricePerUnit = 12,  category = "Archives" },
     { id = "Base.Receipt",             name = "Receipt",              basePricePerUnit = 4,   category = "Archives" },
+    -- 記録メディア（VHSビデオテープ・音楽CD）※スキルビデオは動的査定で15 CR
+    { id = "Base.VHS_Retail",          name = "VHS Tape (Retail)",    basePricePerUnit = 6,   category = "Archives" },
+    { id = "Base.VHS_Home",            name = "VHS Tape (Home)",      basePricePerUnit = 6,   category = "Archives" },
+    { id = "Base.Disc_Retail",         name = "CD Disc (Music)",      basePricePerUnit = 4,   category = "Archives" },
 
     -- =========================================================================
     -- カテゴリ2: 貴金属・ジュエリー・高級時計 (Precious & Jewelry)
@@ -2567,6 +2809,7 @@ RadioTrader_Sell = {
     { id = "Base.RadioTransmitter",    name = "Radio Transmitter Unit", basePricePerUnit = 25, category = "Electronics" },
     { id = "Base.Receiver",            name = "Receiver Board",       basePricePerUnit = 15,  category = "Electronics" },
     { id = "Base.MotionSensor",        name = "Motion Sensor",        basePricePerUnit = 25,  category = "Electronics" },
+    { id = "Base.CDPlayer",            name = "CD Player",            basePricePerUnit = 12,  category = "Electronics" },
 
     -- =========================================================================
     -- カテゴリ9: 銃器・弾薬箱・マガジン・パーツ (Firearms & Tactical Equipment)
@@ -3543,9 +3786,15 @@ function RadioTrader_AssessContainer(player)
                                 category         = "Archives",
                             }
                         else
-                            sellEntry = RadioTrader_ItemsTable_GetSellEntry(itemType)
-                            if not sellEntry then
-                                sellEntry = RadioTrader_ItemsTable_GetSellEntry(item:getType())
+                            -- 記録メディア（VHSビデオテープ・音楽CD）動的査定（スキルビデオ判定等）
+                            local mediaEntry = RadioTrader_ItemsTable_AssessRecordedMedia(item, itemType)
+                            if mediaEntry then
+                                sellEntry = mediaEntry
+                            else
+                                sellEntry = RadioTrader_ItemsTable_GetSellEntry(itemType)
+                                if not sellEntry then
+                                    sellEntry = RadioTrader_ItemsTable_GetSellEntry(item:getType())
+                                end
                             end
                             -- Build 42 文庫本・小説（Literature）オブジェクトフォールバック
                             if not sellEntry and (instanceof and instanceof(item, "Literature")) then
