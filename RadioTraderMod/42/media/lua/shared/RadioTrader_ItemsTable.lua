@@ -3825,7 +3825,7 @@ function RadioTrader_AssessContainer(player)
     -- ロット・重量集計用グループ
     local meatFishGroup  = { items = {}, totalWeight = 0 }
     local eggGroup       = { items = {}, count = 0, effectiveUnits = 0 }
-    local produceGroup   = { items = {}, count = 0, effectiveUnits = 0 }
+    local produceGroup   = { items = {}, count = 0, totalEffectiveCredits = 0 }
     local looseAmmoGroup = { items = {}, counts = {} } -- バラ弾ロット集計
 
     local function isValidJavaContainer(cont)
@@ -3987,7 +3987,28 @@ function RadioTrader_AssessContainer(player)
 
                         elseif sellEntry.category == "Produce" then
                             produceGroup.count = produceGroup.count + 1
-                            produceGroup.effectiveUnits = produceGroup.effectiveUnits + freshness
+                            -- 満腹度（Hunger）に基づく動的査定（満腹度10あたり1.0 CR）
+                            local hungVal = 0
+                            if item.getHungChange then
+                                hungVal = math.abs(item:getHungChange() or 0)
+                            end
+                            -- 0.24 などの割合表現（100で割られた値）の場合は 100倍して 24 に換算
+                            if hungVal < 3.0 and hungVal > 0 then
+                                hungVal = hungVal * 100
+                            end
+                            local hungCR = hungVal / 10.0
+
+                            -- 満腹度ベース ＋ 最低保証 (1.0 CR)
+                            local baseVal = hungCR
+                            if baseVal <= 0 then
+                                baseVal = sellEntry.basePricePerUnit or 1.0
+                            else
+                                baseVal = math.max(1.0, baseVal)
+                            end
+
+                            -- 新鮮度乗算 (新鮮: 1.0倍 / 鮮度落ち: 0.5倍)
+                            local itemCR = baseVal * freshness
+                            produceGroup.totalEffectiveCredits = produceGroup.totalEffectiveCredits + itemCR
                             table.insert(produceGroup.items, { item = item, container = targetContainer, name = sellEntry.name, condition = condition })
 
                         else
@@ -4145,12 +4166,12 @@ function RadioTrader_AssessContainer(player)
         end
     end
 
-    -- 3. 農作物・果物ロット計算（1個2 CR、10個ロットごとに +15 CRボーナス）
+    -- 3. 農作物・果物ロット計算（満腹度・新鮮度連動 ＋ 10個ロットごとにボーナス）
     if produceGroup.count > 0 then
-        local baseProducePrice = math.max(1, math.floor(2 * sellMult + 0.5))
-        local bonus10Lot = math.max(1, math.floor(15 * sellMult + 0.5))
+        local bonus10Lot = math.max(1, math.floor(10 * sellMult + 0.5))
         local lots = math.floor(produceGroup.count / 10)
-        local produceCredits = math.floor(produceGroup.effectiveUnits * baseProducePrice) + (lots * bonus10Lot)
+        local baseCredits = math.floor(produceGroup.totalEffectiveCredits * sellMult + 0.5)
+        local produceCredits = baseCredits + (lots * bonus10Lot)
         if produceCredits <= 0 and produceGroup.count > 0 then produceCredits = 1 end
         totalCredits = totalCredits + produceCredits
         for _, entry in ipairs(produceGroup.items) do
