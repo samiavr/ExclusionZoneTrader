@@ -57,7 +57,7 @@ end
 -- ---------------------------------------------------------------------------
 local function resolveItemIdFromName(name)
     if not name or name == "" or not RadioTrader_Shop then return nil end
-    local cleanName = tostring(name):gsub("%s*%(%+%d+ more%)", ""):gsub("%s*%(他%s*%d+%s*品%)", ""):gsub("%s*x%d+$", "")
+    local cleanName = tostring(name):gsub("%s*%(%+%d+ more%)", ""):gsub("%s*%(.-%d+.-%)", ""):gsub("%s*x%d+$", ""):gsub("^%s*(.-)%s*$", "%1")
     for _, catList in pairs(RadioTrader_Shop) do
         for _, entry in ipairs(catList) do
             if entry.name == cleanName or entry.id == cleanName then
@@ -656,6 +656,30 @@ function RadioTrader_UI:getSeedPoolCount(poolKey)
 end
 
 -- ---------------------------------------------------------------------------
+-- 弾薬庫: 日替わり弾薬箱在庫プール取得ヘルパー
+-- ---------------------------------------------------------------------------
+function RadioTrader_UI:getAmmoPool()
+    if self.ammoPool then return self.ammoPool end
+    if not isClient() and RadioTrader_ServerEngine and RadioTrader_ServerEngine.getOrUpdateAmmoPool then
+        self.ammoPool = RadioTrader_ServerEngine.getOrUpdateAmmoPool()
+        return self.ammoPool
+    end
+    local ammoKey = (RadioTrader_Config and RadioTrader_Config.KEY_AMMO_POOL) or "RadioTrader_AmmoStockState"
+    if ModData and ModData.exists and ModData.exists(ammoKey) then
+        local aState = ModData.get(ammoKey)
+        self.ammoPool = (aState and aState.pool) or {}
+    else
+        self.ammoPool = {}
+    end
+    return self.ammoPool
+end
+
+function RadioTrader_UI:getAmmoPoolCount(poolKey)
+    local pool = self:getAmmoPool()
+    return (pool and pool[poolKey]) or 0
+end
+
+-- ---------------------------------------------------------------------------
 -- カテゴリロード（アイテムリストを更新）
 -- ---------------------------------------------------------------------------
 function RadioTrader_UI:loadCategory(categoryKey)
@@ -671,9 +695,13 @@ function RadioTrader_UI:loadCategory(categoryKey)
             -- 契約農園・農作物交換枠: 「キャベツ（8個） - 5 CR」
             local poolCount = self:getSeedPoolCount(entry.poolKey or entry.id)
             label = ("%s (%d)  -  %d CR"):format(dispName, poolCount, effPrice)
+        elseif categoryKey == "Ammo" or entry.isAmmo then
+            -- 弾薬庫・口径別弾薬箱指名注文枠: 「9mm弾の箱 (1)  -  1100 CR」
+            local stockCount = self:getAmmoPoolCount(entry.poolKey or entry.id)
+            label = ("%s (%d)  -  %d CR"):format(dispName, stockCount, effPrice)
         elseif categoryKey == "Daily" then
             if entry.subCat == "TraderStash" then
-                local stashPrefix = tr("UI_RadioTrader_StashPrefix", "[★Stash] ")
+                local stashPrefix = tr("UI_RadioTrader_StashPrefix", "[*Stash] ")
                 label = ("%s%s x %d  -  %d CR"):format(stashPrefix, dispName, entry.count or 1, effPrice)
             else
                 label = ("%s x %d  -  %d CR"):format(dispName, entry.count or 1, effPrice)
@@ -714,6 +742,13 @@ function RadioTrader_UI:onItemSelect()
             self.labelItemDetail:setName(
                 ("[%s]\n%s: %d"):format(
                     dispName, poolLabel, poolCount))
+        elseif entry.isAmmo or self.selectedCategory == "Ammo" then
+            local stockCount = self:getAmmoPoolCount(entry.poolKey or entry.id)
+            local priceLabel = tr("UI_RadioTrader_Price", "Price")
+            local stockLabel = tr("UI_RadioTrader_AmmoStockCount", "Today's Stock")
+            self.labelItemDetail:setName(
+                ("[%s]\n%s: %d CR\n%s: %d"):format(
+                    dispName, priceLabel, effPrice, stockLabel, stockCount))
         else
             local priceLabel = tr("UI_RadioTrader_Price", "Price")
             local qtyLabel   = tr("UI_RadioTrader_Quantity", "Quantity")
@@ -734,8 +769,8 @@ end
 -- ModData から直接クレジット・ステートを同期（SP環境・最新化保証）
 -- ---------------------------------------------------------------------------
 function RadioTrader_UI:refreshDataFromModData()
-    local uname = (self.player and self.player.getUsername and self.player:getUsername()) or "singleplayer"
-    if uname == "" then uname = "singleplayer" end
+    local cfg = RadioTrader_Config
+    local uname = cfg and cfg.getPlayerKey and cfg.getPlayerKey(self.player) or "singleplayer"
 
     -- クレジット同期 ＆ 種プール同期
     local gmdKey = "RadioTrader_" .. uname
@@ -747,6 +782,19 @@ function RadioTrader_UI:refreshDataFromModData()
             end
             if gmd[RadioTrader_Config.KEY_SEED_POOL] then
                 self.seedPool = gmd[RadioTrader_Config.KEY_SEED_POOL]
+            end
+        end
+    end
+
+    -- 弾薬庫の日替わり在庫プール同期
+    if not isClient() and RadioTrader_ServerEngine and RadioTrader_ServerEngine.getOrUpdateAmmoPool then
+        self.ammoPool = RadioTrader_ServerEngine.getOrUpdateAmmoPool()
+    else
+        local ammoKey = (RadioTrader_Config and RadioTrader_Config.KEY_AMMO_POOL) or "RadioTrader_AmmoStockState"
+        if ModData and ModData.exists and ModData.exists(ammoKey) then
+            local aState = ModData.get(ammoKey)
+            if aState and aState.pool then
+                self.ammoPool = aState.pool
             end
         end
     end
@@ -863,6 +911,74 @@ function RadioTrader_UI:addLog(msg, r, g, b)
         self.logBox:setYScroll(self.logBox:getHeight() - totalH)
     else
         self.logBox:setYScroll(0)
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- 買取対象外アイテム（回収対象外物品）の内訳フォーマット＆2行目ログ出力
+-- ---------------------------------------------------------------------------
+function RadioTrader_UI:formatUnacceptedDetails(unacceptedList, maxByteLen)
+    if not unacceptedList or #unacceptedList == 0 then return nil end
+
+    local limitBytes = maxByteLen or 110
+    local maxWidthPx = 680
+    if self.logBox and self.logBox.getWidth then
+        local w = self.logBox:getWidth()
+        if w and w > 120 then
+            maxWidthPx = w - 45
+        end
+    end
+
+    local tm = getTextManager and getTextManager()
+    local parts = {}
+    local totalTypes = #unacceptedList
+    local includedTypes = 0
+
+    for i, entry in ipairs(unacceptedList) do
+        local itemText = string.format("%s x%d", tostring(entry.name or "Unknown"), tonumber(entry.count) or 1)
+        local candidateBody = (#parts == 0) and itemText or (table.concat(parts, ", ") .. ", " .. itemText)
+        local remaining = totalTypes - i
+
+        -- 残りがある場合は省略サフィックス込みの長さ・幅で収まるか判定
+        local testBody = candidateBody
+        if remaining > 0 then
+            local moreSuffix = tr("UI_RadioTrader_Log_UnacceptedMore", "... (+%s more)", tostring(remaining))
+            testBody = candidateBody .. ", " .. moreSuffix
+        end
+
+        local fullLine = "> " .. tr("UI_RadioTrader_Log_UnacceptedDetails", "[Unaccepted] %s", testBody)
+        local fitsBytes = (#testBody <= limitBytes)
+        local fitsPx = true
+        if tm and tm.MeasureStringX then
+            local ok, px = pcall(function() return tm:MeasureStringX(FONT, fullLine) end)
+            if ok and px then
+                fitsPx = (px <= maxWidthPx)
+            end
+        end
+
+        -- 最初の1件目は必ず表示し、2件目以降は文字数またはピクセル幅を超える場合に省略して打ち切る
+        if #parts == 0 or (fitsBytes and fitsPx) then
+            table.insert(parts, itemText)
+            includedTypes = i
+        else
+            break
+        end
+    end
+
+    local bodyStr = table.concat(parts, ", ")
+    local omitted = totalTypes - includedTypes
+    if omitted > 0 then
+        local moreSuffix = tr("UI_RadioTrader_Log_UnacceptedMore", "... (+%s more)", tostring(omitted))
+        bodyStr = bodyStr .. ", " .. moreSuffix
+    end
+
+    return tr("UI_RadioTrader_Log_UnacceptedDetails", "[Unaccepted] %s", bodyStr)
+end
+
+function RadioTrader_UI:logUnacceptedItems(unacceptedList)
+    local detailMsg = self:formatUnacceptedDetails(unacceptedList)
+    if detailMsg then
+        self:addLog(detailMsg, COLOR_WARN.r, COLOR_WARN.g, COLOR_WARN.b)
     end
 end
 
@@ -1000,6 +1116,22 @@ function RadioTrader_UI:onAddToCartClick()
         end
     end
 
+    -- 弾薬庫: 弾薬箱発注時の日替わり在庫プール残数チェック
+    if entry.isAmmo or self.selectedCategory == "Ammo" then
+        local stockCount = self:getAmmoPoolCount(entry.poolKey or entry.id)
+        local curInCart = 0
+        for _, it in ipairs(self.cart) do
+            if it.itemId == entry.id then curInCart = it.quantity; break end
+        end
+        if curInCart + 1 > stockCount then
+            self:addLog(tr("UI_RadioTrader_Err_NOT_ENOUGH_AMMO_STOCK", "Not enough daily ammo stock for %s (Available: %s)", dispName, tostring(stockCount)),
+                COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
+            local sm = getSoundManager()
+            if sm then sm:playUISound("AccessDenied") end
+            return
+        end
+    end
+
     local found = false
     for _, it in ipairs(self.cart) do
         if it.itemId == entry.id then
@@ -1015,6 +1147,7 @@ function RadioTrader_UI:onAddToCartClick()
             price    = effPrice,
             quantity = 1,
             isCrop   = entry.isCrop,
+            isAmmo   = entry.isAmmo,
             poolKey  = entry.poolKey,
         })
     end
@@ -1055,12 +1188,21 @@ function RadioTrader_UI:onOrderClick()
     end
 
     if #self.cart > 0 then
-        -- カート一括発注前の種プール最終検証
+        -- カート一括発注前の種プール・弾薬在庫プール最終検証
         for _, it in ipairs(self.cart) do
             if it.isCrop then
                 local pCount = self:getSeedPoolCount(it.poolKey or it.itemId)
                 if it.quantity > pCount then
                     self:addLog(tr("UI_RadioTrader_Err_NOT_ENOUGH_SEEDS", "Not enough seeds in pool for %s (Available: %s, Cart: %s)", it.name, tostring(pCount), tostring(it.quantity)),
+                        COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
+                    local sm = getSoundManager()
+                    if sm then sm:playUISound("AccessDenied") end
+                    return
+                end
+            elseif it.isAmmo then
+                local sCount = self:getAmmoPoolCount(it.poolKey or it.itemId)
+                if it.quantity > sCount then
+                    self:addLog(tr("UI_RadioTrader_Err_NOT_ENOUGH_AMMO_STOCK", "Not enough daily ammo stock for %s (Available: %s, Cart: %s)", it.name, tostring(sCount), tostring(it.quantity)),
                         COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
                     local sm = getSoundManager()
                     if sm then sm:playUISound("AccessDenied") end
@@ -1119,6 +1261,18 @@ function RadioTrader_UI:onOrderClick()
             end
         end
 
+        -- 弾薬庫: 単一発注時の弾薬在庫プールチェック
+        if entry.isAmmo or self.selectedCategory == "Ammo" then
+            local stockCount = self:getAmmoPoolCount(entry.poolKey or entry.id)
+            if stockCount < 1 then
+                self:addLog(tr("UI_RadioTrader_Err_NOT_ENOUGH_AMMO_STOCK", "Not enough daily ammo stock for %s (Available: 0)", dispName),
+                    COLOR_DANGER.r, COLOR_DANGER.g, COLOR_DANGER.b)
+                local sm = getSoundManager()
+                if sm then sm:playUISound("AccessDenied") end
+                return
+            end
+        end
+
         local isDrone = (self.tickDrone and self.tickDrone:isSelected(1)) or false
         local droneCost = self:getDroneCostIfSelected()
         local effPrice = RadioTrader_ItemsTable_GetEffectiveBuyPrice and RadioTrader_ItemsTable_GetEffectiveBuyPrice(entry.price) or entry.price
@@ -1142,6 +1296,9 @@ function RadioTrader_UI:onOrderClick()
 end
 
 function RadioTrader_UI:close()
+    if RadioTrader_ClientBridge and RadioTrader_ClientBridge.stopRadioSound then
+        RadioTrader_ClientBridge.stopRadioSound()
+    end
     self:setVisible(false)
     self:removeFromUIManager()
 end
@@ -1250,6 +1407,9 @@ function RadioTrader_UI:onServerNotify(cmd, args)
                 "Sale complete: Sold %s items for %s CR.", count, credits)
         end
         self:addLog(logMsg, COLOR_ACCENT.r, COLOR_ACCENT.g, COLOR_ACCENT.b)
+        if unaccepted > 0 and args and args.unacceptedList then
+            self:logUnacceptedItems(args.unacceptedList)
+        end
         if args and args.seedsAdded and args.seedsAdded > 0 then
             self:addLog(tr("UI_RadioTrader_Log_SeedsDeposited",
                 "Contract Farm: Deposited %s seeds into pool.", tostring(args.seedsAdded)),
@@ -1273,6 +1433,9 @@ function RadioTrader_UI:onServerNotify(cmd, args)
         if args.tradeInCount and args.tradeInCount > 0 then
             self:addLog(tr("UI_RadioTrader_Log_TradeInOffset", "Trade-in: Collected %s items (+%s CR offset applied).", tostring(args.tradeInCount), tostring(args.tradeInCredits or 0)),
                 COLOR_ACCENT.r, COLOR_ACCENT.g, COLOR_ACCENT.b)
+        end
+        if args.unacceptedCount and args.unacceptedCount > 0 and args.unacceptedList then
+            self:logUnacceptedItems(args.unacceptedList)
         end
         if args.hasTraderStash then
             self:addLog(tr("UI_RadioTrader_Log_StashAccepted", "[Radio] '...That was my personal stash, you know.'"),
@@ -1357,6 +1520,9 @@ function RadioTrader_UI:onServerNotify(cmd, args)
             self:addLog(tr("UI_RadioTrader_Log_AssessedMixed",
                 "Assessment complete: %s CR (%s items accepted / %s items unaccepted)",
                 tostring(self.assessedCredits), tostring(accepted), tostring(unaccepted)))
+            if args and args.unacceptedList then
+                self:logUnacceptedItems(args.unacceptedList)
+            end
         elseif accepted > 0 then
             self:addLog(tr("UI_RadioTrader_Log_Assessed",
                 "Assessment complete: Drop box contents valued at %s CR (%s items)",
@@ -1365,6 +1531,9 @@ function RadioTrader_UI:onServerNotify(cmd, args)
             self:addLog(tr("UI_RadioTrader_Log_AssessedAllUnaccepted",
                 "Assessment: 0 CR (All %s items in drop box are unaccepted)",
                 tostring(unaccepted)), COLOR_WARN.r, COLOR_WARN.g, COLOR_WARN.b)
+            if args and args.unacceptedList then
+                self:logUnacceptedItems(args.unacceptedList)
+            end
         else
             self:addLog(tr("UI_RadioTrader_Log_AssessedEmpty",
                 "Assessment: 0 CR (Drop box is empty)"))
@@ -1387,9 +1556,14 @@ function RadioTrader_UI:onServerNotify(cmd, args)
         if args.seedPool ~= nil then
             self.seedPool = args.seedPool
         end
+        if args.ammoPool ~= nil then
+            self.ammoPool = args.ammoPool
+        end
         self:updateStatusDisplay()
         if self.selectedCategory == "Crops" then
             self:loadCategory("Crops")
+        elseif self.selectedCategory == "Ammo" then
+            self:loadCategory("Ammo")
         end
 
     elseif cmd == cfg.CMD_SEED_POOL_UPDATE or cmd == "seedPoolUpdate" then
@@ -1399,6 +1573,15 @@ function RadioTrader_UI:onServerNotify(cmd, args)
         self:updateStatusDisplay()
         if self.selectedCategory == "Crops" then
             self:loadCategory("Crops")
+        end
+
+    elseif cmd == cfg.CMD_AMMO_POOL_UPDATE or cmd == "ammoPoolUpdate" then
+        if args and args.ammoPool then
+            self.ammoPool = args.ammoPool
+        end
+        self:updateStatusDisplay()
+        if self.selectedCategory == "Ammo" then
+            self:loadCategory("Ammo")
         end
 
     elseif cmd == "rerollSuccess" then
@@ -1437,6 +1620,7 @@ function RadioTrader_UI.open(player)
         RadioTrader_UI.instance:instantiate()
         RadioTrader_UI.instance:addToUIManager()
     else
+        RadioTrader_UI.instance.player = player
         RadioTrader_UI.instance:refreshDataFromModData()
         RadioTrader_UI.instance:updateStatusDisplay()
         RadioTrader_UI.instance:setVisible(true)

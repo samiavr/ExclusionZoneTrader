@@ -61,10 +61,8 @@ local function fireAcousticWave(lzX, lzY, lzZ, isMegaHorde)
 end
 
 local function getUsernameSafe(player)
-    if not player then return "singleplayer" end
-    local uname = player.getUsername and player:getUsername()
-    if not uname or uname == "" then return "singleplayer" end
-    return uname
+    local cfg = RadioTrader_Config
+    return cfg and cfg.getPlayerKey and cfg.getPlayerKey(player) or "singleplayer"
 end
 
 local function getCurrentGameHour()
@@ -105,15 +103,25 @@ local function updateVirtualHelis()
         -- オーディオエミッターの初期化（3D距離減衰用）
         -- ドローン時は巨大爆音 Helicopter を再生せず無音ステルス飛行
         if not heli.isDrone then
-            if not heli.emitter and getWorld():getFreeEmitter() then
-                heli.emitter = getWorld():getFreeEmitter()
-                heli.emitter:setPos(heli.x, heli.y, heli.z or 0)
-            end
-            -- オーディオエミッターの座標更新と再生
-            if heli.emitter then
-                heli.emitter:setPos(heli.x, heli.y, heli.z or 0)
-                if not heli.emitter:isPlaying("Helicopter") then
-                    heli.emitter:playSound("Helicopter")
+            -- 離脱中にLZから350タイル以上離れたら可聴範囲外のため安全に早期停止・解放
+            local distFromLZ = math.sqrt((heli.targetX - heli.x)^2 + (heli.targetY - heli.y)^2)
+            if heli.state == STATE_LEAVING and distFromLZ >= 350 then
+                if heli.emitter then
+                    heli.emitter:stopAll()
+                    heli.emitter = nil
+                end
+            else
+                if not heli.emitter and getWorld():getFreeEmitter() then
+                    heli.emitter = getWorld():getFreeEmitter()
+                    heli.emitter:setPos(heli.x, heli.y, heli.z or 0)
+                end
+                -- オーディオエミッターの座標更新と再生
+                if heli.emitter then
+                    heli.emitter:setPos(heli.x, heli.y, heli.z or 0)
+                    -- 離脱中（STATE_LEAVING）は新規再トリガーせず自然減衰させる
+                    if heli.state ~= STATE_LEAVING and not heli.emitter:isPlaying("Helicopter") then
+                        heli.emitter:playSound("Helicopter")
+                    end
                 end
             end
         end
@@ -160,13 +168,21 @@ local function updateVirtualHelis()
                     
                     -- 配達
                     if heli.player then
-                        local ok, err = pcall(function()
-                            RadioTrader_ServerEngine.deliverItems(heli.player)
+                        local ok, delivered = pcall(function()
+                            return RadioTrader_ServerEngine.deliverItems(heli.player)
                         end)
                         if not ok then
-                            log("[!] Error during deliverItems: " .. tostring(err))
+                            log("[!] Error during deliverItems: " .. tostring(delivered))
                         end
-                        RadioTrader_DeliveryTimer.reset(heli.player)
+                        if ok and delivered then
+                            RadioTrader_DeliveryTimer.reset(heli.player)
+                        else
+                            -- LZチャンクがアンロードされていた場合は保留フラグを立て、チャンクロード時に配備する
+                            local uname = getUsernameSafe(heli.player)
+                            local gmd = ModData.getOrCreate("RadioTrader_" .. uname)
+                            gmd.bDeferredDelivery = true
+                            RadioTrader_DeliveryTimer.reset(heli.player)
+                        end
                     end
                 else
                     heli.x = heli.x + (dx / dist) * move
@@ -176,6 +192,19 @@ local function updateVirtualHelis()
                     
                     -- ヘリがLZ周辺（ロード済みチャンク周辺）に近づいたら、飛行ルート上で段階的に仮想ホードを発進させる
                     while heli.nextSpawnDist > 0 and newDist <= heli.nextSpawnDist do
+                        -- 0. スプリンター先行強襲部隊の投入 (中距離 150〜100タイル到達時に優先出撃)
+                        if heli.sprinterQuota > 0 and heli.spawnedSprinters < heli.sprinterQuota and heli.nextSpawnDist <= 150 then
+                            local sBatch = heli.sprinterQuota - heli.spawnedSprinters
+                            log(("  [!] Dispatching %d SPRINTER zombies directly along approach corridor to LZ (Cone: %s deg)"):format(
+                                sBatch, tostring(heli.approachAngle)))
+                            if RadioTrader_ZombieSpawnQueue and RadioTrader_ZombieSpawnQueue.enqueue then
+                                RadioTrader_ZombieSpawnQueue.enqueue(heli.targetX, heli.targetY, heli.z, sBatch, heli.approachAngle, 25, 65, 100, true)
+                                heli.spawnedSprinters = heli.sprinterQuota
+                                -- スプリンターとして実体投入した分をカウントに加算（通常仮想ホードとの二重湧き防止）
+                                heli.dispatchedVirtual = heli.dispatchedVirtual + sBatch
+                            end
+                        end
+
                         -- 1. 最優先: 遠隔チャンク（ヘリ現在地）への仮想ホード (Popman) 配置
                         if heli.totalHorde > 0 and heli.dispatchedVirtual < heli.totalHorde then
                             local left = heli.totalHorde - heli.dispatchedVirtual
@@ -263,6 +292,7 @@ local function updateVirtualHelis()
                     log("VirtualHeli despawned.")
                     if heli.emitter then
                         heli.emitter:stopAll()
+                        heli.emitter = nil
                     end
                     if RadioTrader_ServerEngine and RadioTrader_ServerEngine.broadcastToClients then
                         RadioTrader_ServerEngine.broadcastToClients(RadioTrader_Config.CMD_HELI_HOVER_END, {})
@@ -320,7 +350,18 @@ function RadioTrader_HeliEvent.trigger(player, isMegaHorde, isDrone)
         end
     end
     
-    log(("  Aircraft horde planned: %d total (Drone: %s)"):format(count, tostring(isDrone)))
+    local sprinterQuota = 0
+    if count > 0 and not isDrone and cfg.getHordeSprinterChance then
+        local sChance = cfg.getHordeSprinterChance()
+        if sChance > 0 then
+            sprinterQuota = math.floor(count * sChance)
+            if sprinterQuota == 0 and count >= 5 then
+                sprinterQuota = 1 -- 5体以上のホードで確率設定されていれば最低1体
+            end
+        end
+    end
+
+    log(("  Aircraft horde planned: %d total (Sprinters: %d, Drone: %s)"):format(count, sprinterQuota, tostring(isDrone)))
     
     local now = getCurrentGameHour()
     table.insert(virtualHelis, {
@@ -334,6 +375,8 @@ function RadioTrader_HeliEvent.trigger(player, isMegaHorde, isDrone)
         lastUpdate = now,
         lastSoundTime = now,
         totalHorde = count,
+        sprinterQuota = sprinterQuota,
+        spawnedSprinters = 0,
         dispatchedVirtual = 0,
         fallbackDirect = 0,
         spawnedDirect = 0,

@@ -54,7 +54,7 @@ end
 -- ---------------------------------------------------------------------------
 local function resolveItemIdFromName(name)
     if not name or name == "" or not RadioTrader_Shop then return nil end
-    local cleanName = tostring(name):gsub("%s*%(%+%d+ more%)", ""):gsub("%s*%(他%s*%d+%s*品%)", ""):gsub("%s*x%d+$", "")
+    local cleanName = tostring(name):gsub("%s*%(%+%d+ more%)", ""):gsub("%s*%(.-%d+.-%)", ""):gsub("%s*x%d+$", ""):gsub("^%s*(.-)%s*$", "%1")
     for _, catList in pairs(RadioTrader_Shop) do
         for _, entry in ipairs(catList) do
             if entry.name == cleanName or entry.id == cleanName then
@@ -141,18 +141,66 @@ local function showRadioText(player, msg)
 end
 
 -- ---------------------------------------------------------------------------
--- SE 再生ヘルパー（B42 対応・World/Player/UI 優先再生）
+-- SE 再生・自動停止制御ヘルパー（多重再生・ループ音残り防止）
 -- ---------------------------------------------------------------------------
-local function playSound(soundName)
+local currentSoundChannel = 0
+local soundTimeoutMs = 0
+
+local function stopRadioSound()
     local player = getPlayer()
-    if player and player.playSound then
-        local ok = pcall(function() player:playSound(soundName) end)
-        if ok then return end
+    if player and player.getEmitter then
+        local emitter = player:getEmitter()
+        if emitter then
+            if currentSoundChannel and currentSoundChannel ~= 0 then
+                pcall(function() emitter:stopSound(currentSoundChannel) end)
+            end
+            -- 名前指定による停止も保険として実行
+            pcall(function() emitter:stopSoundByName("RadioTalk") end)
+            pcall(function() emitter:stopSoundByName("RadioStatic") end)
+        end
     end
-    local sm = getSoundManager()
-    if sm and sm.playUISound then
-        pcall(function() sm:playUISound(soundName) end)
+    currentSoundChannel = 0
+    soundTimeoutMs = 0
+end
+RadioTrader_ClientBridge.stopRadioSound = stopRadioSound
+
+local function playSound(soundName, durationMs)
+    -- 新しいSEを再生する前に前回の音を確実に停止
+    stopRadioSound()
+
+    local player = getPlayer()
+    local played = false
+
+    if player and player.getEmitter then
+        local emitter = player:getEmitter()
+        if emitter and emitter.playSound then
+            local ok, channel = pcall(function() return emitter:playSound(soundName) end)
+            if ok and channel and channel ~= 0 then
+                currentSoundChannel = channel
+                played = true
+            end
+        end
     end
+
+    if not played and player and player.playSound then
+        local ok, channel = pcall(function() return player:playSound(soundName) end)
+        if ok and channel and channel ~= 0 then
+            currentSoundChannel = channel
+            played = true
+        end
+    end
+
+    if not played then
+        local sm = getSoundManager()
+        if sm and sm.playUISound then
+            pcall(function() sm:playUISound(soundName) end)
+        end
+    end
+
+    -- 無線系SEの場合は最長でも指定時間（デフォルト2.5秒）経過後に強制停止
+    local dur = durationMs or 2500
+    local curMs = (getTimestampMs and getTimestampMs() or 0)
+    soundTimeoutMs = curMs + dur
 end
 
 -- ---------------------------------------------------------------------------
@@ -334,7 +382,7 @@ local function onServerCommand(module, command, args)
 
         showRadioText(player, msg)
         if not isDrone then
-            playSound("Helicopter")
+            playSound("RadioTalk")
         end
         log("Delivery complete (MegaHorde: " .. tostring(isMega) .. ", Drone: " .. tostring(isDrone) .. ", Lunchbox: " .. tostring(hasLunchbox) .. ", Fallback: " .. tostring(isFallbackDrop) .. "): " .. itemDisplay .. (bonusName and (" + Bonus: " .. bonusName) or ""))
 
@@ -355,7 +403,7 @@ local function onServerCommand(module, command, args)
             msg = tr("UI_RadioTrader_Log_SellSuccess", "Sale complete: Sold %s items for %s CR.", tostring(count), tostring(credits))
         end
         showRadioText(player, msg)
-        playSound("GainExperienceLevel")
+        playSound("RadioStatic")
         log(("Sell complete: %s items for %s CR (leftover=%d)"):format(tostring(count), tostring(credits), unaccepted))
 
     -- === 査定結果 ===
@@ -375,6 +423,9 @@ local function onServerCommand(module, command, args)
     elseif command == "stateRefresh" then
         log(("State refresh: state=%s, credits=%d"):format(
             tostring(args and args.state), tostring(args and args.credits)))
+        if RadioTrader_UI and RadioTrader_UI.instance and RadioTrader_UI.instance.onServerNotify then
+            RadioTrader_UI.instance:onServerNotify("stateRefresh", args)
+        end
 
     -- === エラーメッセージ ===
     elseif command == "error" then
@@ -394,7 +445,7 @@ local function onServerCommand(module, command, args)
         local expH = args and args.expireHours or 48
         local msg  = tr("UI_RadioTrader_Say_ReadyForDrop", "Incoming transmission: Supplies ready. Request drop near LZ.")
         showRadioText(player, msg)
-        playSound("GainExperienceLevel")
+        playSound("RadioStatic")
         log("READY_FOR_DROP received. Expire in " .. expH .. " hrs.")
 
     -- === 注文期限切れ通知 ===
@@ -442,14 +493,17 @@ RadioTrader_ClientBridge.onServerCommand = onServerCommand
 Events.OnServerCommand.Add(onServerCommand)
 
 -- ---------------------------------------------------------------------------
--- フェイルセーフタイマー監視（90秒経過で自動消灯）
+-- フェイルセーフタイマー監視（サーチライト消灯 ＆ サウンド停止）
 -- ---------------------------------------------------------------------------
 Events.OnTick.Add(function()
+    local curMs = (getTimestampMs and getTimestampMs() or 0)
     if currentSearchlight and searchlightTimeoutMs > 0 then
-        local curMs = (getTimestampMs and getTimestampMs() or 0)
         if curMs >= searchlightTimeoutMs then
             removeSearchlight()
         end
+    end
+    if soundTimeoutMs > 0 and curMs >= soundTimeoutMs then
+        stopRadioSound()
     end
 end)
 
@@ -460,6 +514,7 @@ if Events.OnPlayerDeath then
     Events.OnPlayerDeath.Add(function(deadPlayer)
         if deadPlayer and deadPlayer:isLocalPlayer() then
             removeSearchlight()
+            stopRadioSound()
         end
     end)
 end

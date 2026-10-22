@@ -22,17 +22,63 @@ local function log(msg)
 end
 
 -- ---------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 -- ModData ヘルパー
 -- ---------------------------------------------------------------------------
 local function getUsernameSafe(player)
-    if not player then return "singleplayer" end
-    local uname = player.getUsername and player:getUsername()
-    if not uname or uname == "" then return "singleplayer" end
-    return uname
+    local cfg = RadioTrader_Config
+    return cfg and cfg.getPlayerKey and cfg.getPlayerKey(player) or "singleplayer"
+end
+
+-- シングルプレイ時に旧キャラ名で保存された孤立注文・タイマーを singleplayer に自動救済・統合
+local function migrateLegacySingleplayerData(player)
+    if isClient() or isServer() then return end
+    local spGmd = ModData.getOrCreate("RadioTrader_singleplayer")
+    local spTimer = ModData.getOrCreate("RadioTrader_Timer_singleplayer")
+
+    -- 既に singleplayer に有効な注文がある場合はスキップ
+    if spGmd[RadioTrader_Config.KEY_ORDER] or (spTimer.state and spTimer.state ~= RadioTrader_Config.STATE_NONE and spTimer.state ~= RadioTrader_Config.STATE_COMPLETED) then
+        return
+    end
+
+    if not ModData.getTableNames then return end
+    local tableNames = ModData.getTableNames()
+    if not tableNames then return end
+
+    for i = 0, tableNames:size() - 1 do
+        local tblName = tableNames:get(i)
+        if tblName and tblName ~= "RadioTrader_singleplayer" and string.find(tblName, "^RadioTrader_") and not string.find(tblName, "^RadioTrader_Timer_") and not string.find(tblName, "^RadioTrader_Daily") then
+            if ModData.exists(tblName) then
+                local oldGmd = ModData.get(tblName)
+                if oldGmd and oldGmd[RadioTrader_Config.KEY_ORDER] then
+                    log("Migrating orphaned order from legacy table: " .. tostring(tblName) .. " -> RadioTrader_singleplayer")
+                    for k, v in pairs(oldGmd) do
+                        if spGmd[k] == nil then spGmd[k] = v end
+                    end
+                    -- 対応するタイマーも移行
+                    local unamePart = string.sub(tblName, 13)
+                    local oldTimerName = "RadioTrader_Timer_" .. unamePart
+                    if ModData.exists(oldTimerName) then
+                        local oldTimer = ModData.get(oldTimerName)
+                        if oldTimer then
+                            log("Migrating orphaned timer: " .. tostring(oldTimerName) .. " -> RadioTrader_Timer_singleplayer")
+                            for tk, tv in pairs(oldTimer) do
+                                spTimer[tk] = tv
+                            end
+                            oldTimer.state = RadioTrader_Config.STATE_COMPLETED
+                        end
+                    end
+                    oldGmd[RadioTrader_Config.KEY_ORDER] = nil
+                    break
+                end
+            end
+        end
+    end
 end
 
 -- プレイヤーの GlobalModData を取得（マルチプレイ対応）
 local function getPlayerGMD(player)
+    migrateLegacySingleplayerData(player)
     return ModData.getOrCreate("RadioTrader_" .. getUsernameSafe(player))
 end
 
@@ -130,6 +176,55 @@ function RadioTrader_ServerEngine.deductSeedsFromPool(player, poolKey, amount)
 end
 
 -- ---------------------------------------------------------------------------
+-- 弾薬庫: 日替わり弾薬箱在庫プール管理 (1日1回更新・0〜5箱)
+-- ---------------------------------------------------------------------------
+local AMMO_STOCK_MODDATA_KEY = "RadioTrader_AmmoStockState"
+local AMMO_STOCK_DATA_VERSION = 1
+
+function RadioTrader_ServerEngine.getOrUpdateAmmoPool()
+    local ammoState = ModData.getOrCreate(AMMO_STOCK_MODDATA_KEY)
+    local curHour = (getGameTime and getGameTime():getWorldAgeHours()) or 0
+    local curDay = math.floor(curHour / 24)
+
+    local needRoll = (ammoState.version ~= AMMO_STOCK_DATA_VERSION)
+        or (ammoState.lastRolledDay == nil)
+        or (ammoState.lastRolledDay ~= curDay)
+        or (ammoState.pool == nil)
+
+    if needRoll then
+        if RadioTrader_ItemsTable_RollDailyAmmoStock then
+            local newPool = RadioTrader_ItemsTable_RollDailyAmmoStock()
+            ammoState.version = AMMO_STOCK_DATA_VERSION
+            ammoState.lastRolledDay = curDay
+            ammoState.pool = newPool
+            log(("Daily ammo stock pool generated (Day %d, v%d)"):format(curDay, AMMO_STOCK_DATA_VERSION))
+        else
+            ammoState.pool = ammoState.pool or {}
+        end
+    end
+
+    return ammoState.pool or {}
+end
+
+function RadioTrader_ServerEngine.sendAmmoPoolUpdate(player)
+    local pool = RadioTrader_ServerEngine.getOrUpdateAmmoPool()
+    RadioTrader_ServerEngine.sendToClient(player, RadioTrader_Config.CMD_AMMO_POOL_UPDATE, {
+        ammoPool = pool
+    })
+end
+
+function RadioTrader_ServerEngine.deductAmmoFromPool(player, poolKey, amount)
+    if not poolKey or not amount or amount <= 0 then return false end
+    local pool = RadioTrader_ServerEngine.getOrUpdateAmmoPool()
+    local cur = pool[poolKey] or 0
+    if cur < amount then return false end
+    pool[poolKey] = cur - amount
+    RadioTrader_ServerEngine.sendAmmoPoolUpdate(player)
+    log(("Ammo pool deducted: %s -%d (Remaining: %d) for %s"):format(poolKey, amount, pool[poolKey], getUsernameSafe(player)))
+    return true
+end
+
+-- ---------------------------------------------------------------------------
 -- 日替わりスポット品目（Daily Shop）管理
 -- ---------------------------------------------------------------------------
 local DAILY_MODDATA_KEY = "RadioTrader_DailyState"
@@ -209,7 +304,7 @@ function RadioTrader_ServerEngine.processSell(player)
         return
     end
 
-    local assessedItems, totalCredits, err, unacceptedCount = RadioTrader_ServerEngine.assessContainer(player)
+    local assessedItems, totalCredits, err, unacceptedCount, unacceptedItems = RadioTrader_ServerEngine.assessContainer(player)
     if err then
         log("processSell assess error: " .. tostring(err))
         RadioTrader_ServerEngine.sendToClient(player, "error", { errCode = err, message = err })
@@ -261,11 +356,13 @@ function RadioTrader_ServerEngine.processSell(player)
     log(username .. " processed " .. #assessedItems .. " items for " .. totalCredits .. " credits (+ " .. seedsAdded .. " seeds pooled)")
 
     -- クライアントへ売却成功通知
+    local unacceptedList = RadioTrader_SummarizeUnacceptedItems and RadioTrader_SummarizeUnacceptedItems(unacceptedItems) or {}
     RadioTrader_ServerEngine.sendToClient(player, "sellSuccess", {
         credits         = totalCredits,
         count           = #assessedItems,
         seedsAdded      = seedsAdded,
         unacceptedCount = unacceptedCount or 0,
+        unacceptedList  = unacceptedList,
     })
     RadioTrader_ServerEngine.sendSeedPoolUpdate(player)
 end
@@ -312,6 +409,7 @@ function RadioTrader_ServerEngine.processTrade(player, args)
                     subCost  = subCost,
                     subCat   = shopEntry.subCat,
                     isCrop   = shopEntry.isCrop,
+                    isAmmo   = shopEntry.isAmmo,
                     poolKey  = shopEntry.poolKey,
                 })
                 if summaryName == "" then
@@ -355,6 +453,7 @@ function RadioTrader_ServerEngine.processTrade(player, args)
             subCost  = totalCost,
             subCat   = shopEntry.subCat,
             isCrop   = shopEntry.isCrop,
+            isAmmo   = shopEntry.isAmmo,
             poolKey  = shopEntry.poolKey,
         })
     end
@@ -383,6 +482,25 @@ function RadioTrader_ServerEngine.processTrade(player, args)
         end
     end
 
+    -- 弾薬箱指名発注における日替わり弾薬在庫プール事前チェック
+    local currentAmmoPool = RadioTrader_ServerEngine.getOrUpdateAmmoPool()
+    local requiredAmmo = {}
+    for _, it in ipairs(orderItems) do
+        if it.isAmmo and it.poolKey then
+            requiredAmmo[it.poolKey] = (requiredAmmo[it.poolKey] or 0) + (it.count or 1)
+        end
+    end
+    for pKey, needed in pairs(requiredAmmo) do
+        local available = currentAmmoPool[pKey] or 0
+        if available < needed then
+            RadioTrader_ServerEngine.sendToClient(player, "error", {
+                errCode = "NOT_ENOUGH_AMMO_STOCK",
+                message = "Not enough daily ammo stock for " .. tostring(pKey) .. " (Available: " .. available .. ", Required: " .. needed .. ")"
+            })
+            return
+        end
+    end
+
     -- ステルスドローン配送判定
     local isDrone = args and (args.isDrone == true)
     local droneCost = isDrone and (RadioTrader_Config.getDroneDeliveryCost and RadioTrader_Config.getDroneDeliveryCost() or 200) or 0
@@ -395,12 +513,16 @@ function RadioTrader_ServerEngine.processTrade(player, args)
     local container, obj = RadioTrader_GetLZContainer and RadioTrader_GetLZContainer(player)
     local assessedItems = {}
     local assessedCredits = 0
+    local unacceptedCount = 0
+    local unacceptedList = {}
     if container then
-        local items, totalCr, err = RadioTrader_AssessContainer(player)
+        local items, totalCr, err, unaccCount, unaccItems = RadioTrader_AssessContainer(player)
         if items and #items > 0 then
             assessedItems = items
             assessedCredits = totalCr or 0
         end
+        unacceptedCount = unaccCount or 0
+        unacceptedList = (RadioTrader_SummarizeUnacceptedItems and RadioTrader_SummarizeUnacceptedItems(unaccItems)) or {}
     end
 
     -- 利用可能予算（手持ちCR + ドロップボックス下取り査定額）の確認
@@ -451,6 +573,11 @@ function RadioTrader_ServerEngine.processTrade(player, args)
     -- 契約農園: 発注した作物の種プールを消費
     for pKey, needed in pairs(requiredSeeds) do
         RadioTrader_ServerEngine.deductSeedsFromPool(player, pKey, needed)
+    end
+
+    -- 弾薬庫: 発注した弾薬箱の日替わり在庫プールを消費
+    for pKey, needed in pairs(requiredAmmo) do
+        RadioTrader_ServerEngine.deductAmmoFromPool(player, pKey, needed)
     end
 
     -- 配達タイマー起動
@@ -526,17 +653,19 @@ function RadioTrader_ServerEngine.processTrade(player, args)
     local totalKinds = #orderItems
 
     RadioTrader_ServerEngine.sendToClient(player, RadioTrader_Config.CMD_TRADE_ACCEPTED, {
-        itemId         = firstItemId,
-        itemCount      = firstItemCount,
-        totalKinds     = totalKinds,
-        itemName       = summaryName,
-        cost           = totalCost,
-        tradeInCredits = assessedCredits,
-        tradeInCount   = removedTradeInCount,
-        newCredits     = RadioTrader_ServerEngine.getCredits(player),
-        hasTraderStash = hasTraderStash,
-        isDrone        = isDrone,
-        droneCost      = droneCost,
+        itemId          = firstItemId,
+        itemCount       = firstItemCount,
+        totalKinds      = totalKinds,
+        itemName        = summaryName,
+        cost            = totalCost,
+        tradeInCredits  = assessedCredits,
+        tradeInCount    = removedTradeInCount,
+        unacceptedCount = unacceptedCount,
+        unacceptedList  = unacceptedList,
+        newCredits      = RadioTrader_ServerEngine.getCredits(player),
+        hasTraderStash  = hasTraderStash,
+        isDrone         = isDrone,
+        droneCost       = droneCost,
     })
 
     log(player:getUsername() .. " placed order: " .. summaryName .. " (Cost: " .. totalCost .. " CR, TradeIn: " .. assessedCredits .. " CR, Drone: " .. tostring(isDrone) .. ")")
@@ -606,9 +735,25 @@ function RadioTrader_ServerEngine.deliverItems(player)
     local gmd   = getPlayerGMD(player)
     local order = gmd[RadioTrader_Config.KEY_ORDER]
     if not order then
-        log("No pending order for " .. player:getUsername() .. " - resetting delivery timer.")
+        log("No pending order for " .. getUsernameSafe(player) .. " - resetting delivery timer.")
         RadioTrader_DeliveryTimer.reset(player)
-        return
+        return true
+    end
+
+    local lx, ly, lz = getLZCoords(player)
+    if not lx or not ly or not lz then
+        log("LZ coords not set for delivery: " .. getUsernameSafe(player))
+        return false
+    end
+
+    local cell = getWorld() and getWorld():getCell() or (getCell and getCell())
+    local lzSquare = cell and cell:getGridSquare(lx, ly, lz)
+    if not lzSquare then
+        -- プレイヤーがLZから遠く離れていてLZチャンクがアンロードされている場合、
+        -- 誤ってプレイヤーの足元に地面ドロップしてしまうのを防ぎ、LZチャンクがロードされるまで配達保留する
+        log(("LZ square (%d,%d,%d) is currently UNLOADED (player at %.1f, %.1f). Deferring item placement until LZ chunk loads."):format(
+            lx, ly, lz, player and player:getX() or -1, player and player:getY() or -1))
+        return false
     end
 
     local inv = getLZContainer(player)
@@ -616,21 +761,12 @@ function RadioTrader_ServerEngine.deliverItems(player)
     local dropSquare = nil
 
     if not inv then
-        local lx, ly, lz = getLZCoords(player)
-        if lx and ly and lz and getCell() then
-            dropSquare = getCell():getGridSquare(lx, ly, lz)
-        end
-        if not dropSquare and player and player.getCurrentSquare then
-            dropSquare = player:getCurrentSquare()
-        end
-        if not dropSquare then
-            log("LZ square not found for delivery: " .. player:getUsername())
-            return
-        end
+        dropSquare = lzSquare
         isFallbackDrop = true
-        log("LZ container missing! Switching to FALLBACK GROUND DROP at (" .. tostring(lx) .. "," .. tostring(ly) .. "," .. tostring(lz) .. ")")
+        log(("LZ container missing on loaded square! Switching to FALLBACK GROUND DROP at (%d,%d,%d)"):format(
+            dropSquare:getX(), dropSquare:getY(), dropSquare:getZ()))
     else
-        log("LZ container found: " .. tostring(inv))
+        log(("LZ container found at (%d,%d,%d): %s"):format(lx, ly, lz, tostring(inv)))
     end
 
     -- 配達アイテム配備ヘルパー（コンテナ格納または地面ドロップ＋衝撃1割損耗）
@@ -644,7 +780,10 @@ function RadioTrader_ServerEngine.deliverItems(player)
             if dropSquare then
                 dropSquare:AddWorldInventoryItem(item, 0.5, 0.5, 0)
             end
-            log(("  [!] Direct ground dropped item with 10%% wear: %s"):format(
+            log(("  [!] Direct ground dropped item with 10%% wear at (%d,%d,%d): %s"):format(
+                dropSquare and dropSquare:getX() or lx,
+                dropSquare and dropSquare:getY() or ly,
+                dropSquare and dropSquare:getZ() or lz,
                 tostring(item.getFullType and item:getFullType() or item)))
         else
             if inv then
@@ -789,6 +928,35 @@ function RadioTrader_ServerEngine.deliverItems(player)
                     log(("  [!] instanceItem returned nil for: %s"):format(tostring(curTargetId)))
                 end
             end
+
+            -- 弾薬箱まとめ買いボーナス（同一弾薬箱を2箱以上購入時、マガジン1個またはバラ弾をおまけ同梱）
+            if count >= 2 and RadioTrader_ItemsTable_GetAmmoBoxBonus then
+                local ammoBonus = RadioTrader_ItemsTable_GetAmmoBoxBonus(targetId)
+                if ammoBonus then
+                    if ammoBonus.mag then
+                        local chosenMag = ammoBonus.mag
+                        if ammoBonus.altMag and (ZombRand and ZombRand(100) < 50 or math.random(0, 99) < 50) then
+                            chosenMag = ammoBonus.altMag
+                        end
+                        local magItem = instanceItem(chosenMag)
+                        if magItem then
+                            placeItem(magItem)
+                            log(("  + [Bulk Ammo Bonus] 2+ boxes of %s: Spawned bonus magazine %s (fallback=%s)"):format(
+                                targetId, chosenMag, tostring(isFallbackDrop)))
+                        end
+                    elseif ammoBonus.looseAmmo then
+                        local ammoQty = ammoBonus.ammoCount or 10
+                        for b = 1, ammoQty do
+                            local looseItem = instanceItem(ammoBonus.looseAmmo)
+                            if looseItem then
+                                placeItem(looseItem)
+                            end
+                        end
+                        log(("  + [Bulk Ammo Bonus] 2+ boxes of %s: Spawned %d bonus loose ammo %s (fallback=%s)"):format(
+                            targetId, ammoQty, ammoBonus.looseAmmo, tostring(isFallbackDrop)))
+                    end
+                end
+            end
         end
     end
 
@@ -798,7 +966,9 @@ function RadioTrader_ServerEngine.deliverItems(player)
     for _, it in ipairs(itemList) do
         local isCrate = RadioTrader_CrateDefinitions and RadioTrader_CrateDefinitions[it.itemId]
         local isFurn = (it.itemId == "RadioTrader_Mystery_Furniture")
-        if not isCrate and not isFurn then
+        local isCropOrder = it.isCrop or (RadioTrader_CropYieldDefaults and RadioTrader_CropYieldDefaults[it.itemId])
+        local isAmmoOrder = (it.isAmmo == true)
+        if not isCrate and not isFurn and not isCropOrder and not isAmmoOrder then
             hasDailyItem = true
             break
         end
@@ -888,8 +1058,65 @@ function RadioTrader_ServerEngine.deliverItems(player)
 
     log("Delivered " .. tostring(orderItemName) .. " (count: " .. tostring(orderCount) .. ")"
         .. (bonusId and (" (+Bonus: " .. tostring(bonusId) .. ")") or "")
-        .. " to " .. tostring(player:getUsername())
+        .. " to " .. tostring(getUsernameSafe(player))
         .. " (FallbackGroundDrop: " .. tostring(isFallbackDrop) .. ")")
+
+    return true
+end
+
+-- ---------------------------------------------------------------------------
+-- LZチャンク未ロードにより保留された配達の再試行（プレイヤーがLZに帰還した際に自動配備）
+-- ---------------------------------------------------------------------------
+function RadioTrader_ServerEngine.checkDeferredDeliveries()
+    local players = {}
+    if isClient() or isServer() then
+        local online = getOnlinePlayers and getOnlinePlayers()
+        if online then
+            for i = 0, online:size() - 1 do
+                table.insert(players, online:get(i))
+            end
+        end
+    end
+    if #players == 0 and getSpecificPlayer then
+        local p0 = getSpecificPlayer(0)
+        if p0 and not p0:isDead() then
+            table.insert(players, p0)
+        end
+    end
+
+    for _, player in ipairs(players) do
+        if player and not player:isDead() then
+            local gmd = getPlayerGMD(player)
+            if gmd and gmd[RadioTrader_Config.KEY_ORDER] and gmd.bDeferredDelivery then
+                local lx, ly, lz = getLZCoords(player)
+                local cell = getWorld() and getWorld():getCell() or (getCell and getCell())
+                if lx and ly and lz and cell and cell:getGridSquare(lx, ly, lz) then
+                    log(("LZ chunk (%d,%d,%d) is now loaded for %s! Completing deferred delivery."):format(
+                        lx, ly, lz, getUsernameSafe(player)))
+                    local ok, delivered = pcall(function()
+                        return RadioTrader_ServerEngine.deliverItems(player)
+                    end)
+                    if ok and delivered then
+                        gmd.bDeferredDelivery = nil
+                        if RadioTrader_DeliveryTimer and RadioTrader_DeliveryTimer.reset then
+                            RadioTrader_DeliveryTimer.reset(player)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+if Events.LoadChunk then
+    Events.LoadChunk.Add(function()
+        RadioTrader_ServerEngine.checkDeferredDeliveries()
+    end)
+end
+if Events.EveryOneMinute then
+    Events.EveryOneMinute.Add(function()
+        RadioTrader_ServerEngine.checkDeferredDeliveries()
+    end)
 end
 
 -- ---------------------------------------------------------------------------
@@ -970,35 +1197,43 @@ local function onClientCommand(module, command, player, args)
 
     elseif command == "requestAssessment" then
         -- 査定額の表示のみ（アイテム削除なし）
-        local assessedItems, totalCredits, err, unacceptedCount = RadioTrader_ServerEngine.assessContainer(player)
+        local assessedItems, totalCredits, err, unacceptedCount, unacceptedItems = RadioTrader_ServerEngine.assessContainer(player)
         if err then
             log("requestAssessment error: " .. tostring(err))
             RadioTrader_ServerEngine.sendToClient(player, "error", { message = err })
         else
             local acceptedCount = assessedItems and #assessedItems or 0
+            local unacceptedList = (RadioTrader_SummarizeUnacceptedItems and RadioTrader_SummarizeUnacceptedItems(unacceptedItems)) or {}
             log(("requestAssessment result for %s: %d CR (accepted=%d, unaccepted=%d)"):format(
                 getUsernameSafe(player), totalCredits, acceptedCount, unacceptedCount or 0))
             RadioTrader_ServerEngine.sendToClient(player, "assessmentResult", {
                 credits         = totalCredits,
                 acceptedCount   = acceptedCount,
                 unacceptedCount = unacceptedCount or 0,
+                unacceptedList  = unacceptedList,
             })
         end
 
     elseif command == "requestState" then
-        -- 配達ステート・残高・種プールを送信（UI再開時のリフレッシュ）
+        -- 配達ステート・残高・種プール・弾薬在庫プールを送信（UI再開時のリフレッシュ）
         local state    = RadioTrader_DeliveryTimer.getState(player)
         local credits  = RadioTrader_ServerEngine.getCredits(player)
         local seedPool = RadioTrader_ServerEngine.getSeedPool(player)
+        local ammoPool = RadioTrader_ServerEngine.getOrUpdateAmmoPool()
         RadioTrader_ServerEngine.sendToClient(player, "stateRefresh", {
             state    = state,
             credits  = credits,
             seedPool = seedPool,
+            ammoPool = ammoPool,
         })
 
     elseif command == "requestSeedPool" then
         -- 種プール明示同期リクエスト
         RadioTrader_ServerEngine.sendSeedPoolUpdate(player)
+
+    elseif command == "requestAmmoPool" then
+        -- 弾薬在庫プール明示同期リクエスト
+        RadioTrader_ServerEngine.sendAmmoPoolUpdate(player)
 
     elseif command == RadioTrader_Config.CMD_REQUEST_DROP then
         -- 手動投下要請（READY_FOR_DROP 時のみ有効）

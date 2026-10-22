@@ -43,5 +43,17 @@
     "Sandbox_RT_HeliHordeRemoteRatioValue_option4": "Mostly Remote (Remote 75%% / Direct 25%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option5": "Remote Only (Remote 100%% / Direct 0%%)",
     "Sandbox_RT_DroneDeliveryCost": "Stealth Drone Delivery Cost (CR)",
-    "Sandbox_RT_DroneDeliveryCost_tooltip": "Additional fee charged when ordering via silent stealth drone (no trailing horde, acoustic waves suppressed). (Default: 200 CR)"
+    "Sandbox_RT_DroneDeliveryCost_tooltip": "Additional fee charged when ordering via silent stealth drone (no trailing horde, acoustic waves suppressed). (Default: 200 CR)",
+    "Sandbox_RT_HeliHordeSprinterChance": "Heli Horde Sprinter Chance",
+    "Sandbox_RT_HeliHordeSprinterChance_tooltip": "Chance for trailing zombies spawned during helicopter events to be fast sprinters, even in shambler-only sandbox worlds. (Default: None 0%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option1": "None (0%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option2": "Tiny (5%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option3": "Thrilling (10%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option4": "Dangerous (20%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option5": "Nightmare (50%%)",
+    "Sandbox_RT_RequireFlyerToUnlock": "Require Scavenger Flyer to Unlock",
+    "Sandbox_RT_RequireFlyerToUnlock_tooltip": "When enabled, radio trade menus are completely hidden until you find and read the handwritten note 'Scavengers Wanted!' from zombie loot or foraging. When disabled, the trade menu is available from the start. (Default: Enabled)",
+    "Sandbox_RT_FlyerMinSurvivedDays": "Flyer Spawn Minimum Days Survived",
+    "Sandbox_RT_FlyerMinSurvivedDays_tooltip": "Minimum number of days survived before the Scavenger Flyer can spawn on zombies or via foraging. Set to 0 to enable from day one. (Default: 5 days)"
 }
+

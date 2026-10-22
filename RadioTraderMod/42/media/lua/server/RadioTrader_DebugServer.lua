@@ -46,10 +46,8 @@ end
 -- ModData ヘルパー（ServerEngine と同じキー群を参照）
 -- ---------------------------------------------------------------------------
 local function getUsernameSafe(player)
-    if not player then return "singleplayer" end
-    local uname = player.getUsername and player:getUsername()
-    if not uname or uname == "" then return "singleplayer" end
-    return uname
+    local cfg = RadioTrader_Config
+    return cfg and cfg.getPlayerKey and cfg.getPlayerKey(player) or "singleplayer"
 end
 
 local function getPlayerGMD(player)
@@ -290,6 +288,20 @@ local function cmdForceZombieSpawn(player, args)
     remoteCount = math.floor(count * remoteRatio)
     directCount = count - remoteCount
 
+    -- スプリンター枠は実体スポーン側（directCount）へ優先配分
+    local sChance = cfg.getHordeSprinterChance and cfg.getHordeSprinterChance() or 0
+    if count > 0 and sChance > 0 then
+        local sQuota = math.floor(count * sChance)
+        if sQuota == 0 and count >= 5 then sQuota = 1 end
+        if directCount < sQuota then
+            local diff = sQuota - directCount
+            if remoteCount >= diff then
+                remoteCount = remoteCount - diff
+                directCount = directCount + diff
+            end
+        end
+    end
+
     if remoteCount > 0 then
         local rad = math.rad(approachAngle)
         local remoteDist = 135 -- 未ロード仮想空間
@@ -416,10 +428,18 @@ local function cmdForceZombieSpawn(player, args)
             if ok then
                 success = true
                 if zombies and zombies.size then
+                    local sChance = cfg.getHordeSprinterChance and cfg.getHordeSprinterChance() or 0
                     for zIdx = 0, zombies:size() - 1 do
                         local z = zombies:get(zIdx)
-                        if z and z.pathToLocationF then
-                            pcall(function() z:pathToLocationF(lzX, lzY, cand.z) end)
+                        if z then
+                            if sChance > 0 and (ZombRand(1000) / 1000.0) < sChance then
+                                if z.changeSpeed then pcall(function() z:changeSpeed(1) end) end
+                                local md = z:getModData()
+                                if md then md.bRadioTraderSprinter = true end
+                            end
+                            if z.pathToLocationF then
+                                pcall(function() z:pathToLocationF(lzX, lzY, cand.z) end)
+                            end
                         end
                     end
                 end

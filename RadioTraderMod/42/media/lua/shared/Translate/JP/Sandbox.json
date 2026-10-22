@@ -43,5 +43,17 @@
     "Sandbox_RT_HeliHordeRemoteRatioValue_option4": "遠隔多め (遠隔 75%% / 近接 25%%)",
     "Sandbox_RT_HeliHordeRemoteRatioValue_option5": "遠隔のみ (遠隔 100%% / 近接 0%%)",
     "Sandbox_RT_DroneDeliveryCost": "ステルスドローン配送基本料金 (CR)",
-    "Sandbox_RT_DroneDeliveryCost_tooltip": "無音ステルスドローンによる物資投下（ホード生成なし・音響波無効化）を利用する際の発注追加料金です。(標準: 200 CR)"
+    "Sandbox_RT_DroneDeliveryCost_tooltip": "無音ステルスドローンによる物資投下（ホード生成なし・音響波無効化）を利用する際の発注追加料金です。(標準: 200 CR)",
+    "Sandbox_RT_HeliHordeSprinterChance": "ヘリホード走るゾンビ(スプリンター)確率",
+    "Sandbox_RT_HeliHordeSprinterChance_tooltip": "ヘリ追従ホードの中に混ざる走る特殊ゾンビ（スプリンター）の確率です。バニラが歩きゾンビ環境であっても、ヘリイベント限定で走るゾンビが突撃してくるようになります。(標準: なし 0%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option1": "なし (0%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option2": "微量 (5%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option3": "スリル (10%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option4": "凶悪 (20%%)",
+    "Sandbox_RT_HeliHordeSprinterChanceValue_option5": "悪夢 (50%%)",
+    "Sandbox_RT_RequireFlyerToUnlock": "チラシ読了による周波数アンロック必須化",
+    "Sandbox_RT_RequireFlyerToUnlock_tooltip": "有効にすると、ゾンビの所持品や採集で手に入る手書きメモ『スカベンジャー募集！』を読んで周波数を特定するまで、無線機右クリックメニューが完全非表示になります。無効にすると最初から交易メニューが利用可能になります。(標準: 有効)",
+    "Sandbox_RT_FlyerMinSurvivedDays": "チラシ出現最小生存日数",
+    "Sandbox_RT_FlyerMinSurvivedDays_tooltip": "スカベンジャー募集チラシがゾンビドロップおよび採集から出現し始めるまでの最小生存日数です。0に設定すると初日から出現します。(標準: 5日)"
 }
+

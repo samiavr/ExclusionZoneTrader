@@ -116,3 +116,32 @@ option DroneDeliveryCost
     translation = RT_DroneDeliveryCost,
 }
 
+option HeliHordeSprinterChance
+{
+    type = enum,
+    numValues = 5,
+    default = 1,
+    page = RadioTrader,
+    translation = RT_HeliHordeSprinterChance,
+    valueTranslation = RT_HeliHordeSprinterChanceValue,
+}
+
+option RequireFlyerToUnlock
+{
+    type = boolean,
+    default = true,
+    page = RadioTrader,
+    translation = RT_RequireFlyerToUnlock,
+}
+
+option FlyerMinSurvivedDays
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 5,
+    page = RadioTrader,
+    translation = RT_FlyerMinSurvivedDays,
+}
+
+

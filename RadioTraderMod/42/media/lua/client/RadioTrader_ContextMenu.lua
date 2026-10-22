@@ -160,8 +160,29 @@ end
 -- LZ 登録済みかチェック
 -- ---------------------------------------------------------------------------
 local function hasLZ(player)
+    player = player or getSpecificPlayer(0)
     local md = getLocalMD(player)
-    return md[RadioTrader_Config.KEY_LZ_X] ~= nil
+    if md and md[RadioTrader_Config.KEY_LZ_X] ~= nil then
+        return true
+    end
+
+    -- 新キャラ作成時など、LocalModData が空でも GlobalModData に登録があれば自動同期
+    local cfg = RadioTrader_Config
+    local uname = cfg and cfg.getPlayerKey and cfg.getPlayerKey(player) or "singleplayer"
+    local gmdKey = "RadioTrader_" .. uname
+    if ModData and ModData.exists and ModData.exists(gmdKey) then
+        local gmd = ModData.get(gmdKey)
+        if gmd and gmd[RadioTrader_Config.KEY_LZ_X] ~= nil then
+            if md then
+                md[RadioTrader_Config.KEY_LZ_X] = gmd[RadioTrader_Config.KEY_LZ_X]
+                md[RadioTrader_Config.KEY_LZ_Y] = gmd[RadioTrader_Config.KEY_LZ_Y]
+                md[RadioTrader_Config.KEY_LZ_Z] = gmd[RadioTrader_Config.KEY_LZ_Z]
+            end
+            return true
+        end
+    end
+
+    return false
 end
 
 -- ---------------------------------------------------------------------------
@@ -170,8 +191,8 @@ end
 local function getDeliveryState(player)
     player = player or getSpecificPlayer(0)
     if player then
-        local uname = player.getUsername and player:getUsername()
-        if not uname or uname == "" then uname = "singleplayer" end
+        local cfg = RadioTrader_Config
+        local uname = cfg and cfg.getPlayerKey and cfg.getPlayerKey(player) or "singleplayer"
         local timerKey = "RadioTrader_Timer_" .. uname
         if ModData and ModData.exists and ModData.exists(timerKey) then
             local tdata = ModData.get(timerKey)
@@ -272,6 +293,14 @@ local function onFillWorldObjectContextMenu(playerNum, context, worldObjects, te
 
     local player = getSpecificPlayer(playerNum)
     if not player then return end
+
+    -- チラシ読了によるアンロックチェック（未アンロック時は一切メニューを表示しない）
+    local cfg = RadioTrader_Config
+    if cfg and cfg.isFlyerRequired and cfg.isFlyerRequired() then
+        if RadioTrader_UnlockFlyer and not RadioTrader_UnlockFlyer.isUnlocked(player) then
+            return -- チラシを読んで周波数を特定するまで完全非表示
+        end
+    end
 
     -- ターゲットオブジェクトを分類
     local containers = {}

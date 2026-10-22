@@ -77,14 +77,25 @@ local function getNaturalScore(sq, players, minPlayerDist)
     return score
 end
 
-local function spawnZombiesBatch(cell, sq, lzX, lzY, lzZ, batch)
+local function makeSprinter(zObj)
+    if not zObj then return end
+    if zObj.changeSpeed then
+        pcall(function() zObj:changeSpeed(1) end) -- 1 = Sprinter (走るゾンビ)
+    end
+    local md = zObj:getModData()
+    if md then md.bRadioTraderSprinter = true end
+end
+
+local function spawnZombiesBatch(cell, sq, lzX, lzY, lzZ, batch, isSprinter)
     local x = sq:getX()
     local y = sq:getY()
     local z = sq:getZ()
     local success = false
     batch = batch or 1
 
-    if createHordeFromTo then
+    -- スプリンター指定時は Java createHordeFromTo（バニラ伝承速度）をバイパスし、
+    -- addZombiesInOutfit で直接実体生成して changeSpeed(1) を確実に適用する
+    if not isSprinter and createHordeFromTo then
         local ok = pcall(createHordeFromTo, x, y, lzX, lzY, batch)
         if ok then success = true end
     end
@@ -92,10 +103,19 @@ local function spawnZombiesBatch(cell, sq, lzX, lzY, lzZ, batch)
         local ok, zombies = pcall(addZombiesInOutfit, x, y, z, batch, nil, nil)
         if ok and zombies and zombies:size() > 0 then
             success = true
+            local cfg = RadioTrader_Config
+            local fallbackSprinterChance = (cfg and cfg.getHordeSprinterChance) and cfg.getHordeSprinterChance() or 0
             for zIdx = 0, zombies:size() - 1 do
                 local zObj = zombies:get(zIdx)
-                if zObj and zObj.pathToLocationF then
-                    pcall(function() zObj:pathToLocationF(lzX, lzY, lzZ) end)
+                if zObj then
+                    if isSprinter then
+                        makeSprinter(zObj)
+                    elseif fallbackSprinterChance > 0 and (ZombRand(1000) / 1000.0) < fallbackSprinterChance then
+                        makeSprinter(zObj)
+                    end
+                    if zObj.pathToLocationF then
+                        pcall(function() zObj:pathToLocationF(lzX, lzY, lzZ) end)
+                    end
                 end
             end
         end
@@ -111,6 +131,7 @@ local function trySpawnFromLoadedArea(entry, maxAttempts)
     local lzY    = entry.lzY
     local lzZ    = entry.lzZ
     local count  = entry.count
+    local isSprinter = (entry.isSprinter == true)
     local appAngle = entry.approachAngle
     local spread   = entry.spreadAngle or 30  -- デフォルト +/-30度 (合計60度のシャープな進入回廊)
     maxAttempts  = maxAttempts or (count * 10)
@@ -152,7 +173,7 @@ local function trySpawnFromLoadedArea(entry, maxAttempts)
 
         if foundValid and sq then
             local batch = math.min(ZombRand(2, 6), count - spawned)
-            local numSpawned = spawnZombiesBatch(cell, sq, lzX, lzY, lzZ, batch)
+            local numSpawned = spawnZombiesBatch(cell, sq, lzX, lzY, lzZ, batch, isSprinter)
             spawned = spawned + numSpawned
         end
     end
@@ -188,12 +209,13 @@ function RadioTrader_ZombieSpawnQueue.processQueue(maxAttemptsOverride)
     if totalLeft > 0 then log(totalLeft .. " zombie(s) still queued.") end
 end
 
-function RadioTrader_ZombieSpawnQueue.enqueue(lzX, lzY, lzZ, count, approachAngle, spreadAngle, minRadius, maxRadius)
+function RadioTrader_ZombieSpawnQueue.enqueue(lzX, lzY, lzZ, count, approachAngle, spreadAngle, minRadius, maxRadius, isSprinter)
     if count <= 0 then return end
     spreadAngle = spreadAngle or 30
     local immediateEntry = {
         lzX = lzX, lzY = lzY, lzZ = lzZ,
         count = count,
+        isSprinter = (isSprinter == true),
         approachAngle = approachAngle,
         spreadAngle = spreadAngle,
         minRadius = minRadius,
@@ -203,20 +225,20 @@ function RadioTrader_ZombieSpawnQueue.enqueue(lzX, lzY, lzZ, count, approachAngl
     local spawned = trySpawnFromLoadedArea(immediateEntry, attempts)
     local leftover = count - spawned
     if leftover <= 0 then
-        log(("All %d zombies spawned immediately for LZ (%d,%d,%d) (Cone: %s +/- %d deg, R: %s-%s). No queue needed."):format(
-            count, lzX, lzY, lzZ, tostring(approachAngle), spreadAngle, tostring(minRadius), tostring(maxRadius)))
+        log(("All %d %szombies spawned immediately for LZ (%d,%d,%d) (Cone: %s +/- %d deg, R: %s-%s). No queue needed."):format(
+            count, isSprinter and "[Sprinters] " or "", lzX, lzY, lzZ, tostring(approachAngle), spreadAngle, tostring(minRadius), tostring(maxRadius)))
         return
     end
 
     local penalizedCount = math.ceil(leftover * DELAY_PENALTY_MULTIPLIER)
-    log(("Immediate spawn missed %d zombies. Applying penalty (x%.1f) -> %d queued (Cone: %s +/- %d deg)"):format(
-        leftover, DELAY_PENALTY_MULTIPLIER, penalizedCount, tostring(approachAngle), spreadAngle))
+    log(("Immediate spawn missed %d zombies. Applying penalty (x%.1f) -> %d queued (Cone: %s +/- %d deg, Sprinter=%s)"):format(
+        leftover, DELAY_PENALTY_MULTIPLIER, penalizedCount, tostring(approachAngle), spreadAngle, tostring(isSprinter)))
     
     local now = getCurrentGameHour()
     local gmd = getQueue()
 
     for _, entry in ipairs(gmd.entries) do
-        if entry.lzX == lzX and entry.lzY == lzY and entry.lzZ == lzZ then
+        if entry.lzX == lzX and entry.lzY == lzY and entry.lzZ == lzZ and (entry.isSprinter == isSprinter) then
             entry.count = entry.count + penalizedCount
             entry.expireHour = now + SPAWN_EXPIRE_HOURS
             entry.approachAngle = approachAngle or entry.approachAngle
@@ -230,6 +252,7 @@ function RadioTrader_ZombieSpawnQueue.enqueue(lzX, lzY, lzZ, count, approachAngl
     table.insert(gmd.entries, {
         lzX = lzX, lzY = lzY, lzZ = lzZ,
         count = penalizedCount,
+        isSprinter = (isSprinter == true),
         expireHour = now + SPAWN_EXPIRE_HOURS,
         approachAngle = approachAngle,
         spreadAngle = spreadAngle,

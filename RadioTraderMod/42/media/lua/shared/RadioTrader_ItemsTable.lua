@@ -85,6 +85,22 @@ RadioTrader_FreshHerbs = {
 }
 
 -- ---------------------------------------------------------------------------
+-- 冷凍精肉・鮮魚アソート用テーブル（クーラーボックス充填用・完全凍結配送）
+-- ---------------------------------------------------------------------------
+RadioTrader_ButcherMeats = {
+    "Base.Steak",
+    "Base.Chicken",
+    "Base.PorkChop",
+    "Base.MuttonChop",
+    "Base.Venison",
+    "Base.Rabbitmeat",
+    "Base.FishFillet",
+    "Base.Salmon",
+    "Base.Bacon",
+    "Base.MeatPatty",
+}
+
+-- ---------------------------------------------------------------------------
 -- 焼きたてベーカリースイーツ（不用品回収依頼時の30%差し入れ用テーブル）
 -- ---------------------------------------------------------------------------
 RadioTrader_BakerySweets = {
@@ -303,6 +319,16 @@ RadioTrader_CrateDefinitions = {
         maxItems = 8,
     },
 
+    RadioTrader_Crate_Butcher = {
+        id = "RadioTrader_Crate_Butcher",
+        name = "Frozen Meat & Seafood Cooler",
+        price = 950,
+        container = "Base.Cooler_Meat",
+        isButcherBag = true,
+        minItems = 2,
+        maxItems = 3,
+    },
+
     RadioTrader_Crate_Medical = {
         id = "RadioTrader_Crate_Medical",
         name = "Medical Aid Duffel Bag",
@@ -326,7 +352,9 @@ RadioTrader_CrateDefinitions = {
         container = "Base.Bag_DuffelBag",
         minItems = 3,
         maxItems = 8,
+        isWeaponsBag = true,
         distributionLists = {
+            "ArmyStorageGuns",
             "ArmyStorageAmmunition",
             "ArmySurplusAmmoBoxes",
             "GunStoreAmmunition",
@@ -335,6 +363,38 @@ RadioTrader_CrateDefinitions = {
             "GunStoreShotguns",
             "GunStoreRifles",
             "PoliceStorageGuns",
+        },
+        customItems = {
+            "Base.Pistol",
+            "Base.Pistol2",
+            "Base.Pistol3",
+            "Base.Revolver",
+            "Base.Revolver_Long",
+            "Base.Revolver_Short",
+            "Base.Shotgun",
+            "Base.ShotgunSawnoff",
+            "Base.DoubleBarrelShotgun",
+            "Base.DoubleBarrelShotgunSawnoff",
+            "Base.AssaultRifle",
+            "Base.AssaultRifle2",
+            "Base.HuntingRifle",
+            "Base.L94_Rifle",
+            "Base.L92_Carbine",
+            "Base.Bullets9mmBox",
+            "Base.Bullets45Box",
+            "Base.Bullets44Box",
+            "Base.Bullets38Box",
+            "Base.Bullets357Box",
+            "Base.3030Box",
+            "Base.ShotgunShellsBox",
+            "Base.308Box",
+            "Base.556Box",
+            "Base.9mmClip",
+            "Base.45Clip",
+            "Base.44Clip",
+            "Base.308Clip",
+            "Base.M14Clip",
+            "Base.556Clip",
         },
     },
 
@@ -413,6 +473,115 @@ RadioTrader_CrateDefinitions = {
             "GunStoreLiterature",
             "BookstoreHobbies",
             "BookstoreCrafts",
+        },
+    },
+
+    RadioTrader_Crate_Recipes = {
+        id = "RadioTrader_Crate_Recipes",
+        name = "DIY & Crafting Recipes Duffel Bag",
+        price = 700,
+        container = "Base.Bag_DuffelBag",
+        minItems = 4,
+        maxItems = 8,
+        customItems = {
+            -- 電子工学・発電機・無線
+            "Base.ElectronicsMag1",
+            "Base.ElectronicsMag2",
+            "Base.ElectronicsMag3",
+            "Base.ElectronicsMag4", -- 発電機の使い方 (How to Use Generators)
+            "Base.ElectronicsMag5",
+            "Base.EngineerMagazine1",
+            "Base.EngineerMagazine2",
+            "Base.EngineerMagazine3",
+            "Base.RadioMag1",
+            "Base.RadioMag2",
+            "Base.RadioMag3",
+            -- 車両整備マニュアル
+            "Base.MechanicMag1",
+            "Base.MechanicMag2",
+            "Base.MechanicMag3",
+            -- 金属加工
+            "Base.MetalworkMag1",
+            "Base.MetalworkMag2",
+            "Base.MetalworkMag3",
+            "Base.MetalworkMag4",
+            -- 狩猟・罠猟・釣り
+            "Base.HuntingMag1",
+            "Base.HuntingMag2",
+            "Base.HuntingMag3",
+            "Base.HuntingMag4",
+            "Base.FishingMag1",
+            "Base.FishingMag2",
+            -- 医療・薬草
+            "Base.HerbalistMag",
+            -- 料理・食品加工
+            "Base.CookingMag1",
+            "Base.CookingMag2",
+            "Base.CookingMag3",
+            "Base.CookingMag4",
+            "Base.CookingMag5",
+            "Base.CookingMag6",
+            -- 農業
+            "Base.FarmingMag1",
+            "Base.FarmingMag2",
+            "Base.FarmingMag3",
+            "Base.FarmingMag4",
+            "Base.FarmingMag5",
+            "Base.FarmingMag6",
+            "Base.FarmingMag7",
+            "Base.FarmingMag8",
+            "Base.FarmingMag9",
+            -- 鍛冶・鍛造 (Build 42 新工芸)
+            "Base.SmithingMag1",
+            "Base.SmithingMag2",
+            "Base.SmithingMag3",
+            "Base.SmithingMag4",
+            "Base.SmithingMag5",
+            "Base.SmithingMag6",
+            "Base.SmithingMag7",
+            "Base.SmithingMag8",
+            "Base.SmithingMag9",
+            "Base.SmithingMag10",
+            "Base.SmithingMag11",
+            -- 防具製作 (Build 42 新工芸)
+            "Base.ArmorMag1",
+            "Base.ArmorMag2",
+            "Base.ArmorMag3",
+            "Base.ArmorMag4",
+            "Base.ArmorMag5",
+            "Base.ArmorMag6",
+            "Base.ArmorMag7",
+            "Base.ArmorSchematic",
+            -- 武器改造・原始工具
+            "Base.WeaponMag1",
+            "Base.WeaponMag2",
+            "Base.WeaponMag3",
+            "Base.WeaponMag4",
+            "Base.WeaponMag5",
+            "Base.WeaponMag6",
+            "Base.WeaponMag7",
+            "Base.PrimitiveToolMag1",
+            "Base.PrimitiveToolMag2",
+            "Base.PrimitiveToolMag3",
+            -- 裁縫・編み物
+            "Base.TailoringMag1",
+            "Base.TailoringMag2",
+            "Base.TailoringMag3",
+            "Base.TailoringMag4",
+            "Base.TailoringMag5",
+            "Base.TailoringMag6",
+            "Base.TailoringMag7",
+            "Base.TailoringMag8",
+            "Base.TailoringMag9",
+            "Base.TailoringMag10",
+            "Base.KnittingMag1",
+            "Base.KnittingMag2",
+            -- ガラス工芸・麻・合鍵
+            "Base.GlassmakingMag1",
+            "Base.GlassmakingMag2",
+            "Base.GlassmakingMag3",
+            "Base.HempMag1",
+            "Base.KeyMag1",
         },
     },
 
@@ -572,12 +741,7 @@ function RadioTrader_ItemsTable_RollProceduralItem(distName)
     if totalWeight <= 0 then return nil end
 
     -- 2. 乱数でアイテム選定
-    local roll = 0
-    if ZombRandFloat then
-        roll = ZombRandFloat(0, totalWeight)
-    else
-        roll = math.random() * totalWeight
-    end
+    local roll = (ZombRand and (ZombRand(math.floor(totalWeight * 100)) / 100.0)) or (math.random() * totalWeight)
 
     local current = 0
     for i = 2, #items, 2 do
@@ -619,12 +783,7 @@ function RadioTrader_ItemsTable_RollProceduralItemWithWeight(distName)
     end
     if totalWeight <= 0 then return nil, 0 end
 
-    local roll = 0
-    if ZombRandFloat then
-        roll = ZombRandFloat(0, totalWeight)
-    else
-        roll = math.random() * totalWeight
-    end
+    local roll = (ZombRand and (ZombRand(math.floor(totalWeight * 100)) / 100.0)) or (math.random() * totalWeight)
 
     local current = 0
     for i = 2, #items, 2 do
@@ -849,6 +1008,214 @@ function RadioTrader_ItemsTable_RollDailyShop()
 end
 
 -- ---------------------------------------------------------------------------
+-- サブコンテナアイテム（弾薬箱・各種ケース・救急箱等）の自動充填処理
+-- ---------------------------------------------------------------------------
+-- ダッフルバッグ等の内部にコンテナ型アイテム（Base.Bag_AmmoBox 等）がスポーンした際、
+-- バニラ Distributions または専用プールから中身を充填して空箱化を防止する。
+function RadioTrader_ItemsTable_FillContainerItem(item)
+    if not item then return 0 end
+    local innerContainer = nil
+    if item.getItemContainer then
+        innerContainer = item:getItemContainer()
+    end
+    if not innerContainer then return 0 end
+
+    -- すでにアイテムが入っている場合は二重充填を防止
+    local currentItems = innerContainer:getItems()
+    if currentItems and currentItems:size() > 0 then return 0 end
+
+    local itemType = (item.getType and item:getType()) or ""
+    local shortType = itemType
+    if string.find(shortType, "%.") then
+        shortType = string.gsub(shortType, "^.*%.", "")
+    end
+
+    local addedCount = 0
+
+    local function addSubItem(subId)
+        if not subId then return false end
+        if not string.find(subId, "%.") then
+            subId = "Base." .. subId
+        end
+        local script = getItem(subId)
+        if script then
+            local spawned = instanceItem(subId)
+            if spawned then
+                innerContainer:AddItem(spawned)
+                addedCount = addedCount + 1
+                return true
+            end
+        end
+        return false
+    end
+
+    -- 1. バニラ Distributions テーブルの参照（最優先）
+    local dist = nil
+    if Distributions then
+        dist = Distributions[shortType] or Distributions[itemType]
+    end
+
+    if dist and dist.items and #dist.items >= 2 then
+        local rolls = dist.rolls or 3
+        local dItems = dist.items
+        local totalW = 0
+        for i = 2, #dItems, 2 do
+            local w = dItems[i]
+            if type(w) == "number" and w > 0 then
+                totalW = totalW + w
+            end
+        end
+
+        if totalW > 0 then
+            for r = 1, rolls do
+                local rollVal = (ZombRand and (ZombRand(math.floor(totalW * 100)) / 100.0)) or (math.random() * totalW)
+                local curW = 0
+                for i = 2, #dItems, 2 do
+                    local w = dItems[i]
+                    if type(w) == "number" and w > 0 then
+                        curW = curW + w
+                        if rollVal <= curW then
+                            local chosenId = dItems[i - 1]
+                            if chosenId then
+                                addSubItem(chosenId)
+                            end
+                            break
+                        end
+                    end
+                end
+            end
+            if addedCount > 0 then
+                return addedCount
+            end
+        end
+    end
+
+    -- 2. 専用フォールバック（Distributions が未定義または引けなかった場合）
+    -- 弾薬缶・弾薬ケース系（Bag_AmmoBox, Bag_ProtectiveCaseBulkyAmmo 等）
+    if string.find(shortType, "AmmoBox") or string.find(shortType, "BulkyAmmo") then
+        local ammoPool = {
+            "Base.556Box",
+            "Base.308Box",
+            "Base.Bullets9mmBox",
+            "Base.ShotgunShellsBox",
+            "Base.Bullets45Box",
+            "Base.Bullets44Box",
+            "Base.Bullets38Box",
+            "Base.3030Box",
+        }
+
+        -- 口径特化判定
+        if string.find(shortType, "308") then
+            ammoPool = { "Base.308Box" }
+        elseif string.find(shortType, "9mm") then
+            ammoPool = { "Base.Bullets9mmBox" }
+        elseif string.find(shortType, "Shotgun") then
+            ammoPool = { "Base.ShotgunShellsBox" }
+        elseif string.find(shortType, "45") then
+            ammoPool = { "Base.Bullets45Box" }
+        elseif string.find(shortType, "44") then
+            ammoPool = { "Base.Bullets44Box" }
+        elseif string.find(shortType, "38") then
+            ammoPool = { "Base.Bullets38Box" }
+        elseif string.find(shortType, "Hunting") then
+            ammoPool = { "Base.3030Box", "Base.308Box", "Base.556Box", "Base.ShotgunShellsBox" }
+        elseif shortType == "Bag_AmmoBox" or string.find(shortType, "556") then
+            ammoPool = { "Base.556Box" }
+        end
+
+        local rollCount = (ZombRand and ZombRand(2, 5)) or math.random(2, 4) -- 2〜4箱
+        for i = 1, rollCount do
+            local idx = (ZombRand and (ZombRand(#ammoPool) + 1)) or math.random(1, #ammoPool)
+            addSubItem(ammoPool[idx])
+        end
+        return addedCount
+    end
+
+    -- 救急箱系（FirstAidKit 等）
+    if string.find(shortType, "FirstAid") or string.find(shortType, "Medical") then
+        local medPool = {
+            "Base.Bandage",
+            "Base.Disinfectant",
+            "Base.AlcoholWipes",
+            "Base.PillsPainkiller",
+            "Base.PillsAntibiotics",
+            "Base.SutureNeedle",
+            "Base.Tweezers",
+        }
+        local rollCount = (ZombRand and ZombRand(2, 5)) or math.random(2, 4)
+        for i = 1, rollCount do
+            local idx = (ZombRand and (ZombRand(#medPool) + 1)) or math.random(1, #medPool)
+            addSubItem(medPool[idx])
+        end
+        return addedCount
+    end
+
+    -- 工具箱系（Toolbox, Tools）
+    if string.find(shortType, "Toolbox") or string.find(shortType, "Tools") then
+        local toolPool = {
+            "Base.Hammer",
+            "Base.Screwdriver",
+            "Base.Wrench",
+            "Base.NailsBox",
+            "Base.ScrewsBox",
+        }
+        local rollCount = (ZombRand and ZombRand(2, 4)) or math.random(2, 3)
+        for i = 1, rollCount do
+            local idx = (ZombRand and (ZombRand(#toolPool) + 1)) or math.random(1, #toolPool)
+            addSubItem(toolPool[idx])
+        end
+        return addedCount
+    end
+
+    -- ガンケース系（PistolCase, RevolverCase, ShotgunCase, RifleCase, GunCase 等）
+    if string.find(shortType, "PistolCase") then
+        local sets = {
+            { gun = "Base.Pistol",  ammo = "Base.Bullets9mmBox", mag = "Base.9mmClip" },
+            { gun = "Base.Pistol2", ammo = "Base.Bullets45Box",  mag = "Base.45Clip" },
+            { gun = "Base.Pistol3", ammo = "Base.Bullets44Box",  mag = "Base.44Clip" },
+        }
+        local s = sets[(ZombRand and (ZombRand(#sets) + 1)) or math.random(1, #sets)]
+        addSubItem(s.gun)
+        addSubItem(s.ammo)
+        addSubItem(s.mag)
+        return addedCount
+    elseif string.find(shortType, "RevolverCase") then
+        local sets = {
+            { gun = "Base.Revolver",       ammo = "Base.Bullets38Box" },
+            { gun = "Base.Revolver_Short", ammo = "Base.Bullets38Box" },
+            { gun = "Base.Revolver_Long",  ammo = "Base.Bullets44Box" },
+        }
+        local s = sets[(ZombRand and (ZombRand(#sets) + 1)) or math.random(1, #sets)]
+        addSubItem(s.gun)
+        addSubItem(s.ammo)
+        return addedCount
+    elseif string.find(shortType, "ShotgunCase") then
+        local guns = { "Base.Shotgun", "Base.DoubleBarrelShotgun", "Base.ShotgunSawnoff", "Base.DoubleBarrelShotgunSawnoff" }
+        local g = guns[(ZombRand and (ZombRand(#guns) + 1)) or math.random(1, #guns)]
+        addSubItem(g)
+        addSubItem("Base.ShotgunShellsBox")
+        return addedCount
+    elseif string.find(shortType, "RifleCase") or string.find(shortType, "GunCase") then
+        local sets = {
+            { gun = "Base.AssaultRifle",  ammo = "Base.556Box",       mag = "Base.556Clip" },
+            { gun = "Base.AssaultRifle2", ammo = "Base.308Box",       mag = "Base.M14Clip" },
+            { gun = "Base.HuntingRifle",  ammo = "Base.308Box",       mag = "Base.308Clip" },
+            { gun = "Base.L94_Rifle",     ammo = "Base.3030Box",      mag = nil },
+            { gun = "Base.L92_Carbine",   ammo = "Base.Bullets357Box", mag = nil },
+        }
+        local s = sets[(ZombRand and (ZombRand(#sets) + 1)) or math.random(1, #sets)]
+        addSubItem(s.gun)
+        addSubItem(s.ammo)
+        if s.mag then
+            addSubItem(s.mag)
+        end
+        return addedCount
+    end
+
+    return addedCount
+end
+
+-- ---------------------------------------------------------------------------
 -- トレーダーのごみ袋充填処理 (長期生存支援物資・放出品)
 -- ---------------------------------------------------------------------------
 -- 1〜7のカテゴリから重複しない2つのカテゴリを重み付け抽選し、各2〜4個充填。
@@ -868,6 +1235,7 @@ function RadioTrader_ItemsTable_FillTrashBag(bagContainer)
             for i = 1, (count or 1) do
                 local itm = instanceItem(fullType)
                 if itm then
+                    RadioTrader_ItemsTable_FillContainerItem(itm)
                     bagContainer:AddItem(itm)
                     addedCount = addedCount + 1
                 end
@@ -891,7 +1259,7 @@ function RadioTrader_ItemsTable_FillTrashBag(bagContainer)
     -- 1. プレッパー超大当たり判定 (5 / 115 ≒ 約4.3% の激レア確率)
     -- =========================================================================
     local totalWeight = 115
-    local roll = (ZombRandFloat and ZombRandFloat(0, totalWeight)) or (math.random() * totalWeight)
+    local roll = (ZombRand and ZombRand(totalWeight)) or math.random(0, totalWeight - 1)
     if roll < 5 then
         local subRoll = (ZombRand and ZombRand(3)) or math.random(0, 2)
         if subRoll == 0 then
@@ -950,12 +1318,59 @@ function RadioTrader_ItemsTable_FillTrashBag(bagContainer)
     -- 2. 通常当選時：1〜6のカテゴリから重複しない2つを重み付け抽選
     -- =========================================================================
     local categories = {
-        { id = "Farming",     weight = 15, dists = { "CrateFarming", "CrateGardening", "CrateFertilizer" }, items = { "Base.Fertilizer", "Base.WateredCan", "Base.HandShovel" } },
-        { id = "Livestock",   weight = 10, dists = { "CrateAnimalFeed" }, items = { "Base.AnimalFeedBag", "Base.Rope" } },
-        { id = "Electronics", weight = 15, dists = { "CrateElectronics", "CrateBatteries" }, items = { "Base.ElectronicsScrap", "Base.ElectricWire", "Base.Battery" } },
-        { id = "Nails",       weight = 15, dists = { "ToolStoreCarpentry", "CarpenterTools", "ConstructionWorkerTools" }, items = { "Base.NailsBox", "Base.ScrewsBox", "Base.Doorknob", "Base.Hinge", "Base.BarbedWire" } },
-        { id = "Hygiene",     weight = 20, dists = { "CrateLinens", "CrateToiletPaper", "CrateSalonSupplies" }, items = { "Base.Soap2", "Base.Bleach", "Base.BathTowel", "Base.ToiletPaper" } },
-        { id = "Vice",        weight = 35, dists = { "CrateCigarettes", "CrateBeer", "CrateLiquor", "CrateWine", "CrateCoffee", "CrateChocolate" }, items = { "Base.CigarettePack", "Base.CigaretteCarton", "Base.Lighter", "Base.Matches", "Base.Whiskey", "Base.BeerCan" } },
+        {
+            id = "Farming",
+            weight = 15,
+            dists = { "CrateFarming", "CrateGardening", "CrateFertilizer" },
+            items = {
+                "Base.Fertilizer", "Base.WateredCan", "Base.HandShovel",
+                "Base.CarrotBagSeed", "Base.PotatoBagSeed", "Base.TomatoBagSeed", "Base.CabbageBagSeed",
+            }
+        },
+        {
+            id = "Livestock",
+            weight = 10,
+            dists = { "CrateAnimalFeed" },
+            items = {
+                "Base.AnimalFeedBag", "Base.Rope", "Base.BucketEmpty", "Base.Shears",
+            }
+        },
+        {
+            id = "Electronics",
+            weight = 15,
+            dists = { "CrateElectronics", "CrateBatteries" },
+            items = {
+                "Base.ElectronicsScrap", "Base.ElectricWire", "Base.Battery",
+                "Base.Amplifier", "Base.Aluminum",
+            }
+        },
+        {
+            id = "Nails",
+            weight = 15,
+            dists = { "ToolStoreCarpentry", "CarpenterTools", "ConstructionWorkerTools" },
+            items = {
+                "Base.NailsBox", "Base.ScrewsBox", "Base.Doorknob", "Base.Hinge", "Base.BarbedWire",
+                "Base.Woodglue", "Base.DuctTape",
+            }
+        },
+        {
+            id = "Hygiene",
+            weight = 20,
+            dists = { "CrateLinens", "CrateToiletPaper", "CrateSalonSupplies" },
+            items = {
+                "Base.Soap2", "Base.Bleach", "Base.BathTowel", "Base.ToiletPaper",
+                "Base.Toothbrush", "Base.Toothpaste", "Base.Tissue",
+            }
+        },
+        {
+            id = "Vice",
+            weight = 35,
+            dists = { "CrateCigarettes", "CrateBeer", "CrateLiquor", "CrateWine", "CrateCoffee", "CrateChocolate" },
+            items = {
+                "Base.CigarettePack", "Base.CigaretteCarton", "Base.Lighter", "Base.Matches",
+                "Base.Whiskey", "Base.BeerCan", "Base.Wine", "Base.Coffee2",
+            }
+        },
     }
 
     local function pickCategory(excludeIdx)
@@ -965,12 +1380,14 @@ function RadioTrader_ItemsTable_FillTrashBag(bagContainer)
                 normalWeight = normalWeight + c.weight
             end
         end
-        local cRoll = (ZombRandFloat and ZombRandFloat(0, normalWeight)) or (math.random() * normalWeight)
+        if normalWeight <= 0 then return 1, categories[1] end
+
+        local cRoll = (ZombRand and ZombRand(normalWeight)) or math.random(0, normalWeight - 1)
         local cur = 0
         for i, c in ipairs(categories) do
             if i ~= excludeIdx then
                 cur = cur + c.weight
-                if cRoll <= cur then
+                if cRoll < cur then
                     return i, c
                 end
             end
@@ -992,7 +1409,10 @@ function RadioTrader_ItemsTable_FillTrashBag(bagContainer)
             elseif #cat.dists > 0 then
                 local dIdx = (ZombRand and (ZombRand(#cat.dists) + 1)) or math.random(1, #cat.dists)
                 itemId = RadioTrader_ItemsTable_RollProceduralItem(cat.dists[dIdx])
-            elseif #cat.items > 0 then
+            end
+
+            -- バニラルートテーブルから引けなかった場合は直指定プールにフォールバック
+            if not itemId and #cat.items > 0 then
                 local pIdx = (ZombRand and (ZombRand(#cat.items) + 1)) or math.random(1, #cat.items)
                 itemId = cat.items[pIdx]
             end
@@ -1064,6 +1484,41 @@ function RadioTrader_ItemsTable_FillProduceBag(bagContainer)
 end
 
 -- ---------------------------------------------------------------------------
+-- 冷凍精肉・鮮魚アソート充填処理（クーラーボックス充填用）
+-- ---------------------------------------------------------------------------
+-- 牛肉、豚肉、鶏肉、羊肉、鹿肉、兎肉、魚の切り身等の生肉を2〜3個封入し、全品 freeze() で完全凍結
+function RadioTrader_ItemsTable_FillButcherBag(bagContainer, crateDef)
+    if not bagContainer then return 0 end
+    local addedCount = 0
+
+    local minItems = (crateDef and crateDef.minItems) or 2
+    local maxItems = (crateDef and crateDef.maxItems) or 3
+    local targetCount = (ZombRand and ZombRand(minItems, maxItems + 1)) or math.random(minItems, maxItems)
+    if RadioTrader_ButcherMeats and #RadioTrader_ButcherMeats > 0 then
+        for i = 1, targetCount do
+            local idx = (ZombRand and (ZombRand(#RadioTrader_ButcherMeats) + 1)) or math.random(1, #RadioTrader_ButcherMeats)
+            local fullType = RadioTrader_ButcherMeats[idx]
+            local script = getItem(fullType)
+            if script then
+                local itm = instanceItem(fullType)
+                if itm then
+                    -- 完全凍結処理（輸送中の腐敗防止）
+                    if itm.freeze then
+                        itm:freeze()
+                    elseif itm.setFreezingTime then
+                        itm:setFreezingTime(100.0)
+                    end
+                    bagContainer:AddItem(itm)
+                    addedCount = addedCount + 1
+                end
+            end
+        end
+    end
+
+    return addedCount
+end
+
+-- ---------------------------------------------------------------------------
 -- 現場クルーからの差し入れランチボックス充填処理
 -- ---------------------------------------------------------------------------
 -- メイン料理枠（寿司・ピザ・バーガー・サンド等）から1〜2個、
@@ -1102,12 +1557,246 @@ function RadioTrader_ItemsTable_FillLunchbox(lunchboxContainer)
 end
 
 -- ---------------------------------------------------------------------------
+-- 銃器スペックマッピングテーブル (銃本体 -> 対応マガジン, 対応バラ弾)
+-- ---------------------------------------------------------------------------
+RadioTrader_WeaponSpecs = {
+    -- 拳銃 (Handguns)
+    ["Base.Pistol"]                     = { mag = "Base.9mmClip",  ammo = "Base.Bullets9mm" },
+    ["Base.Pistol2"]                    = { mag = "Base.45Clip",   ammo = "Base.Bullets45" },
+    ["Base.Pistol3"]                    = { mag = "Base.44Clip",   ammo = "Base.Bullets44" },
+    ["Base.Revolver"]                   = { mag = nil,             ammo = "Base.Bullets38" },
+    ["Base.Revolver_Short"]             = { mag = nil,             ammo = "Base.Bullets38" },
+    ["Base.Revolver_Long"]              = { mag = nil,             ammo = "Base.Bullets44" },
+
+    -- ショットガン (Shotguns)
+    ["Base.Shotgun"]                    = { mag = nil,             ammo = "Base.ShotgunShells" },
+    ["Base.DoubleBarrelShotgun"]        = { mag = nil,             ammo = "Base.ShotgunShells" },
+    ["Base.ShotgunSawnoff"]             = { mag = nil,             ammo = "Base.ShotgunShells" },
+    ["Base.DoubleBarrelShotgunSawnoff"] = { mag = nil,             ammo = "Base.ShotgunShells" },
+
+    -- ライフル・アサルトライフル (Rifles & Carbines)
+    ["Base.AssaultRifle"]               = { mag = "Base.556Clip",  ammo = "Base.556Bullets" },
+    ["Base.AssaultRifle2"]              = { mag = "Base.M14Clip",  ammo = "Base.308Bullets" },
+    ["Base.HuntingRifle"]               = { mag = "Base.308Clip",  ammo = "Base.308Bullets" },
+    ["Base.VarmintRifle"]               = { mag = "Base.223Clip",  ammo = "Base.223Bullets" },
+    ["Base.L94_Rifle"]                  = { mag = nil,             ammo = "Base.3030Bullets" },
+    ["Base.L92_Carbine"]                = { mag = nil,             ammo = "Base.Bullets357" },
+}
+
+-- ---------------------------------------------------------------------------
+-- 銃器判定ヘルパー (アイテムまたはIDから対応マガジン・弾薬スペックを取得)
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_GetWeaponSpec(item, itemId)
+    if not itemId and item and item.getFullType then
+        itemId = item:getFullType()
+    end
+    if itemId and RadioTrader_WeaponSpecs[itemId] then
+        return RadioTrader_WeaponSpecs[itemId], itemId
+    end
+
+    -- 未知・MOD銃器の動的判定
+    if item and instanceof(item, "HandWeapon") and item.isRanged and item:isRanged() then
+        local magType = nil
+        local ammoType = nil
+
+        -- マガジン判定
+        if item.getMagazineType then
+            local rawMag = item:getMagazineType()
+            if rawMag then
+                if type(rawMag) == "string" then magType = rawMag
+                elseif rawMag.getItemKey then magType = rawMag:getItemKey()
+                else
+                    local s = tostring(rawMag)
+                    if s and s ~= "" and s ~= "null" and s ~= "nil" and not string.find(s, "^userdata:") then
+                        magType = s
+                    end
+                end
+            end
+        end
+
+        -- 弾丸判定
+        if item.getAmmoType then
+            local rawAmmo = item:getAmmoType()
+            if rawAmmo then
+                if type(rawAmmo) == "string" then ammoType = rawAmmo
+                elseif rawAmmo.getItemKey then ammoType = rawAmmo:getItemKey()
+                else
+                    local s = tostring(rawAmmo)
+                    if s and s ~= "" and s ~= "null" and s ~= "nil" and not string.find(s, "^userdata:") then
+                        ammoType = s
+                    end
+                end
+            end
+        end
+
+        if not ammoType then
+            ammoType = "Base.Bullets9mm"
+        end
+
+        return { mag = magType, ammo = ammoType }, itemId
+    end
+
+    return nil, itemId
+end
+
+-- ---------------------------------------------------------------------------
+-- 弾薬箱まとめ買いボーナステーブル (同一弾薬箱2箱以上購入時のおまけマガジン/バラ弾)
+-- ---------------------------------------------------------------------------
+RadioTrader_AmmoBoxBonus = {
+    -- 着脱式マガジン対応口径 (マガジン1個ボーナス)
+    ["Base.Bullets9mmBox"]   = { mag = "Base.9mmClip" },
+    ["Base.Bullets45Box"]    = { mag = "Base.45Clip" },
+    ["Base.Bullets44Box"]    = { mag = "Base.44Clip" },
+    ["Base.556Box"]          = { mag = "Base.556Clip" },
+    ["Base.308Box"]          = { mag = "Base.308Clip", altMag = "Base.M14Clip" },
+    ["Base.223Box"]          = { mag = "Base.223Clip" },
+
+    -- 内蔵弾倉・リボルバー・散弾口径 (バラ弾ボーナス)
+    ["Base.ShotgunShellsBox"]= { looseAmmo = "Base.ShotgunShells", ammoCount = 6 },
+    ["Base.Bullets38Box"]    = { looseAmmo = "Base.Bullets38",     ammoCount = 10 },
+    ["Base.Bullets357Box"]   = { looseAmmo = "Base.Bullets357",    ammoCount = 10 },
+    ["Base.3030Box"]         = { looseAmmo = "Base.3030Bullets",   ammoCount = 10 },
+}
+
+-- ---------------------------------------------------------------------------
+-- 弾薬箱ボーナス判定ヘルパー
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_GetAmmoBoxBonus(boxItemId)
+    if not boxItemId then return nil end
+    local bonus = RadioTrader_AmmoBoxBonus[boxItemId]
+    if not bonus then
+        local stripped = string.gsub(boxItemId, "^Base%.", "")
+        bonus = RadioTrader_AmmoBoxBonus["Base." .. stripped] or RadioTrader_AmmoBoxBonus[stripped]
+    end
+    return bonus
+end
+
+-- ---------------------------------------------------------------------------
+-- 銃器ダッフルバッグ充填処理 (Arms & Ammo Duffel Bag)
+-- ---------------------------------------------------------------------------
+-- 規定数（3〜8枠）に達するまでアイテムを充填。
+-- 銃本体は最大1挺まで（2挺目が抽選された場合は再抽選して弾薬等の物資に置換）。
+-- 銃本体が当選した際は「対応マガジン(1個)＋対応バラ弾(5〜20個)」をセット同梱。
+function RadioTrader_ItemsTable_FillWeaponsBag(bagContainer, crateDef)
+    if not bagContainer or not crateDef then return 0 end
+
+    local minItems = crateDef.minItems or 3
+    local maxItems = crateDef.maxItems or 8
+    local targetCount = minItems
+    if ZombRand then
+        targetCount = ZombRand(minItems, maxItems + 1)
+    else
+        targetCount = math.random(minItems, maxItems)
+    end
+
+    local lists = crateDef.distributionLists or {}
+    local customPool = crateDef.customItems or {}
+    if #lists == 0 and #customPool == 0 then return 0 end
+
+    local mainItemsCount = 0
+    local totalAddedCount = 0
+    local attempts = 0
+    local hasGun = false
+
+    while mainItemsCount < targetCount and attempts < 150 do
+        attempts = attempts + 1
+        local itemId = nil
+
+        -- customItems がある場合、約50%の確率（またはリストが空の場合）で直接プールから選出
+        local usePool = false
+        if #customPool > 0 then
+            if #lists == 0 then
+                usePool = true
+            else
+                local rollVal = ZombRand and ZombRand(100) or math.random(0, 99)
+                if rollVal < 50 then
+                    usePool = true
+                end
+            end
+        end
+
+        if usePool then
+            local cIdx = (ZombRand and (ZombRand(#customPool) + 1)) or math.random(1, #customPool)
+            itemId = customPool[cIdx]
+        else
+            local listIdx = (ZombRand and (ZombRand(#lists) + 1)) or math.random(1, #lists)
+            local distName = lists[listIdx]
+            itemId = RadioTrader_ItemsTable_RollProceduralItem(distName)
+        end
+
+        if itemId then
+            -- 既に銃を引いている場合、2挺目の銃器IDならインスタンス生成前に早期スキップ
+            local isKnownGun = (RadioTrader_WeaponSpecs[itemId] ~= nil)
+            if hasGun and isKnownGun then
+                -- 2挺目の銃器のため再抽選スキップ
+            else
+                local script = getItem(itemId)
+                if script then
+                    local spawned = instanceItem(itemId)
+                    if spawned then
+                        -- 銃器本体かどうかの判定 (HandWeapon かつ isRanged)
+                        local spec = RadioTrader_ItemsTable_GetWeaponSpec(spawned, itemId)
+                        if hasGun and spec then
+                            -- 2挺目の銃器だった場合はバッグに追加せず再抽選スキップ
+                        else
+                            RadioTrader_ItemsTable_FillContainerItem(spawned)
+                            bagContainer:AddItem(spawned)
+                            mainItemsCount = mainItemsCount + 1
+                            totalAddedCount = totalAddedCount + 1
+
+                            -- 初めて銃器を引いた場合のワンセット同梱処理
+                            if spec and not hasGun then
+                                hasGun = true
+
+                                -- 1. 対応マガジンがあれば1個生成して同梱
+                                if spec.mag then
+                                    local magScript = getItem(spec.mag)
+                                    if magScript then
+                                        local magItem = instanceItem(spec.mag)
+                                        if magItem then
+                                            bagContainer:AddItem(magItem)
+                                            totalAddedCount = totalAddedCount + 1
+                                        end
+                                    end
+                                end
+
+                                -- 2. 対応バラ弾を 5〜20個 生成して同梱
+                                if spec.ammo then
+                                    local ammoScript = getItem(spec.ammo)
+                                    if ammoScript then
+                                        local ammoCount = (ZombRand and ZombRand(5, 21)) or math.random(5, 20)
+                                        for a = 1, ammoCount do
+                                            local ammoItem = instanceItem(spec.ammo)
+                                            if ammoItem then
+                                                bagContainer:AddItem(ammoItem)
+                                                totalAddedCount = totalAddedCount + 1
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return totalAddedCount
+end
+
+-- ---------------------------------------------------------------------------
 -- ダッフルバッグにバニラルートアイテムを充填（全体乱数カウント 3〜10 に収まるまで抽選）
 -- ---------------------------------------------------------------------------
 function RadioTrader_ItemsTable_FillDuffelBag(bagItem, crateDef)
     if not bagItem or not crateDef then return 0 end
     local bagContainer = bagItem:getItemContainer()
     if not bagContainer then return 0 end
+
+    -- 銃器・弾薬・マガジンワンセットダッフルバッグの場合は専用充填処理を実行
+    if crateDef.isWeaponsBag then
+        return RadioTrader_ItemsTable_FillWeaponsBag(bagContainer, crateDef)
+    end
 
     -- ゴミ袋の場合は専用の複合・重み付け抽選処理を実行
     if crateDef.isTrashBag then
@@ -1117,6 +1806,11 @@ function RadioTrader_ItemsTable_FillDuffelBag(bagItem, crateDef)
     -- 生鮮野菜・果物・ハーブアソートバッグの場合は専用充填処理を実行
     if crateDef.isProduceBag then
         return RadioTrader_ItemsTable_FillProduceBag(bagContainer)
+    end
+
+    -- 冷凍精肉・鮮魚クーラーボックスの場合は専用充填処理を実行
+    if crateDef.isButcherBag then
+        return RadioTrader_ItemsTable_FillButcherBag(bagContainer, crateDef)
     end
 
     -- 不用品回収依頼の場合は差し入れスイーツ判定 (30%確率)
@@ -1223,6 +1917,7 @@ function RadioTrader_ItemsTable_FillDuffelBag(bagItem, crateDef)
                 -- B42: InventoryItemFactory.CreateItem は廃止。instanceItem() を使用。
                 local spawned = instanceItem(itemId)
                 if spawned then
+                    RadioTrader_ItemsTable_FillContainerItem(spawned)
                     bagContainer:AddItem(spawned)
                     addedCount = addedCount + 1
                 end
@@ -1254,6 +1949,7 @@ RadioTrader_Shop = {
         { id = "RadioTrader_Crate_Pickup",      name = "Cargo Pickup Request",          price = 100,  count = 1 },
         { id = "RadioTrader_Crate_Food",        name = "Food Supply Duffel Bag",        price = 600,  count = 1 },
         { id = "RadioTrader_Crate_Produce",     name = "Fresh Produce & Herbs Bag",     price = 850,  count = 1 },
+        { id = "RadioTrader_Crate_Butcher",     name = "Frozen Meat & Seafood Cooler",  price = 950,  count = 1 },
         { id = "RadioTrader_Crate_Medical",     name = "Medical Aid Duffel Bag",        price = 800,  count = 1 },
         { id = "RadioTrader_Crate_Weapons",     name = "Arms & Ammo Duffel Bag",        price = 1000, count = 1 },
         { id = "RadioTrader_Crate_Blades",      name = "Blades & Axes Duffel Bag",      price = 1300, count = 1 },
@@ -1265,6 +1961,7 @@ RadioTrader_Shop = {
         { id = "RadioTrader_Crate_Fuel",        name = "Fuels & Fire Supplies Duffel Bag", price = 750, count = 1 },
         { id = "RadioTrader_Crate_Fishing",     name = "Fishing Tackle Duffel Bag",     price = 500,  count = 1 },
         { id = "RadioTrader_Crate_Books",       name = "Books & Media Duffel Bag",      price = 450,  count = 1 },
+        { id = "RadioTrader_Crate_Recipes",     name = "DIY & Crafting Recipes Duffel Bag", price = 700, count = 1 },
         { id = "RadioTrader_Mystery_Furniture", name = "Mystery Furniture Delivery",   price = 1800, count = 1 },
     },
 
@@ -1272,6 +1969,7 @@ RadioTrader_Shop = {
     Food = {
         { id = "RadioTrader_Crate_Food",      name = "Food Supply Duffel Bag",        price = 600,  count = 1  },
         { id = "RadioTrader_Crate_Produce",   name = "Fresh Produce & Herbs Bag",     price = 850,  count = 1  },
+        { id = "RadioTrader_Crate_Butcher",   name = "Frozen Meat & Seafood Cooler",  price = 950,  count = 1  },
     },
 
     -- 医療支援
@@ -1307,6 +2005,7 @@ RadioTrader_Shop = {
     -- 書籍・雑誌（娯楽・スキル・切り抜き・雑誌）
     Books = {
         { id = "RadioTrader_Crate_Books",     name = "Books & Media Duffel Bag",      price = 450,  count = 1  },
+        { id = "RadioTrader_Crate_Recipes",   name = "DIY & Crafting Recipes Duffel Bag", price = 700, count = 1 },
     },
 
     -- スポーツ用品
@@ -1342,6 +2041,19 @@ RadioTrader_Shop = {
         { id = "Base.Mov_RoadBarrier",            name = "Concrete Barricade",            price = 2000, count = 1 },
         { id = "Base.Mov_LightConstruction",      name = "Flood Lights",                  price = 5000, count = 1 },
         { id = "Base.Battery",                    name = "Battery",                       price = 90,   count = 2 },
+    },
+
+    -- 弾薬庫・口径別弾薬箱指名注文枠 (1日1回更新の日替わり在庫プール 0〜5箱 / 基準 500〜800 CR)
+    Ammo = {
+        { id = "Base.Bullets38Box",     name = ".38 Special Ammo Box", price = 500, count = 1, isAmmo = true, poolKey = "Base.Bullets38Box" },
+        { id = "Base.Bullets9mmBox",    name = "9mm Ammo Box",         price = 550, count = 1, isAmmo = true, poolKey = "Base.Bullets9mmBox" },
+        { id = "Base.Bullets357Box",    name = ".357 Magnum Ammo Box", price = 600, count = 1, isAmmo = true, poolKey = "Base.Bullets357Box" },
+        { id = "Base.Bullets45Box",     name = ".45 Auto Ammo Box",    price = 600, count = 1, isAmmo = true, poolKey = "Base.Bullets45Box" },
+        { id = "Base.Bullets44Box",     name = ".44 Magnum Ammo Box",  price = 650, count = 1, isAmmo = true, poolKey = "Base.Bullets44Box" },
+        { id = "Base.3030Box",          name = ".30-30 Ammo Box",      price = 700, count = 1, isAmmo = true, poolKey = "Base.3030Box" },
+        { id = "Base.ShotgunShellsBox", name = "Shotgun Shells Box",   price = 750, count = 1, isAmmo = true, poolKey = "Base.ShotgunShellsBox" },
+        { id = "Base.308Box",           name = ".308 Ammo Box",        price = 750, count = 1, isAmmo = true, poolKey = "Base.308Box" },
+        { id = "Base.556Box",           name = "5.56mm Ammo Box",      price = 800, count = 1, isAmmo = true, poolKey = "Base.556Box" },
     },
 
     -- 契約農園・農作物交換枠 (種プールを消費して収穫委託品を受注 / 5 CR固定)
@@ -1664,6 +2376,21 @@ RadioTrader_Sell = {
     { id = "Base.Notepad",             name = "Notepad",              basePricePerUnit = 25,  category = "Archives" },
     { id = "Base.SheetPaper2",         name = "Piece of Paper",       basePricePerUnit = 7,   category = "Archives" },
     { id = "Base.Postcard",            name = "Postcard",             basePricePerUnit = 15,  category = "Archives" },
+    -- 新聞・雑誌・一般書籍（一次資料・文化記録）
+    { id = "Base.Newspaper",           name = "Newspaper",            basePricePerUnit = 3,   category = "Archives" },
+    { id = "Base.Magazine",            name = "Magazine",             basePricePerUnit = 6,   category = "Archives" },
+    { id = "Base.TVMagazine",          name = "TV Guide Magazine",    basePricePerUnit = 6,   category = "Archives" },
+    { id = "Base.MagazineCrossword",   name = "Crossword Magazine",   basePricePerUnit = 6,   category = "Archives" },
+    { id = "Base.MagazineWordsearch",  name = "Wordsearch Magazine",  basePricePerUnit = 6,   category = "Archives" },
+    { id = "Base.Catalog",             name = "Mail Order Catalog",   basePricePerUnit = 6,   category = "Archives" },
+    { id = "Base.ComicBook",           name = "Comic Book",           basePricePerUnit = 12,  category = "Archives" },
+    { id = "Base.HottieZ",             name = "Adult Magazine",       basePricePerUnit = 15,  category = "Archives" },
+    { id = "Base.Book",                name = "Book",                 basePricePerUnit = 10,  category = "Archives" },
+    -- 公文書・重要書類・金融証書（控えめ査定）
+    { id = "Base.OfficialDocument",    name = "Official Document",    basePricePerUnit = 25,  category = "Archives" },
+    { id = "Base.StockCertificate",    name = "Stock Certificate",    basePricePerUnit = 20,  category = "Archives" },
+    { id = "Base.Paperwork",           name = "Paperwork / File",     basePricePerUnit = 12,  category = "Archives" },
+    { id = "Base.Receipt",             name = "Receipt",              basePricePerUnit = 4,   category = "Archives" },
 
     -- =========================================================================
     -- カテゴリ2: 貴金属・ジュエリー・高級時計 (Precious & Jewelry)
@@ -1827,7 +2554,328 @@ RadioTrader_Sell = {
     { id = "Base.MoneyBundle",         name = "Money Bundle",         basePricePerUnit = 50,  category = "Currency" },
     { id = "Base.CreditCard",          name = "Credit Card",          basePricePerUnit = 2,   category = "Currency", isRandom = true },
     { id = "Base.CreditCard_Stolen",   name = "Stolen Credit Card",   basePricePerUnit = 2,   category = "Currency", isRandom = true },
+
+    -- =========================================================================
+    -- カテゴリ8: 電線・電子機器の解体廃材・回路部品 (Electronics & Scrap)
+    -- =========================================================================
+    -- 通信設備修理や工業用リサイクル資源としての需要
+    { id = "Base.ElectricWire",        name = "Electric Wire",        basePricePerUnit = 4,   category = "Electronics" },
+    { id = "Base.ElectronicsScrap",    name = "Electronics Scrap",    basePricePerUnit = 5,   category = "Electronics" },
+    { id = "Base.ScrapMetal",          name = "Scrap Metal",          basePricePerUnit = 2,   category = "Electronics" },
+    { id = "Base.Amplifier",           name = "Signal Amplifier",     basePricePerUnit = 20,  category = "Electronics" },
+    { id = "Base.RadioReceiver",       name = "Radio Receiver Unit",  basePricePerUnit = 20,  category = "Electronics" },
+    { id = "Base.RadioTransmitter",    name = "Radio Transmitter Unit", basePricePerUnit = 25, category = "Electronics" },
+    { id = "Base.Receiver",            name = "Receiver Board",       basePricePerUnit = 15,  category = "Electronics" },
+    { id = "Base.MotionSensor",        name = "Motion Sensor",        basePricePerUnit = 25,  category = "Electronics" },
+
+    -- =========================================================================
+    -- カテゴリ9: 銃器・弾薬箱・マガジン・パーツ (Firearms & Tactical Equipment)
+    -- =========================================================================
+    -- 武器コンテナ（1000 CR）転売による無限ループを完全防止する安全設計
+    -- ※バラ弾は買取対象外
+    -- ハンドガン・リボルバー (25 CR)
+    { id = "Base.Pistol",                     name = "Pistol (9mm)",         basePricePerUnit = 25,  category = "Firearm" },
+    { id = "Base.Pistol2",                    name = "Pistol (.45)",         basePricePerUnit = 25,  category = "Firearm" },
+    { id = "Base.Pistol3",                    name = "Magnum Pistol (.44)",  basePricePerUnit = 25,  category = "Firearm" },
+    { id = "Base.Revolver",                   name = "Revolver (.38)",       basePricePerUnit = 25,  category = "Firearm" },
+    { id = "Base.Revolver_Long",              name = "Magnum Revolver (.44)",basePricePerUnit = 25,  category = "Firearm" },
+    { id = "Base.Revolver_Short",             name = "Snubnose Revolver",    basePricePerUnit = 25,  category = "Firearm" },
+    -- ショットガン・ライフル (45 CR)
+    { id = "Base.Shotgun",                    name = "Shotgun",              basePricePerUnit = 45,  category = "Firearm" },
+    { id = "Base.ShotgunSawnoff",             name = "Sawnoff Shotgun",      basePricePerUnit = 45,  category = "Firearm" },
+    { id = "Base.DoubleBarrelShotgun",        name = "Double Barrel Shotgun",basePricePerUnit = 45,  category = "Firearm" },
+    { id = "Base.DoubleBarrelShotgunSawnoff", name = "Sawnoff Double Barrel",basePricePerUnit = 45,  category = "Firearm" },
+    { id = "Base.AssaultRifle",               name = "M16 Assault Rifle",    basePricePerUnit = 45,  category = "Firearm" },
+    { id = "Base.AssaultRifle2",              name = "M14 Rifle",            basePricePerUnit = 45,  category = "Firearm" },
+    { id = "Base.HuntingRifle",               name = "Hunting Rifle",        basePricePerUnit = 45,  category = "Firearm" },
+    { id = "Base.L94_Rifle",                  name = "L94 Lever-Action Rifle",basePricePerUnit = 45,  category = "Firearm" },
+    { id = "Base.L92_Carbine",                name = "L92 Lever-Action Carbine",basePricePerUnit = 45,category = "Firearm" },
+    { id = "Base.VarmintRifle",               name = "Varmint Rifle",        basePricePerUnit = 45,  category = "Firearm" },
+    -- 未開封・弾薬箱 (18 CR)
+    { id = "Base.Bullets9mmBox",              name = "9mm Ammo Box",         basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.Bullets45Box",               name = ".45 Auto Ammo Box",    basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.Bullets44Box",               name = ".44 Magnum Ammo Box",  basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.Bullets38Box",               name = ".38 Special Ammo Box", basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.Bullets357Box",              name = ".357 Magnum Ammo Box", basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.3030Box",                    name = ".30-30 Ammo Box",      basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.ShotgunShellsBox",           name = "Shotgun Shells Box",   basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.308Box",                     name = ".308 Ammo Box",        basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.556Box",                     name = "5.56mm Ammo Box",      basePricePerUnit = 18,  category = "AmmoBox" },
+    { id = "Base.223Box",                     name = ".223 Ammo Box",        basePricePerUnit = 18,  category = "AmmoBox" },
+    -- 弾倉・マガジン (8 CR)
+    { id = "Base.9mmClip",                    name = "9mm Magazine",         basePricePerUnit = 8,   category = "Magazine" },
+    { id = "Base.45Clip",                     name = ".45 Magazine",         basePricePerUnit = 8,   category = "Magazine" },
+    { id = "Base.44Clip",                     name = ".44 Magazine",         basePricePerUnit = 8,   category = "Magazine" },
+    { id = "Base.223Clip",                    name = ".223 Magazine",        basePricePerUnit = 8,   category = "Magazine" },
+    { id = "Base.308Clip",                    name = ".308 Magazine",        basePricePerUnit = 8,   category = "Magazine" },
+    { id = "Base.M14Clip",                    name = "M14 Magazine",         basePricePerUnit = 8,   category = "Magazine" },
+    { id = "Base.556Clip",                    name = "5.56mm Magazine",      basePricePerUnit = 8,   category = "Magazine" },
+    -- 銃器アタッチメント・パーツ (12 CR)
+    { id = "Base.ChokeTubeFull",              name = "Choke Tube (Full)",    basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.ChokeTubeImproved",          name = "Choke Tube (Improved)",basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.FiberglassStock",            name = "Fiberglass Stock",     basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.RecoilPad",                  name = "Recoil Pad",           basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.RedDot",                     name = "Red Dot Sight",        basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.x2Scope",                    name = "x2 Scope",             basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.x4Scope",                    name = "x4 Scope",             basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.x8Scope",                    name = "x8 Scope",             basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.Laser",                      name = "Laser Sight",          basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.Sling",                      name = "Gun Sling",            basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.AmmoStrap",                  name = "Ammo Strap",           basePricePerUnit = 12,  category = "GunPart" },
+    { id = "Base.GunLight",                   name = "Weapon Flashlight",    basePricePerUnit = 12,  category = "GunPart" },
 }
+
+-- ---------------------------------------------------------------------------
+-- ユーティリティ: 持ち運べる家具・設備 (Moveable) の動的ランク・重量判定
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_AssessFurniture(item, fallbackId)
+    local id = fallbackId or (item and item.getFullType and item:getFullType()) or ""
+    local name = (item and item.getName and item:getName()) or "Furniture"
+    local sprite = ""
+    if item and item.getSpriteName then
+        sprite = item:getSpriteName() or ""
+    end
+    if sprite == "" and item and item.getWorldSprite then
+        sprite = item:getWorldSprite() or ""
+    end
+
+    local weight = 5.0
+    if item and item.getActualWeight then
+        weight = item:getActualWeight() or 5.0
+    end
+
+    -- 照合用文字列（ID、スプライト名、表示名をすべて小文字化して包括検索）
+    local searchStr = string.lower(id .. " " .. sprite .. " " .. name)
+
+    local tier = "C"
+    local displayName = name
+    local basePrice = 15
+
+    -- =========================================================================
+    -- 手作り家具・クラフト建築品 (Handcrafted / Carpentry & Metalworking)
+    -- スキルレベル（スプライト番号・耐久値）に応じて DIY-1 / DIY-2 / Mastercraft を判定
+    -- =========================================================================
+    local isCarpentry = string.find(searchStr, "carpentry_")
+    local isMetalwork = string.find(searchStr, "metalworking_")
+
+    if isCarpentry or isMetalwork then
+        -- スキル段階 (1: 初心者 Lv0-3, 2: 中級 Lv4-6, 3: 熟練 Lv7-10)
+        local skillTier = 1
+        local cType = "Crate"
+
+        -- スプライトのインデックス番号を抽出 (例: carpentry_01_16 -> sheet=1, idx=16)
+        local sheetStr, idxStr = string.match(sprite, "carpentry_(%d+)_(%d+)")
+        local idx = tonumber(idxStr)
+        local sheet = tonumber(sheetStr)
+
+        if isCarpentry and idx then
+            -- 木箱 (Sheet 1: 16=Lv1, 17=Lv2, 18=Lv3)
+            if idx >= 16 and idx <= 18 then
+                cType = "Wooden Crate"
+                skillTier = (idx - 16) + 1
+            -- テーブル (Sheet 1: 24,25=Lv1, 26,27=Lv2, 28,29=Lv3)
+            elseif idx >= 24 and idx <= 29 then
+                cType = "Wooden Table"
+                skillTier = math.floor((idx - 24) / 2) + 1
+            -- 椅子 (Sheet 1: 32=Lv1, 33=Lv2, 34=Lv3)
+            elseif idx >= 32 and idx <= 34 then
+                cType = "Wooden Chair"
+                skillTier = (idx - 32) + 1
+            -- 棚・本棚 (Sheet 1: 40=Lv1, 41=Lv2, 42=Lv3)
+            elseif idx >= 40 and idx <= 42 then
+                cType = "Wooden Shelves"
+                skillTier = (idx - 40) + 1
+            -- ベッド (Sheet 2: 12=Lv1, 13=Lv2, 14=Lv3)
+            elseif sheet == 2 and idx >= 12 and idx <= 14 then
+                cType = "Wooden Bed"
+                skillTier = (idx - 12) + 1
+            -- 雨水樽 (Sheet 2: 52=小型 Lv4, 54=大型 Lv7)
+            elseif sheet == 2 and (idx == 52 or idx == 54 or idx == 53 or idx == 55) then
+                cType = "Rain Collector Barrel"
+                skillTier = (idx >= 54) and 3 or 2
+            else
+                -- その他大工品: スプライトの並びまたは耐久度から推測
+                skillTier = (idx % 3) + 1
+                cType = (name and name ~= "" and name ~= "Furniture") and name or "Handcrafted Furniture"
+            end
+        elseif isMetalwork then
+            -- 金属加工品は金属板や溶接棒が必要なため基本的にTier 2以上
+            cType = "Metal Container/Shelves"
+            skillTier = 2
+            if item and item.getConditionMax and item:getConditionMax() >= 10 then
+                skillTier = 3
+            end
+        end
+
+        -- 耐久値（ConditionMax）による最終補正: 高スキル建築でHPが跳ね上がっている場合の安全網
+        if item and item.getConditionMax then
+            local maxC = item:getConditionMax()
+            if maxC and maxC >= 10 and skillTier < 3 then
+                skillTier = 3
+            elseif maxC and maxC >= 6 and skillTier < 2 then
+                skillTier = 2
+            end
+        end
+
+        -- スキル段階別の価格・名称決定
+        local tierLabel = "DIY-1"
+        local prefix = "Crude "
+        local base = 3
+
+        if skillTier == 1 then
+            tierLabel = "DIY-1"
+            prefix = "Crude Handcrafted "
+            if cType == "Wooden Crate" then base = 3
+            elseif cType == "Wooden Chair" then base = 2
+            elseif cType == "Wooden Table" then base = 4
+            elseif cType == "Wooden Shelves" then base = 3
+            elseif cType == "Wooden Bed" then base = 6
+            else base = 3 end
+
+        elseif skillTier == 2 then
+            tierLabel = "DIY-2"
+            prefix = "Standard Handcrafted "
+            if cType == "Wooden Crate" then base = 6
+            elseif cType == "Wooden Chair" then base = 5
+            elseif cType == "Wooden Table" then base = 8
+            elseif cType == "Wooden Shelves" then base = 7
+            elseif cType == "Wooden Bed" then base = 12
+            elseif cType == "Rain Collector Barrel" then base = 10
+            elseif isMetalwork then base = 15
+            else base = 6 end
+
+        else -- skillTier == 3 (熟練・名工)
+            tierLabel = "Mastercraft"
+            prefix = "Fine Handcrafted "
+            if cType == "Wooden Crate" then base = 12
+            elseif cType == "Wooden Chair" then base = 10
+            elseif cType == "Wooden Table" then base = 16
+            elseif cType == "Wooden Shelves" then base = 14
+            elseif cType == "Wooden Bed" then base = 22
+            elseif cType == "Rain Collector Barrel" then base = 20
+            elseif isMetalwork then base = 25
+            else base = 14 end
+        end
+
+        displayName = prefix .. cType
+        tier = tierLabel
+        basePrice = base
+
+    -- Sランク: 超希少・設備・伝説のアンティーク (120〜150 CR)
+    elseif string.find(searchStr, "antiquestove") or string.find(searchStr, "woodstove") then
+        tier = "S"
+        displayName = "Antique Wood Stove"
+        basePrice = 150
+    elseif string.find(searchStr, "gunsafe") or (string.find(searchStr, "safe") and not string.find(searchStr, "safety")) then
+        tier = "S"
+        displayName = "Heavy Security Safe"
+        basePrice = 130
+    elseif string.find(searchStr, "arcade") or string.find(searchStr, "jukebox") or string.find(searchStr, "piano") then
+        tier = "S"
+        displayName = "Vintage Entertainment (Arcade/Piano/Jukebox)"
+        basePrice = 120
+
+    -- Aランク: 高機能大型家電・医療・工業設備 (50〜75 CR)
+    elseif string.find(searchStr, "refrigeration") or string.find(searchStr, "fridge") or string.find(searchStr, "freezer") or string.find(searchStr, "icebox") then
+        tier = "A"
+        displayName = "Major Appliance (Refrigerator/Freezer)"
+        basePrice = 65
+    elseif string.find(searchStr, "appliances_cooking") or string.find(searchStr, "oven") or string.find(searchStr, "stove") then
+        tier = "A"
+        displayName = "Major Appliance (Cooking Range/Oven)"
+        basePrice = 55
+    elseif string.find(searchStr, "appliances_laundry") or string.find(searchStr, "washingmachine") or string.find(searchStr, "dryer") then
+        tier = "A"
+        displayName = "Major Appliance (Washer/Dryer)"
+        basePrice = 50
+    elseif string.find(searchStr, "medical") or string.find(searchStr, "hospital") or string.find(searchStr, "dentist") or string.find(searchStr, "operating") then
+        tier = "A"
+        displayName = "Specialized Medical Equipment"
+        basePrice = 75
+    elseif string.find(searchStr, "lightconstruction") or string.find(searchStr, "floodlight") or string.find(searchStr, "generator") then
+        tier = "A"
+        displayName = "Heavy Industrial Floodlight/Work Station"
+        basePrice = 50
+
+    -- Bランク: 高級内装・上質快適家具・大型AV機器 (30〜45 CR)
+    elseif string.find(searchStr, "bedding") and (weight >= 12 or string.find(searchStr, "double") or string.find(searchStr, "king")) then
+        tier = "B"
+        displayName = "Luxury Bedding (Double/King)"
+        basePrice = 40
+    elseif string.find(searchStr, "seating_indoor") and (weight >= 10 or string.find(searchStr, "leather") or string.find(searchStr, "couch") or string.find(searchStr, "sofa") or string.find(searchStr, "executive")) then
+        tier = "B"
+        displayName = "Executive Leather Sofa/Armchair"
+        basePrice = 38
+    elseif string.find(searchStr, "television") or string.find(searchStr, "stereo") or string.find(searchStr, "hifi") or string.find(searchStr, "tv") then
+        tier = "B"
+        displayName = "High-End Audio/Visual Entertainment"
+        basePrice = 35
+    elseif string.find(searchStr, "pooltable") or string.find(searchStr, "billiard") or string.find(searchStr, "recreation") then
+        tier = "B"
+        displayName = "Recreational Table/Games"
+        basePrice = 45
+    elseif string.find(searchStr, "storage") and (weight >= 15 or string.find(searchStr, "dresser") or string.find(searchStr, "armoire") or string.find(searchStr, "wardrobe")) then
+        tier = "B"
+        displayName = "Antique/Hardwood Storage Furniture"
+        basePrice = 32
+
+    -- Dランク: 簡易・粗大ゴミ・プラスチック・資材 (4〜8 CR)
+    elseif string.find(searchStr, "plastic") then
+        tier = "D"
+        displayName = "Cheap Plastic Furniture"
+        basePrice = 6
+    elseif string.find(searchStr, "cardboard") or string.find(searchStr, "trash") or string.find(searchStr, "garbage") or string.find(searchStr, "waste") then
+        tier = "D"
+        displayName = "Discarded Container/Trash Can"
+        basePrice = 4
+    elseif string.find(searchStr, "cone") or string.find(searchStr, "traffic") then
+        tier = "D"
+        displayName = "Traffic/Road Utility Cone"
+        basePrice = 4
+
+    -- Cランク: 一般的な実用家具 (15〜25 CR)
+    elseif string.find(searchStr, "roadbarrier") or string.find(searchStr, "militarycrate") then
+        tier = "C"
+        displayName = "Reinforced Barrier/Military Crate"
+        basePrice = 25
+    elseif string.find(searchStr, "tables") or string.find(searchStr, "table") or string.find(searchStr, "desk") then
+        tier = "C"
+        displayName = "Standard Wooden Table/Desk"
+        basePrice = 20
+    elseif string.find(searchStr, "shelving") or string.find(searchStr, "bookcase") or string.find(searchStr, "shelves") then
+        tier = "C"
+        displayName = "Standard Shelving/Bookcase"
+        basePrice = 18
+    elseif string.find(searchStr, "seating") or string.find(searchStr, "chair") or string.find(searchStr, "stool") then
+        tier = "C"
+        displayName = "Standard Chair/Stool"
+        basePrice = 14
+    elseif string.find(searchStr, "sink") or string.find(searchStr, "bath") or string.find(searchStr, "toilet") then
+        tier = "C"
+        displayName = "Plumbing Fixture (Sink/Tub/Toilet)"
+        basePrice = 22
+    else
+        -- デフォルト一般家具
+        tier = "C"
+        displayName = (name and name ~= "" and name ~= "Furniture") and name or "Salvaged Furniture"
+        basePrice = 12
+    end
+
+    -- 重量ボーナス（重い家具ほど運搬リスクへの正当な報酬: +0.8 CR / kg）
+    local weightBonus = math.floor(math.max(0, weight) * 0.8)
+    local totalBasePrice = basePrice + weightBonus
+
+    return {
+        id               = id,
+        name             = displayName,
+        basePricePerUnit = totalBasePrice,
+        category         = "Furniture",
+        tier             = tier,
+        weightBonus      = weightBonus,
+        rawBasePrice     = basePrice,
+        actualWeight     = weight,
+    }
+end
 
 -- ---------------------------------------------------------------------------
 -- ユーティリティ: アイテムIDから売却定義を検索 (スマートマッチング機能付き)
@@ -1996,10 +3044,48 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
         return { id = itemId, name = "Vintage Greeting Card", basePricePerUnit = 14, category = "Archives" }
     elseif string.find(itemId, "Doodle") or string.find(itemId, "Drawing") then
         return { id = itemId, name = "Hand-drawn Sketch", basePricePerUnit = 15, category = "Archives" }
-    elseif string.find(itemId, "Document") then
+    elseif string.find(itemId, "OfficialDocument") or (string.find(itemId, "Document") and not string.find(itemId, "Paperwork")) then
         return { id = itemId, name = "Official Document", basePricePerUnit = 25, category = "Archives" }
+    elseif string.find(itemId, "StockCertificate") or string.find(itemId, "Certificate") or string.find(itemId, "Deed") then
+        return { id = itemId, name = "Certificate / Deed", basePricePerUnit = 20, category = "Archives" }
+    elseif string.find(itemId, "Paperwork") or string.find(itemId, "File") and not string.find(itemId, "SmallFileSet") then
+        return { id = itemId, name = "Paperwork / File", basePricePerUnit = 12, category = "Archives" }
+    elseif string.find(itemId, "Receipt") or string.find(itemId, "Invoice") then
+        return { id = itemId, name = "Receipt / Invoice", basePricePerUnit = 4, category = "Archives" }
     elseif string.find(itemId, "Note") or string.find(itemId, "Postcard") or string.find(itemId, "SheetPaper") then
         return { id = itemId, name = "Handwritten Note", basePricePerUnit = 12, category = "Archives" }
+    elseif string.find(itemId, "Magazine") or string.find(itemId, "Catalog") or string.find(itemId, "RPG") then
+        return { id = itemId, name = "Magazine / Hobby Publication", basePricePerUnit = 6, category = "Archives" }
+    elseif string.find(itemId, "ComicBook") or string.find(itemId, "HottieZ") then
+        return { id = itemId, name = "Comic / Special Issue", basePricePerUnit = 12, category = "Archives" }
+    elseif (
+        -- 文庫本・小説・ペーパーバック（Base.Book, Base.Book_Fiction, Base.Paperback_* 等）
+        (
+            string.find(itemId, "Paperback") or
+            string.find(itemId, "Novel") or
+            string.find(itemId, "^Base%.Book") or
+            string.find(itemId, "^Book") or
+            string.find(itemId, "Literature")
+        )
+        and not string.find(itemId, "Recipe")
+        and not string.find(itemId, "Skill")
+        and not string.find(itemId, "Manual")
+        and not string.find(itemId, "Guide")
+        and not string.find(itemId, "Carpentry")
+        and not string.find(itemId, "Cooking")
+        and not string.find(itemId, "Farming")
+        and not string.find(itemId, "FirstAid")
+        and not string.find(itemId, "Electricity")
+        and not string.find(itemId, "MetalWelding")
+        and not string.find(itemId, "Mechanic")
+        and not string.find(itemId, "Tailoring")
+        and not string.find(itemId, "Fishing")
+        and not string.find(itemId, "Trapping")
+        and not string.find(itemId, "Foraging")
+        and not string.find(itemId, "Blacksmith")
+        and not string.find(itemId, "%d") -- スキル本特有の巻数数字(1〜5)を除外
+    ) then
+        return { id = itemId, name = "Literature Book", basePricePerUnit = 10, category = "Archives" }
     end
 
     -- インゴット・地金類
@@ -2039,6 +3125,37 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
         return { id = itemId, name = "Fresh Egg", basePricePerUnit = 3, category = "Egg" }
     end
 
+    -- 未開封の缶詰・保存食（Canned & Tinned Food）
+    -- ※開封済み（Open）や空き缶（Empty）は査定除外
+    local isCanned = (string.find(itemId, "Canned") or string.find(itemId, "Tinned") or string.find(itemId, "TunaTin")
+        or string.find(itemId, "Dogfood") or string.find(itemId, "MysteryCan") or string.find(itemId, "DentedCan")
+        or string.find(itemId, "WaterRationCan"))
+        and not string.find(itemId, "Open") and not string.find(itemId, "_Open")
+        and not string.find(itemId, "Empty")
+    if isCanned then
+        local basePrice = 6
+        if string.find(itemId, "Box") or string.find(itemId, "_Box") then
+            basePrice = 45 -- 箱詰め缶詰ケース（まとめ売り）は45 CR
+        elseif string.find(itemId, "Dogfood") or string.find(itemId, "Dented") then
+            basePrice = 4  -- ドッグフード・凹み缶は4 CR
+        elseif string.find(itemId, "Bolognese") or string.find(itemId, "Chili") or string.find(itemId, "CornedBeef")
+            or string.find(itemId, "Sardines") or string.find(itemId, "Tuna") or string.find(itemId, "Roe") then
+            basePrice = 8  -- 肉・魚・主食系缶詰は8 CR
+        end
+        return { id = itemId, name = "Canned Food", basePricePerUnit = basePrice, category = "CannedFood" }
+    end
+
+    -- 電線・電子廃材・回路部品 (Electronics & Scrap)
+    if string.find(itemId, "ElectricWire") or (string.find(itemId, "Wire") and not string.find(itemId, "Barbed")) then
+        return { id = itemId, name = "Electric Wire", basePricePerUnit = 4, category = "Electronics" }
+    elseif string.find(itemId, "ElectronicsScrap") then
+        return { id = itemId, name = "Electronics Scrap", basePricePerUnit = 5, category = "Electronics" }
+    elseif string.find(itemId, "ScrapMetal") then
+        return { id = itemId, name = "Scrap Metal", basePricePerUnit = 2, category = "Electronics" }
+    elseif string.find(itemId, "Amplifier") or string.find(itemId, "Transmitter") or string.find(itemId, "Receiver") or string.find(itemId, "MotionSensor") then
+        return { id = itemId, name = "Electronic Component", basePricePerUnit = 20, category = "Electronics" }
+    end
+
     -- 工具類 (Tools: 中古スクラップ・リサイクル資材)
     if string.find(itemId, "Jack") or string.find(itemId, "LugWrench") or string.find(itemId, "TirePump")
         or string.find(itemId, "BlowTorch") or string.find(itemId, "HandDrill") or string.find(itemId, "Multitool") then
@@ -2064,17 +3181,9 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
         return { id = itemId, name = "Engine Parts", basePricePerUnit = 2, category = "Vehicles" }
     end
 
-    -- 持ち運べる家具・設備 (Moveable Furniture: リサイクル木材・金属・アンティーク / 控えめ価格)
+    -- 持ち運べる家具・設備 (Moveable Furniture: レア度・設備・重量動的査定)
     if string.find(itemId, "Mov_") or string.find(itemId, "^Moveables") then
-        if string.find(itemId, "AntiqueStove") then
-            return { id = itemId, name = "Antique Wood Stove", basePricePerUnit = 150, category = "Furniture" }
-        elseif string.find(itemId, "LightConstruction") then
-            return { id = itemId, name = "Work Flood Light", basePricePerUnit = 40, category = "Furniture" }
-        elseif string.find(itemId, "RoadBarrier") or string.find(itemId, "MilitaryCrate") then
-            return { id = itemId, name = "Reinforced Barrier/Crate", basePricePerUnit = 25, category = "Furniture" }
-        else
-            return { id = itemId, name = "Salvaged Furniture", basePricePerUnit = 10, category = "Furniture" }
-        end
+        return RadioTrader_ItemsTable_AssessFurniture(nil, itemId)
     end
 
     -- 軍用品・サバイバル装備 (Military Surplus: レア装備・軍服・無線機)
@@ -2089,7 +3198,172 @@ function RadioTrader_ItemsTable_GetSellEntry(itemId)
         return { id = itemId, name = "Military Apparel", basePricePerUnit = 12, category = "Military" }
     end
 
+    -- -----------------------------------------------------------------------
+    -- 銃器・弾薬箱・弾倉・銃器パーツ (Firearms & Tactical Smart Fallback)
+    -- -----------------------------------------------------------------------
+    -- ※バラ弾（Loose Ammo）は買取対象外のため、明示的に除外して nil を返す
+    local isLooseAmmo = (string.find(itemId, "Bullet") or string.find(itemId, "Shell") or string.find(itemId, "Round")
+        or string.find(itemId, "Cartridge") or string.find(itemId, "Ammo"))
+        and not string.find(itemId, "Box") and not string.find(itemId, "Can") and not string.find(itemId, "Crate")
+        and not string.find(itemId, "Strap") and not string.find(itemId, "Clip") and not string.find(itemId, "Mag")
+    if isLooseAmmo then
+        return nil
+    end
+
+    -- 弾薬箱 (Ammo Box: 18 CR)
+    if (string.find(itemId, "Box") or string.find(itemId, "Can"))
+        and (string.find(itemId, "Bullet") or string.find(itemId, "Shell") or string.find(itemId, "Ammo")
+        or string.find(itemId, "9mm") or string.find(itemId, "45") or string.find(itemId, "44") or string.find(itemId, "38") or string.find(itemId, "357")
+        or string.find(itemId, "223") or string.find(itemId, "308") or string.find(itemId, "556") or string.find(itemId, "3030") or string.find(itemId, "Shotgun")) then
+        return { id = itemId, name = "Ammunition Box", basePricePerUnit = 18, category = "AmmoBox" }
+    end
+
+    -- 弾倉・マガジン (Magazine: 8 CR)
+    if string.find(itemId, "Clip") or string.find(itemId, "Magazine") or string.find(itemId, "Mag_") or string.find(itemId, "_Mag") then
+        return { id = itemId, name = "Firearm Magazine", basePricePerUnit = 8, category = "Magazine" }
+    end
+
+    -- 銃器パーツ・アタッチメント (Gun Parts: 12 CR)
+    if string.find(itemId, "Scope") or string.find(itemId, "Choke") or string.find(itemId, "Sling") or string.find(itemId, "Laser")
+        or string.find(itemId, "RedDot") or string.find(itemId, "RecoilPad") or string.find(itemId, "FiberglassStock")
+        or string.find(itemId, "GunLight") or string.find(itemId, "Suppressor") or string.find(itemId, "Silencer") or string.find(itemId, "Compensator") then
+        return { id = itemId, name = "Firearm Part / Accessory", basePricePerUnit = 12, category = "GunPart" }
+    end
+
+    -- 銃器本体 (Firearms: Handgun 25 CR / Long Guns 45 CR)
+    if string.find(itemId, "Pistol") or string.find(itemId, "Revolver") or string.find(itemId, "Handgun")
+        or string.find(itemId, "Glock") or string.find(itemId, "Beretta") or string.find(itemId, "Derringer") then
+        return { id = itemId, name = "Handgun / Sidearm", basePricePerUnit = 25, category = "Firearm" }
+    elseif string.find(itemId, "Shotgun") or string.find(itemId, "Rifle") or string.find(itemId, "Sniper")
+        or string.find(itemId, "Assault") or string.find(itemId, "Carbine") or string.find(itemId, "SMG") or string.find(itemId, "Submachine") then
+        return { id = itemId, name = "Long Firearm / Rifle", basePricePerUnit = 45, category = "Firearm" }
+    end
+
     return nil
+end
+
+-- ---------------------------------------------------------------------------
+-- ユーティリティ: バラ弾 (Loose Ammo) の判定と対応弾種の特定
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_IsLooseAmmo(item, itemType)
+    local s = itemType or (item and item.getFullType and item:getFullType()) or ""
+    if s == "" then return false, nil end
+
+    -- 箱・ケース・弾帯・マガジン等は除外
+    if string.find(s, "Box") or string.find(s, "Can") or string.find(s, "Crate")
+        or string.find(s, "Strap") or string.find(s, "Clip") or string.find(s, "Mag")
+        or string.find(s, "Case") or string.find(s, "Bag_") then
+        return false, nil
+    end
+
+    if string.find(s, "Bullets9mm") or string.find(s, "9mmBullet") then return true, "Base.Bullets9mm" end
+    if string.find(s, "Bullets45") or string.find(s, "45Bullet") then return true, "Base.Bullets45" end
+    if string.find(s, "Bullets44") or string.find(s, "44Bullet") then return true, "Base.Bullets44" end
+    if string.find(s, "Bullets38") or string.find(s, "38Bullet") then return true, "Base.Bullets38" end
+    if string.find(s, "ShotgunShells") or string.find(s, "ShotgunShell") then return true, "Base.ShotgunShells" end
+    if string.find(s, "223Bullets") or string.find(s, "223Bullet") then return true, "Base.223Bullets" end
+    if string.find(s, "308Bullets") or string.find(s, "308Bullet") then return true, "Base.308Bullets" end
+    if string.find(s, "556Bullets") or string.find(s, "556Bullet") then return true, "Base.556Bullets" end
+
+    -- 一般弾丸キーワード
+    if string.find(s, "Bullet") or string.find(s, "Shell") or string.find(s, "Round") or string.find(s, "Cartridge") then
+        return true, s
+    end
+
+    return false, nil
+end
+
+-- ---------------------------------------------------------------------------
+-- ユーティリティ: 近接武器・刃物 (HandWeapon / Melee) の動的査定
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_AssessMeleeWeapon(item, fallbackId)
+    local id = fallbackId or (item and item.getFullType and item:getFullType()) or ""
+    local name = (item and item.getName and item:getName()) or "Melee Weapon"
+    local searchStr = string.lower(id .. " " .. name)
+
+    -- 1. 最高級・レア大型刃物・大型打撃 (Tier 1: 28〜45 CR)
+    if string.find(searchStr, "katana") then
+        return { id = id, name = name, basePricePerUnit = 45, category = "Melee" }
+    elseif string.find(searchStr, "machete") then
+        return { id = id, name = name, basePricePerUnit = 35, category = "Melee" }
+    elseif string.find(searchStr, "axe") and not string.find(searchStr, "head") and not string.find(searchStr, "handaxe") then
+        return { id = id, name = name, basePricePerUnit = 28, category = "Melee" }
+    elseif string.find(searchStr, "sledgehammer") or string.find(searchStr, "pickaxe") then
+        return { id = id, name = name, basePricePerUnit = 28, category = "Melee" }
+    elseif string.find(searchStr, "axehead") or string.find(searchStr, "axe_head") or string.find(searchStr, "head") then
+        return { id = id, name = name, basePricePerUnit = 15, category = "Melee" }
+
+    -- 2. 実用中型近接・戦術刃物 (Tier 2: 10〜16 CR)
+    elseif string.find(searchStr, "huntingknife") or string.find(searchStr, "combatknife") or string.find(searchStr, "survival_knife") then
+        return { id = id, name = name, basePricePerUnit = 16, category = "Melee" }
+    elseif string.find(searchStr, "handaxe") then
+        return { id = id, name = name, basePricePerUnit = 15, category = "Melee" }
+    elseif string.find(searchStr, "crowbar") then
+        return { id = id, name = name, basePricePerUnit = 14, category = "Melee" }
+    elseif string.find(searchStr, "baseballbat") or string.find(searchStr, "bat") then
+        return { id = id, name = name, basePricePerUnit = 12, category = "Melee" }
+    elseif string.find(searchStr, "shovel") then
+        return { id = id, name = name, basePricePerUnit = 12, category = "Melee" }
+    elseif string.find(searchStr, "gardenfork") or string.find(searchStr, "gardenhoe") then
+        return { id = id, name = name, basePricePerUnit = 10, category = "Melee" }
+
+    -- 3. 一般・小型刃物・簡易近接 (Tier 3: 3〜8 CR)
+    elseif string.find(searchStr, "cleaver") or string.find(searchStr, "meatcleaver") then
+        return { id = id, name = name, basePricePerUnit = 8, category = "Melee" }
+    elseif string.find(searchStr, "kitchenknife") or string.find(searchStr, "knife") then
+        return { id = id, name = name, basePricePerUnit = 6, category = "Melee" }
+    elseif string.find(searchStr, "golfclub") or string.find(searchStr, "pipe") or string.find(searchStr, "metalbar") then
+        return { id = id, name = name, basePricePerUnit = 8, category = "Melee" }
+    elseif string.find(searchStr, "spear") then
+        return { id = id, name = name, basePricePerUnit = 6, category = "Melee" }
+    elseif string.find(searchStr, "nightstick") or string.find(searchStr, "icepick") or string.find(searchStr, "scissors") then
+        return { id = id, name = name, basePricePerUnit = 6, category = "Melee" }
+    elseif string.find(searchStr, "mallet") or string.find(searchStr, "clubhammer") then
+        return { id = id, name = name, basePricePerUnit = 8, category = "Melee" }
+    elseif string.find(searchStr, "plank") or string.find(searchStr, "stake") then
+        return { id = id, name = name, basePricePerUnit = 3, category = "Melee" }
+
+    -- 4. 簡易カトラリー (Tier 4: 2 CR)
+    elseif string.find(searchStr, "butterknife") or string.find(searchStr, "fork")
+        or string.find(searchStr, "spoon") or string.find(searchStr, "letteropener") or string.find(searchStr, "scalpel") then
+        return { id = id, name = name, basePricePerUnit = 2, category = "Melee" }
+    end
+
+    -- 5. その他近接武器デフォルト (8 CR)
+    return { id = id, name = name, basePricePerUnit = 8, category = "Melee" }
+end
+
+-- ---------------------------------------------------------------------------
+-- ユーティリティ: コンテナアイテム（バッグ・ケース・袋・箱類）の3段階一律査定
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_AssessContainerItem(item, fallbackId)
+    local id = fallbackId or (item and item.getFullType and item:getFullType()) or ""
+    local name = (item and item.getName and item:getName()) or "Container"
+    local searchStr = string.lower(id .. " " .. name)
+
+    -- 1. 簡易袋・小箱・ポーチ類 (基準 2 CR -> デフォルト0.5倍で 1 CR)
+    if string.find(searchStr, "garbage") or string.find(searchStr, "trash")
+        or string.find(searchStr, "plasticbag") or string.find(searchStr, "grocery")
+        or string.find(searchStr, "paperbag") or string.find(searchStr, "lunchbag")
+        or string.find(searchStr, "sack") or string.find(searchStr, "sandbag")
+        or string.find(searchStr, "seedbag") or string.find(searchStr, "lunchbox")
+        or string.find(searchStr, "wallet") or string.find(searchStr, "purse")
+        or string.find(searchStr, "fannypack") or string.find(searchStr, "pouch")
+        or string.find(searchStr, "pencilcase") or string.find(searchStr, "cookiejar") then
+        return { id = id, name = name, basePricePerUnit = 2, category = "Container" }
+    end
+
+    -- 2. 大型バックパック・弾薬缶・ハードケース類 (基準 8 CR -> デフォルト0.5倍で 4 CR)
+    if string.find(searchStr, "bighiking") or string.find(searchStr, "survivorbag")
+        or string.find(searchStr, "ammobox") or string.find(searchStr, "protectivecase")
+        or string.find(searchStr, "guncase") or string.find(searchStr, "riflecase")
+        or string.find(searchStr, "shotguncase") or string.find(searchStr, "revolvercase")
+        or string.find(searchStr, "pistolcase") or string.find(searchStr, "military") then
+        return { id = id, name = name, basePricePerUnit = 8, category = "Container" }
+    end
+
+    -- 3. 一般バッグ・リュック・工具箱・救急箱・クーラー・木箱類 (基準 4 CR -> デフォルト0.5倍で 2 CR)
+    return { id = id, name = name, basePricePerUnit = 4, category = "Container" }
 end
 
 -- ---------------------------------------------------------------------------
@@ -2100,12 +3374,41 @@ function RadioTrader_ItemsTable_GetShopCategory(categoryName)
 end
 
 -- ---------------------------------------------------------------------------
+-- 弾薬庫: 日替わり弾薬箱在庫プール抽選関数 (1日1回更新・0〜5箱・0または1が高確率)
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_RollDailyAmmoStock()
+    local pool = {}
+    local ammoList = (RadioTrader_Shop and RadioTrader_Shop.Ammo) or {}
+    for _, entry in ipairs(ammoList) do
+        local key = entry.poolKey or entry.id
+        local roll = (ZombRand and ZombRand(100)) or math.random(0, 99)
+        local stock = 0
+        -- 確率分布: 0箱(40%), 1箱(30%), 2箱(15%), 3箱(8%), 4箱(4%), 5箱(3%) -> 0または1が計70%
+        if roll < 40 then
+            stock = 0
+        elseif roll < 70 then
+            stock = 1
+        elseif roll < 85 then
+            stock = 2
+        elseif roll < 93 then
+            stock = 3
+        elseif roll < 97 then
+            stock = 4
+        else
+            stock = 5
+        end
+        pool[key] = stock
+    end
+    return pool
+end
+
+-- ---------------------------------------------------------------------------
 -- カテゴリ表示定義（UI用 / キー名で管理し、表示はUI側で多言語化）
 -- ---------------------------------------------------------------------------
--- 日替わり、種類別バッグ（全種）、特殊機材の3つに集約してすっきり整理
 RadioTrader_ShopCategories = {
     { key = "Daily", label = "[Daily] Daily Deals"           },
     { key = "Crops", label = "[Crops] Produce Exchange"      },
+    { key = "Ammo",  label = "[Ammo] Ammo Depot"             },
     { key = "Bags",  label = "[Bags] Supply Bags"            },
     { key = "Misc",  label = "[Misc] Machinery & Gear"       },
 }
@@ -2115,8 +3418,8 @@ RadioTrader_ShopCategories = {
 -- ---------------------------------------------------------------------------
 function RadioTrader_GetLZCoords(player)
     if not player then return nil end
-    local uname = player.getUsername and player:getUsername()
-    if not uname or uname == "" then uname = "singleplayer" end
+    local cfg = RadioTrader_Config
+    local uname = cfg and cfg.getPlayerKey and cfg.getPlayerKey(player) or "singleplayer"
     local gmdKey = "RadioTrader_" .. uname
     if not (ModData and ModData.exists and ModData.exists(gmdKey)) then return nil end
     local gmd = ModData.get(gmdKey)
@@ -2185,24 +3488,119 @@ function RadioTrader_AssessContainer(player)
     local cfg = RadioTrader_Config
 
     -- ロット・重量集計用グループ
-    local meatFishGroup = { items = {}, totalWeight = 0 }
-    local eggGroup      = { items = {}, count = 0, effectiveUnits = 0 }
-    local produceGroup  = { items = {}, count = 0, effectiveUnits = 0 }
+    local meatFishGroup  = { items = {}, totalWeight = 0 }
+    local eggGroup       = { items = {}, count = 0, effectiveUnits = 0 }
+    local produceGroup   = { items = {}, count = 0, effectiveUnits = 0 }
+    local looseAmmoGroup = { items = {}, counts = {} } -- バラ弾ロット集計
+
+    local function isValidJavaContainer(cont)
+        if not cont or type(cont) == "string" then return false end
+        local s = tostring(cont)
+        if not s or s == "null" or s == "nil" then return false end
+        return cont.getItems ~= nil
+    end
 
     local function scanInventory(targetContainer)
-        if not targetContainer then return end
-        local items = targetContainer:getItems()
-        if not items then return end
+        if not isValidJavaContainer(targetContainer) then return end
+        local ok, items = pcall(function() return targetContainer:getItems() end)
+        if not ok or not items or tostring(items) == "null" then return end
 
         for i = 0, items:size() - 1 do
             local item = items:get(i)
-            if item then
+            if item and tostring(item) ~= "null" then
                 local itemType = item:getFullType()
-                local sellEntry = RadioTrader_ItemsTable_GetSellEntry(itemType)
+                local sellEntry = nil
+                local isContainerItem = (instanceof and instanceof(item, "InventoryContainer"))
+                    or (item.IsInventoryContainer and item:IsInventoryContainer() == true)
 
-                -- フォールバック: getType()での再チェック
-                if not sellEntry then
-                    sellEntry = RadioTrader_ItemsTable_GetSellEntry(item:getType())
+                -- 0. バラ弾（Loose Ammo: ロット集計グループへ優先振り分け）
+                local isLoose, ammoType = RadioTrader_ItemsTable_IsLooseAmmo(item, itemType)
+                if isLoose then
+                    table.insert(looseAmmoGroup.items, { item = item, container = targetContainer, ammoType = ammoType })
+                    looseAmmoGroup.counts[ammoType] = (looseAmmoGroup.counts[ammoType] or 0) + 1
+                else
+                    -- 持ち運べる家具・設備（Moveable）の動的査定を優先チェック
+                    local isFurniture = (instanceof and instanceof(item, "Moveable")) or
+                                        string.find(itemType, "^Moveables") or
+                                        string.find(itemType, "Mov_")
+                    if isFurniture then
+                        sellEntry = RadioTrader_ItemsTable_AssessFurniture(item, itemType)
+                    else
+                        -- スカベンジャー募集チラシ（討伐褒章・一次資料）の特別査定
+                        local isFlyer = false
+                        if item.getModData then
+                            local md = item:getModData()
+                            if md and md.bRadioTraderFlyer then
+                                isFlyer = true
+                            end
+                        end
+
+                        if isFlyer then
+                            sellEntry = {
+                                id               = itemType,
+                                name             = getTextOrNull and getTextOrNull("UI_RadioTrader_Flyer_Title") or "Scavenger Flyer",
+                                basePricePerUnit = 100,
+                                category         = "Archives",
+                            }
+                        else
+                            sellEntry = RadioTrader_ItemsTable_GetSellEntry(itemType)
+                            if not sellEntry then
+                                sellEntry = RadioTrader_ItemsTable_GetSellEntry(item:getType())
+                            end
+                            -- Build 42 文庫本・小説（Literature）オブジェクトフォールバック
+                            if not sellEntry and (instanceof and instanceof(item, "Literature")) then
+                                local cat = item.getDisplayCategory and item:getDisplayCategory()
+                                local isSkillOrRecipe = (item.getNumberOfPages and item.getLvlSkillTrained and item:getLvlSkillTrained() > 0)
+                                    or (item.getTeachedRecipes and not item:getTeachedRecipes():isEmpty())
+                                if not isSkillOrRecipe then
+                                    sellEntry = { id = itemType, name = "Literature Book", basePricePerUnit = 10, category = "Archives" }
+                                end
+                            end
+                            -- 銃器および近接武器（HandWeapon）オブジェクトフォールバック
+                            if not sellEntry and (instanceof and instanceof(item, "HandWeapon")) then
+                                if item.isRanged and item:isRanged() then
+                                    local swingAnim = (item.getSwingAnim and item:getSwingAnim()) or ""
+                                    local isHandgun = (swingAnim == "Handgun" or string.find(itemType, "Pistol") or string.find(itemType, "Revolver"))
+                                    if isHandgun then
+                                        sellEntry = { id = itemType, name = item:getName() or "Handgun", basePricePerUnit = 25, category = "Firearm" }
+                                    else
+                                        sellEntry = { id = itemType, name = item:getName() or "Firearm", basePricePerUnit = 45, category = "Firearm" }
+                                    end
+                                else
+                                    -- 近接武器・刃物（HandWeapon / not isRanged）
+                                    sellEntry = RadioTrader_ItemsTable_AssessMeleeWeapon(item, itemType)
+                                end
+                            end
+                            -- 銃器パーツ（WeaponPart）オブジェクトフォールバック
+                            if not sellEntry and (instanceof and instanceof(item, "WeaponPart")) then
+                                sellEntry = { id = itemType, name = item:getName() or "Gun Part", basePricePerUnit = 12, category = "GunPart" }
+                            end
+                            -- コンテナ（バッグ・ケース・箱・袋類）オブジェクト一律査定フォールバック
+                            if not sellEntry and isContainerItem then
+                                sellEntry = RadioTrader_ItemsTable_AssessContainerItem(item, itemType)
+                            end
+                        end
+                    end
+                end
+
+                -- バッグ（コンテナ内に入ったカバン等）の中身を先に再帰的に走査！
+                -- ※中に回収対象外のアイテムが1つでも残っている場合、カバン自体を買い取って消してしまうと
+                --   中の対象外アイテムまで消滅してしまうため、カバン自体の売却を保留（スキップ）する安全保護
+                local childUnacceptedBefore = #unacceptedItems
+                if isContainerItem then
+                    local innerInv = nil
+                    if item.getItemContainer then
+                        innerInv = item:getItemContainer()
+                    elseif item.getInventory then
+                        innerInv = item:getInventory()
+                    end
+                    if isValidJavaContainer(innerInv) then
+                        scanInventory(innerInv)
+                    end
+                end
+                local hasUnacceptedInside = (#unacceptedItems > childUnacceptedBefore)
+                if hasUnacceptedInside then
+                    sellEntry = nil
                 end
 
                 if sellEntry then
@@ -2267,18 +3665,86 @@ function RadioTrader_AssessContainer(player)
                             local freshValue = freshness * cfg.FRESHNESS_WEIGHT
                             local totalWeight = cfg.CONDITION_WEIGHT + cfg.FRESHNESS_WEIGHT
                             local qualityMultiplier = (condValue + freshValue) / totalWeight
-                            if sellEntry.category == "Currency" then
+                            if sellEntry.category == "Currency" or sellEntry.category == "Electronics"
+                                or sellEntry.category == "AmmoBox" or sellEntry.category == "Magazine" or sellEntry.category == "GunPart"
+                                or sellEntry.category == "CannedFood" or sellEntry.category == "Container" then
                                 qualityMultiplier = 1.0
+                            elseif sellEntry.category == "Furniture" then
+                                qualityMultiplier = condition
+                            elseif sellEntry.category == "Firearm" or sellEntry.category == "Melee" then
+                                -- 耐久度9割以上で満額(1.0)、5割以上で7割(0.7)、5割未満で4割(0.4)
+                                if condition >= 0.90 then
+                                    qualityMultiplier = 1.0
+                                elseif condition >= 0.50 then
+                                    qualityMultiplier = 0.7
+                                else
+                                    qualityMultiplier = 0.4
+                                end
                             end
 
                             local sellMult = RadioTrader_Config.getSellPriceMultiplier and RadioTrader_Config.getSellPriceMultiplier() or 1.0
                             local itemCredits = math.max(1, math.floor(basePrice * qualityMultiplier * sellMult + 0.5))
 
+                            -- マガジン（弾倉）の装填弾薬を集計して合算
+                            local ammoRounds = 0
+                            if sellEntry.category == "Magazine" or string.find(itemType, "Clip") or string.find(itemType, "Magazine") or string.find(itemType, "Mag") then
+                                if item.getCurrentAmmoCount then
+                                    ammoRounds = item:getCurrentAmmoCount() or 0
+                                end
+                                if ammoRounds > 0 then
+                                    local aType = nil
+                                    if item.getAmmoType then
+                                        local rawAmmo = item:getAmmoType()
+                                        if rawAmmo then
+                                            if type(rawAmmo) == "string" then
+                                                aType = rawAmmo
+                                            elseif rawAmmo.getItemKey then
+                                                aType = rawAmmo:getItemKey()
+                                            else
+                                                local s = tostring(rawAmmo)
+                                                if s and s ~= "" and s ~= "null" and s ~= "nil" and not string.find(s, "^userdata:") then
+                                                    aType = s
+                                                end
+                                            end
+                                        end
+                                    end
+                                    if not aType or aType == "" or aType == "null" or aType == "nil" then
+                                        if string.find(itemType, "9mm") then aType = "Base.Bullets9mm"
+                                        elseif string.find(itemType, "45") then aType = "Base.Bullets45"
+                                        elseif string.find(itemType, "44") then aType = "Base.Bullets44"
+                                        elseif string.find(itemType, "223") then aType = "Base.223Bullets"
+                                        elseif string.find(itemType, "308") or string.find(itemType, "M14") then aType = "Base.308Bullets"
+                                        elseif string.find(itemType, "556") then aType = "Base.556Bullets"
+                                        elseif string.find(itemType, "Shotgun") or string.find(itemType, "Shell") then aType = "Base.ShotgunShells"
+                                        else aType = "Base.Bullets9mm" end
+                                    end
+                                    local pricePerRound = RadioTrader_Config.getAmmoPrice(aType)
+                                    local ammoCredits = math.floor(ammoRounds * pricePerRound * sellMult + 0.5)
+                                    if ammoCredits <= 0 and ammoRounds > 0 then ammoCredits = 1 end
+                                    itemCredits = itemCredits + ammoCredits
+                                end
+                            end
+
                             if itemCredits > 0 then
+                                local displayName = sellEntry.name
+                                if sellEntry.category == "Furniture" and sellEntry.tier then
+                                    local w = sellEntry.actualWeight or (item.getActualWeight and item:getActualWeight()) or 0
+                                    displayName = string.format("[%s] %s (%.1fkg)", sellEntry.tier, sellEntry.name, w)
+                                elseif sellEntry.category == "Firearm" or sellEntry.category == "Melee" then
+                                    local qTag = (condition >= 0.90) and (getTextOrNull and getTextOrNull("UI_RadioTrader_Quality_Mint") or "Mint")
+                                        or ((condition >= 0.50) and (getTextOrNull and getTextOrNull("UI_RadioTrader_Quality_Used") or "Used")
+                                        or (getTextOrNull and getTextOrNull("UI_RadioTrader_Quality_Worn") or "Worn"))
+                                    displayName = string.format("[%s] %s", qTag, displayName)
+                                end
+
+                                if ammoRounds > 0 then
+                                    displayName = string.format("%s [%d rnds]", displayName, ammoRounds)
+                                end
+
                                 table.insert(assessedItems, {
                                     item      = item,
                                     container = targetContainer,
-                                    name      = sellEntry.name,
+                                    name      = displayName,
                                     credits   = itemCredits,
                                     condition = condition,
                                 })
@@ -2286,15 +3752,14 @@ function RadioTrader_AssessContainer(player)
                             end
                         end
                     else
-                        table.insert(unacceptedItems, item:getName() or itemType)
+                        if not hasUnacceptedInside then
+                            table.insert(unacceptedItems, item:getName() or itemType)
+                        end
                     end
                 else
-                    table.insert(unacceptedItems, item:getName() or itemType)
-                end
-
-                -- バッグ（コンテナ内に入ったカバン等）の中身も再帰的に走査！
-                if item.getInventory and item:getInventory() then
-                    scanInventory(item:getInventory())
+                    if not hasUnacceptedInside then
+                        table.insert(unacceptedItems, item:getName() or itemType)
+                    end
                 end
             end
         end
@@ -2316,9 +3781,10 @@ function RadioTrader_AssessContainer(player)
         totalCredits = totalCredits + meatCredits
         for _, entry in ipairs(meatFishGroup.items) do
             table.insert(assessedItems, {
-                item = entry.item,
-                name = entry.name,
-                credits = 0,
+                item      = entry.item,
+                container = entry.container,
+                name      = entry.name,
+                credits   = 0,
                 condition = entry.condition,
             })
         end
@@ -2334,9 +3800,10 @@ function RadioTrader_AssessContainer(player)
         totalCredits = totalCredits + eggCredits
         for _, entry in ipairs(eggGroup.items) do
             table.insert(assessedItems, {
-                item = entry.item,
-                name = entry.name,
-                credits = 0,
+                item      = entry.item,
+                container = entry.container,
+                name      = entry.name,
+                credits   = 0,
                 condition = entry.condition,
             })
         end
@@ -2352,13 +3819,117 @@ function RadioTrader_AssessContainer(player)
         totalCredits = totalCredits + produceCredits
         for _, entry in ipairs(produceGroup.items) do
             table.insert(assessedItems, {
-                item = entry.item,
-                name = entry.name,
-                credits = 0,
+                item      = entry.item,
+                container = entry.container,
+                name      = entry.name,
+                credits   = 0,
                 condition = entry.condition,
             })
         end
     end
 
-    return assessedItems, totalCredits, nil, #unacceptedItems, unacceptedItems
+    -- 4. バラ弾（Loose Ammo）ロット計算（弾種ごとの集計・四捨五入計算）
+    if #looseAmmoGroup.items > 0 then
+        for aType, count in pairs(looseAmmoGroup.counts) do
+            local pricePerRound = RadioTrader_Config.getAmmoPrice(aType)
+            local ammoCredits = math.max(1, math.floor(count * pricePerRound * sellMult + 0.5))
+            totalCredits = totalCredits + ammoCredits
+
+            local cleanName = string.gsub(aType, "^Base%.", "")
+            local dispName = string.format("%s x%d", cleanName, count)
+
+            local first = true
+            for _, entry in ipairs(looseAmmoGroup.items) do
+                if entry.ammoType == aType then
+                    table.insert(assessedItems, {
+                        item      = entry.item,
+                        container = entry.container,
+                        name      = dispName,
+                        credits   = first and ammoCredits or 0,
+                        condition = 1.0,
+                    })
+                    first = false
+                end
+            end
+        end
+    end
+
+    -- 5. 買取品実重量マイルストーンボーナス (Bulk Cargo Weight Milestones)
+    -- 実際に買取（削除）対象となった物理アイテムの総実重量を集計
+    local totalSoldWeight = 0.0
+    for _, entry in ipairs(assessedItems) do
+        if entry.item then
+            local w = 0.1
+            if entry.item.getActualWeight then
+                w = entry.item:getActualWeight() or 0.1
+            end
+            totalSoldWeight = totalSoldWeight + w
+        end
+    end
+
+    local cargoBonus = 0
+    local milestoneKey = nil
+    local minMilestone = 0
+    if RadioTrader_Config and RadioTrader_Config.getCargoWeightBonus then
+        cargoBonus, milestoneKey, minMilestone = RadioTrader_Config.getCargoWeightBonus(totalSoldWeight)
+    end
+
+    if cargoBonus > 0 then
+        totalCredits = totalCredits + cargoBonus
+
+        local milestoneText = tostring(math.floor(minMilestone)) .. "kg"
+        local bonusTitle = getTextOrNull and getTextOrNull(milestoneKey)
+        if not bonusTitle then
+            if minMilestone >= 45.0 then
+                bonusTitle = string.format("[Cargo Bonus] %s Cargo Milestone (Drone Offset)", milestoneText)
+            else
+                bonusTitle = string.format("[Cargo Bonus] %s Cargo Milestone", milestoneText)
+            end
+        end
+        local bonusDisplayName = string.format("%s (%.1f kg)", bonusTitle, totalSoldWeight)
+
+        table.insert(assessedItems, {
+            item      = nil, -- 物理アイテムなし（ボーナス表示用・削除ループで安全にスキップ）
+            isBonus   = true,
+            name      = bonusDisplayName,
+            credits   = cargoBonus,
+            condition = 1.0,
+        })
+    end
+
+    return assessedItems, totalCredits, nil, #unacceptedItems, unacceptedItems, totalSoldWeight, cargoBonus
+end
+
+
+-- ---------------------------------------------------------------------------
+-- 共通: 買取対象外アイテムの品名別集計ヘルパー
+-- ---------------------------------------------------------------------------
+function RadioTrader_SummarizeUnacceptedItems(unacceptedItems)
+    if not unacceptedItems or #unacceptedItems == 0 then
+        return {}
+    end
+    local counts = {}
+    local order = {}
+    for _, name in ipairs(unacceptedItems) do
+        local safeName = tostring(name or "Unknown")
+        if not counts[safeName] then
+            counts[safeName] = 0
+            table.insert(order, safeName)
+        end
+        counts[safeName] = counts[safeName] + 1
+    end
+    local result = {}
+    for _, name in ipairs(order) do
+        table.insert(result, {
+            name  = name,
+            count = counts[name],
+        })
+    end
+    table.sort(result, function(a, b)
+        if a.count ~= b.count then
+            return a.count > b.count
+        end
+        return a.name < b.name
+    end)
+    return result
 end

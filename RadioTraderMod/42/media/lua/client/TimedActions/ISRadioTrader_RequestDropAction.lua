@@ -11,8 +11,7 @@ function ISRadioTrader_RequestDropAction:isValid()
     if not self.character then return false end
     local cfg = RadioTrader_Config
     local deliveryState = nil
-    local uname = self.character.getUsername and self.character:getUsername()
-    if not uname or uname == "" then uname = "singleplayer" end
+    local uname = cfg and cfg.getPlayerKey and cfg.getPlayerKey(self.character) or "singleplayer"
     local timerKey = "RadioTrader_Timer_" .. uname
     if ModData and ModData.exists and ModData.exists(timerKey) then
         local tdata = ModData.get(timerKey)

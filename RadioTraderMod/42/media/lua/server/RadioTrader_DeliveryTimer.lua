@@ -29,10 +29,8 @@ local function getCurrentGameHour()
 end
 
 local function getUsernameSafe(player)
-    if not player then return "singleplayer" end
-    local uname = player.getUsername and player:getUsername()
-    if not uname or uname == "" then return "singleplayer" end
-    return uname
+    local cfg = RadioTrader_Config
+    return cfg and cfg.getPlayerKey and cfg.getPlayerKey(player) or "singleplayer"
 end
 
 -- ---------------------------------------------------------------------------

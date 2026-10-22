@@ -53,6 +53,7 @@ local DEFAULTS = {
     MEGA_HORDE_CHANCE          = 0.15,      -- 大規模ホード発生確率 (デフォルト: 15%)
     MEGA_HORDE_MULTIPLIER      = 2.5,       -- 大規模ホード時のゾンビ数倍率 (2.5倍)
     HORDE_REMOTE_RATIO         = 1.0,       -- 遠隔仮想ホードの割合 (デフォルト: 100% 遠隔 / 0% 近接)
+    HORDE_SPRINTER_CHANCE      = 0.0,       -- ホード内のスプリンター（走るゾンビ）確率 (デフォルト: 0%)
 
     -- クレジット査定設定
     CONDITION_WEIGHT   = 0.6,       -- 耐久度の査定への影響係数
@@ -65,6 +66,23 @@ local DEFAULTS = {
 
     -- ステルスドローン配送設定
     DRONE_DELIVERY_COST   = 200,    -- ドローン配送料金 (CR)
+
+    -- 周波数アンロック設定
+    REQUIRE_FLYER_TO_UNLOCK = true, -- チラシ読了による周波数アンロック必須化 (デフォルト: true)
+    FLYER_MIN_SURVIVED_DAYS = 5,    -- チラシスポーン開始に必要な最小生存日数 (デフォルト: 5日)
+
+    -- バラ弾・装填弾買取単価 (CR / 発) (箱入りより安価なレート)
+    AMMO_PRICES = {
+        ["Base.Bullets9mm"]       = 0.2,   -- 5発で1 CR
+        ["Base.Bullets38"]        = 0.2,   -- 5発で1 CR
+        ["Base.Bullets45"]        = 0.2,   -- 5発で1 CR
+        ["Base.Bullets44"]        = 0.2,   -- 5発で1 CR
+        ["Base.223Bullets"]       = 0.25,  -- 4発で1 CR
+        ["Base.556Bullets"]       = 0.25,  -- 4発で1 CR
+        ["Base.308Bullets"]       = 0.3,   -- 10発で3 CR
+        ["Base.ShotgunShells"]    = 0.3,   -- 10発で3 CR
+        DEFAULT_AMMO              = 0.2,
+    },
 }
 
 -- ---------------------------------------------------------------------------
@@ -183,13 +201,29 @@ function RadioTrader_Config.init()
     -- ステルスドローン配送
     RadioTrader_Config.DRONE_DELIVERY_COST   = RadioTrader_Config.getDroneDeliveryCost()
 
-    print(("[RadioTrader][Config] Initialized: HORDE_SIZE=%s (%d-%d, raw=%s), BuyMult=%.1f, SellMult=%.1f, MegaChance=%.0f%%, RemoteRatio=%.0f%%, DroneCost=%d CR"):format(
+    print(("[RadioTrader][Config] Initialized: HORDE_SIZE=%s (%d-%d, raw=%s), BuyMult=%.1f, SellMult=%.1f, MegaChance=%.0f%%, RemoteRatio=%.0f%%, SprinterChance=%.0f%%, DroneCost=%d CR"):format(
         tostring(RadioTrader_Config.HORDE_SIZE), minCount, maxCount, tostring(rawHorde),
         RadioTrader_Config.getBuyPriceMultiplier(),
         RadioTrader_Config.getSellPriceMultiplier(),
         RadioTrader_Config.getMegaHordeChance() * 100,
         RadioTrader_Config.getHordeRemoteRatio() * 100,
+        RadioTrader_Config.getHordeSprinterChance() * 100,
         RadioTrader_Config.DRONE_DELIVERY_COST))
+end
+
+-- ---------------------------------------------------------------------------
+-- ゲッター: スプリンター混入確率 (0.0〜0.5)
+-- ---------------------------------------------------------------------------
+function RadioTrader_Config.getHordeSprinterChance()
+    local raw = RadioTrader_Config.getSandboxOption("HeliHordeSprinterChance")
+    if raw ~= nil then
+        local map = { [1] = 0.0, [2] = 0.05, [3] = 0.10, [4] = 0.20, [5] = 0.50, [0] = 0.0 }
+        local num = tonumber(raw)
+        if num and map[num] ~= nil then
+            return map[num], num
+        end
+    end
+    return DEFAULTS.HORDE_SPRINTER_CHANCE or 0.0, 1
 end
 
 -- ---------------------------------------------------------------------------
@@ -234,6 +268,31 @@ function RadioTrader_Config.getMegaHordeChance()
         end
     end
     return DEFAULTS.MEGA_HORDE_CHANCE or 0.15
+end
+
+-- ---------------------------------------------------------------------------
+-- ゲッター: チラシ読了によるアンロック必須化
+-- ---------------------------------------------------------------------------
+function RadioTrader_Config.isFlyerRequired()
+    local raw = RadioTrader_Config.getSandboxOption("RequireFlyerToUnlock")
+    if raw ~= nil then
+        return (raw == true)
+    end
+    return DEFAULTS.REQUIRE_FLYER_TO_UNLOCK or true
+end
+
+-- ---------------------------------------------------------------------------
+-- ゲッター: チラシ出現最小生存日数
+-- ---------------------------------------------------------------------------
+function RadioTrader_Config.getFlyerMinSurvivedDays()
+    local raw = RadioTrader_Config.getSandboxOption("FlyerMinSurvivedDays")
+    if raw ~= nil then
+        local num = tonumber(raw)
+        if num and num >= 0 then
+            return num
+        end
+    end
+    return DEFAULTS.FLYER_MIN_SURVIVED_DAYS or 5
 end
 
 -- ---------------------------------------------------------------------------
@@ -329,6 +388,7 @@ RadioTrader_Config.KEY_DELIVERY     = "RadioTrader_DeliveryState"
 RadioTrader_Config.KEY_DELIVER_TIME = "RadioTrader_DeliveryTargetHour"
 RadioTrader_Config.KEY_ORDER        = "RadioTrader_PendingOrder"
 RadioTrader_Config.KEY_SEED_POOL    = "RadioTrader_SeedPool"
+RadioTrader_Config.KEY_AMMO_POOL    = "RadioTrader_AmmoStockState"
 
 -- イベントコマンド名
 RadioTrader_Config.CMD_REQUEST_TRADE   = "requestTrade"
@@ -341,6 +401,7 @@ RadioTrader_Config.CMD_HELI_HOVER_END   = "heliHoverEnd"   -- ヘリホバリン
 RadioTrader_Config.CMD_DELIVERY_DONE   = "deliveryComplete"
 RadioTrader_Config.CMD_CREDIT_UPDATE   = "creditUpdate"
 RadioTrader_Config.CMD_SEED_POOL_UPDATE = "seedPoolUpdate" -- 種プール更新同期
+RadioTrader_Config.CMD_AMMO_POOL_UPDATE = "ammoPoolUpdate" -- 弾薬在庫プール更新同期
 RadioTrader_Config.CMD_ORDER_EXPIRED   = "orderExpired"  -- 要請期限切れ通知
 
 
@@ -352,6 +413,80 @@ RadioTrader_Config.STATE_APPROACHING   = "APPROACHING"
 RadioTrader_Config.STATE_READY_FOR_DROP = "READY_FOR_DROP" -- 到着済み・投下要請待ち
 RadioTrader_Config.STATE_DELIVERING    = "DELIVERING"
 RadioTrader_Config.STATE_COMPLETED     = "COMPLETED"
+
+-- ---------------------------------------------------------------------------
+-- プレイヤー識別キー取得ヘルパー（SP/MP両対応）
+-- シングルプレイでは常に "singleplayer" を返し、キャラ死亡・交代時もデータを完全共有・引き継ぎ可能にする。
+-- マルチプレイでは各プレイヤーのアカウント名 (username) を返す。
+-- ---------------------------------------------------------------------------
+function RadioTrader_Config.getPlayerKey(player)
+    if isClient() or isServer() then
+        if player and player.getUsername then
+            local uname = player:getUsername()
+            if uname and uname ~= "" then
+                return uname
+            end
+        end
+    end
+    return "singleplayer"
+end
+
+-- ---------------------------------------------------------------------------
+-- バラ弾・装填弾の買取単価取得ヘルパー
+-- ---------------------------------------------------------------------------
+function RadioTrader_Config.getAmmoPrice(ammoType)
+    if not ammoType then return 0.2 end
+    -- 文字列型以外（Java Object, ItemKey, userdata, null等）を安全に吸収
+    if type(ammoType) ~= "string" then
+        if ammoType.getItemKey then
+            ammoType = ammoType:getItemKey()
+        else
+            ammoType = tostring(ammoType)
+        end
+    end
+    if not ammoType or ammoType == "" or ammoType == "nil" or ammoType == "null" or string.find(ammoType, "^userdata:") then
+        return 0.2
+    end
+
+    local prices = RadioTrader_Config.AMMO_PRICES or DEFAULTS.AMMO_PRICES
+    if prices then
+        if prices[ammoType] then
+            return prices[ammoType]
+        end
+        -- Base. 接頭辞の有無を吸収
+        if string.find(ammoType, "^Base%.") then
+            local stripped = string.gsub(ammoType, "^Base%.", "")
+            if prices[stripped] then return prices[stripped] end
+        else
+            if prices["Base." .. ammoType] then return prices["Base." .. ammoType] end
+        end
+        return prices.DEFAULT_AMMO or 0.2
+    end
+    return 0.2
+end
+
+-- ---------------------------------------------------------------------------
+-- 買取品実重量マイルストーンボーナス定義 (Bulk Cargo Weight Milestones)
+-- 実際に買取（削除）された品目の総実重量に応じた一括ボーナス
+-- 45kg時点でドローン送料（200 CR）を全額相殺
+-- ---------------------------------------------------------------------------
+RadioTrader_Config.CARGO_WEIGHT_MILESTONES = {
+    { minWeight = 55.0, bonus = 280, labelKey = "UI_RadioTrader_CargoBonus_55kg" },
+    { minWeight = 45.0, bonus = 200, labelKey = "UI_RadioTrader_CargoBonus_45kg" },
+    { minWeight = 35.0, bonus = 120, labelKey = "UI_RadioTrader_CargoBonus_35kg" },
+    { minWeight = 25.0, bonus =  60, labelKey = "UI_RadioTrader_CargoBonus_25kg" },
+}
+
+function RadioTrader_Config.getCargoWeightBonus(weight)
+    if not weight or weight < 25.0 then return 0, nil, 0 end
+    local milestones = RadioTrader_Config.CARGO_WEIGHT_MILESTONES
+    for _, ms in ipairs(milestones) do
+        if weight >= ms.minWeight then
+            return ms.bonus, ms.labelKey, ms.minWeight
+        end
+    end
+    return 0, nil, 0
+end
 
 -- ---------------------------------------------------------------------------
 -- 初期化をゲーム起動時およびワールド読み込み時に自動実行
