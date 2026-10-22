@@ -77,7 +77,7 @@
     "UI_RadioTrader_Log_AssessedEmpty": "Assessment: 0 CR (Drop box is empty)",
     "UI_RadioTrader_Log_AssessedNone": "Assessment complete: No sellable items in drop box (0 CR)",
     "UI_RadioTrader_GuideTitle": "[Accepted Goods]",
-    "UI_RadioTrader_GuideBody": "- Records (Journals, Newspapers, Magazines, Books)\n- Electronic Scrap (Wire, Circuit Boards, Scrap Metal)\n- Jewelry (Gold/Silver/Diamond Rings)\n- Cash (1 CR), Money Bundle (100 CR)\n- Credit Cards (1-10 CR random)\n- Gems, Ingots & Fresh Produce\n* Click [+] Add to Cart to order\n  multiple items in a single delivery!",
+    "UI_RadioTrader_GuideBody": "- Records (Journals, Newspapers, Magazines, Books)\n- Electronic Scrap (Wire, Circuit Boards, Scrap Metal)\n- Jewelry, Gems, Cash, Bundles & Credit Cards\n- Firearms, Loaded Mags, Loose Ammo & Melee Weapons\n- Handcrafted Furniture, Bags & Fresh Produce/Seeds\n- Cargo Weight Bonuses for heavy loads (25-55kg)\n* Click [+] Add to Cart for batch orders!\n  Order 2+ same ammo boxes for a free magazine!",
     "UI_RadioTrader_Log_Error": "[!] Error: %s",
     "UI_RadioTrader_Radio_Prefix": "[Radio] ",
     "UI_RadioTrader_Radio_Accepted": "Order accepted. Arranging %s for ya. Cost: %s CR.",
