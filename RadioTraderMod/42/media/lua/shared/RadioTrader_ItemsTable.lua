@@ -2812,6 +2812,16 @@ RadioTrader_Sell = {
     { id = "Base.CDPlayer",            name = "CD Player",            basePricePerUnit = 12,  category = "Electronics" },
 
     -- =========================================================================
+    -- カテゴリ8-B: 繊維・布・裁縫資材 (Textiles & Cordage)
+    -- =========================================================================
+    -- 野戦病院の包帯原料、軍用テント・防護服の縫製資材としての需要（※糸・より糸は残量連動）
+    { id = "Base.Thread",              name = "Thread",               basePricePerUnit = 4,   category = "Industrial" },
+    { id = "Base.Twine",               name = "Twine",                basePricePerUnit = 3,   category = "Industrial" },
+    { id = "Base.Sheet",               name = "Sheet",                basePricePerUnit = 5,   category = "Industrial" },
+    { id = "Base.Rope",                name = "Rope",                 basePricePerUnit = 8,   category = "Industrial" },
+    { id = "Base.Tarp",                name = "Tarp",                 basePricePerUnit = 15,  category = "Industrial" },
+
+    -- =========================================================================
     -- カテゴリ9: 銃器・弾薬箱・マガジン・パーツ (Firearms & Tactical Equipment)
     -- =========================================================================
     -- 武器コンテナ（1000 CR）転売による無限ループを完全防止する安全設計
@@ -3702,6 +3712,64 @@ function RadioTrader_ItemsTable_AssessLiterature(item, itemType)
 end
 
 -- ---------------------------------------------------------------------------
+-- ユーティリティ: なめし革・皮革資材の3段階動的査定 (Tanned Leather Appraisal)
+-- ---------------------------------------------------------------------------
+function RadioTrader_ItemsTable_AssessLeather(item, itemType)
+    if not item then return nil end
+    local typeStr = itemType or (item.getFullType and item:getFullType()) or ""
+    local name = (item.getName and item:getName()) or "Leather"
+
+    -- 未完成の濡れた状態（_Wet）はなめし途中品のため除外
+    if string.find(typeStr, "_Wet") then return nil end
+
+    -- 1. 大（本格資材: 25 CR）
+    -- 成牛・鹿・成豚フルサイズ、大型なめし粗皮
+    if string.find(typeStr, "Large_Tan")
+        or (string.find(typeStr, "CowLeather") and string.find(typeStr, "Full"))
+        or (string.find(typeStr, "DeerLeather") and string.find(typeStr, "Full"))
+        or (string.find(typeStr, "PigLeather") and string.find(typeStr, "Full")) then
+        return {
+            id               = typeStr,
+            name             = name,
+            basePricePerUnit = 25,
+            category         = "Industrial",
+        }
+    end
+
+    -- 2. 中（安価資材: 12 CR）
+    -- 中型なめし粗皮、子牛・羊・子豚・小鹿フルサイズ、中判毛皮
+    if string.find(typeStr, "Medium_Tan") or string.find(typeStr, "Tan_Medium")
+        or (string.find(typeStr, "CalfLeather") and string.find(typeStr, "Full"))
+        or (string.find(typeStr, "SheepLeather") and string.find(typeStr, "Full"))
+        or (string.find(typeStr, "LambLeather") and string.find(typeStr, "Full"))
+        or (string.find(typeStr, "PigletLeather") and string.find(typeStr, "Full"))
+        or (string.find(typeStr, "FawnLeather") and string.find(typeStr, "Full")) then
+        return {
+            id               = typeStr,
+            name             = name,
+            basePricePerUnit = 12,
+            category         = "Industrial",
+        }
+    end
+
+    -- 3. 小（はした金 / 重量判定品: 3 CR）
+    -- 小型なめし粗皮、ウサギ・アライグマ革、小判毛皮、革ひも・革端切れ
+    if string.find(typeStr, "Small_Tan") or string.find(typeStr, "Tan_Small")
+        or string.find(typeStr, "RabbitLeather")
+        or string.find(typeStr, "RaccoonLeather")
+        or string.find(typeStr, "LeatherStrips") then
+        return {
+            id               = typeStr,
+            name             = name,
+            basePricePerUnit = 3,
+            category         = "Industrial",
+        }
+    end
+
+    return nil
+end
+
+-- ---------------------------------------------------------------------------
 -- ユーティリティ: カテゴリ名からショップリストを取得
 -- ---------------------------------------------------------------------------
 function RadioTrader_ItemsTable_GetShopCategory(categoryName)
@@ -3915,6 +3983,10 @@ function RadioTrader_AssessContainer(player)
                             if not sellEntry and isContainerItem then
                                 sellEntry = RadioTrader_ItemsTable_AssessContainerItem(item, itemType)
                             end
+                            -- なめし革・皮革資材（Leather）動的査定フォールバック
+                            if not sellEntry and (string.find(itemType, "Leather") or string.find(itemType, "Hide")) then
+                                sellEntry = RadioTrader_ItemsTable_AssessLeather(item, itemType)
+                            end
                         end
                     end
                 end
@@ -4036,6 +4108,14 @@ function RadioTrader_AssessContainer(player)
                                     qualityMultiplier = 0.7
                                 else
                                     qualityMultiplier = 0.4
+                                end
+                            end
+
+                            -- 消耗品・残量アイテム（Drainable: 糸・より糸・針金等）の残量補正
+                            if item.getUsedDelta then
+                                local delta = item:getUsedDelta() or 1.0
+                                if delta > 0 then
+                                    qualityMultiplier = qualityMultiplier * math.min(1.0, math.max(0.1, delta))
                                 end
                             end
 

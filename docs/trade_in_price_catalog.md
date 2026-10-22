@@ -112,6 +112,24 @@ $$\text{合計獲得CR} = \sum (\text{基準単価} \times \text{買取倍率 (�
 - **農協一括出荷ボーナス**: 農作物の出荷個数が **10個ごとに +10 CR** の固定ロットボーナスが合算。
 - **重量のダブル恩恵**: 重量のあるスイカやカボチャは、それ自体の満腹度CRに加え、**積載重量マイルストーン固定ボーナス（25kg〜55kgで +60〜280 CR）**の達成にも貢献。
 
+### ⑩ なめし革・皮革資材 (Tanned Leathers - 3段階動的査定)
+B42で追加された畜産・狩猟・革なめしの成果物を3段階で適正査定します（※未完成の濡れた`_Wet`状態は除外）：
+| 段階・規模 | 基準単価 (CR) | 実効買取額 (0.5倍) | 主な対象アイテム |
+| :--- | :---: | :---: | :--- |
+| **大（本格資材）** | **25 CR** | 12.5 CR | 成牛革 (`CowLeather_*_Full`), 鹿革 (`DeerLeather_Full`), 成豚革 (`PigLeather_*_Full`), 大型なめし粗皮 (`Leather_Crude_Large_Tan`) |
+| **中（安価資材）** | **12 CR** | 6.0 CR | 中型なめし粗皮 (`Medium_Tan`), 子牛革, 羊革, 子羊革, 子豚革, 小鹿革 (`*_Full`) |
+| **小（はした金 / 重量稼ぎ）** | **3 CR** | 1.5 CR | 小型なめし粗皮 (`Small_Tan`), ウサギ革, アライグマ革, 革ひも・革端切れ (`LeatherStrips`) |
+
+### ⑪ 繊維・布・裁縫資材 (Textiles & Cordage)
+野戦病院の包帯原料、軍用テント・防護服の縫製資材としての需要（※糸・より糸は使用残量連動）：
+| アイテム名 | アイテムID | 基準単価 (CR) | 実効買取額 (0.5倍) | 備考 |
+| :--- | :--- | :---: | :---: | :--- |
+| **手縫い糸** | `Base.Thread` | **4 CR** | 2.0 CR | 残量（`UsedDelta`）に比例（満タンで4 CR） |
+| **より糸** | `Base.Twine` | **3 CR** | 1.5 CR | 残量比例（満タンで3 CR） |
+| **シーツ** | `Base.Sheet` | **5 CR** | 2.5 CR | まとまった綿布資材 |
+| **ロープ** | `Base.Rope` | **8 CR** | 4.0 CR | 結束・牽引資材 |
+| **防水シート (タープ)** | `Base.Tarp` | **15 CR** | 7.5 CR | 工業用厚手防水布 |
+
 ---
 
 ## 3. 静的買取品目一覧
@@ -208,7 +226,18 @@ $$\text{合計獲得CR} = \sum (\text{基準単価} \times \text{買取倍率 (�
 | Stolen Credit Card | `Base.CreditCard_Stolen` | **2 CR** | 1 CR |
 | Cash (Bill/Coin) | `Base.Money` | **1 CR** | 0.5 CR |
 
-### 3.4 電線・電子部品・通信機器 (Electronics & Components)
+### 3.4 金属素材・工業資源 (Industrial Materials)
+登録件数: **5 品目**
+
+| アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
+| :--- | :--- | :---: | :---: |
+| Tarp | `Base.Tarp` | **15 CR** | 7.5 CR |
+| Rope | `Base.Rope` | **8 CR** | 4 CR |
+| Sheet | `Base.Sheet` | **5 CR** | 2.5 CR |
+| Thread | `Base.Thread` | **4 CR** | 2 CR |
+| Twine | `Base.Twine` | **3 CR** | 1.5 CR |
+
+### 3.5 電線・電子部品・通信機器 (Electronics & Components)
 登録件数: **9 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
@@ -223,7 +252,7 @@ $$\text{合計獲得CR} = \sum (\text{基準単価} \times \text{買取倍率 (�
 | Electric Wire | `Base.ElectricWire` | **4 CR** | 2 CR |
 | Scrap Metal | `Base.ScrapMetal` | **2 CR** | 1 CR |
 
-### 3.5 銃器・弾薬箱・マガジン (Firearms & Tactical)
+### 3.6 銃器・弾薬箱・マガジン (Firearms & Tactical)
 登録件数: **16 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
@@ -245,7 +274,7 @@ $$\text{合計獲得CR} = \sum (\text{基準単価} \times \text{買取倍率 (�
 | Revolver (.38) | `Base.Revolver` | **25 CR** | 12.5 CR |
 | Snubnose Revolver | `Base.Revolver_Short` | **25 CR** | 12.5 CR |
 
-### 3.6 新鮮な農作物 (Fresh Farm Produce)
+### 3.7 新鮮な農作物 (Fresh Farm Produce)
 登録件数: **34 品目**
 
 | アイテム名 (DisplayName) | アイテムID (FullType) | 基準単価 (CR) | 実効買取額目安 (0.5倍) |
