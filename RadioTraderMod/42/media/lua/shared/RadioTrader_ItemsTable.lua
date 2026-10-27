@@ -4024,12 +4024,51 @@ function RadioTrader_AssessContainer(player)
                 end
 
                 if sellEntry then
-                    -- コンディション計算（耐久度）
+                    -- コンディション計算（耐久度 ＆ 最大耐久度劣化/強化補正）
                     local condition = 1.0
                     if item.getCondition and item.getConditionMax then
                         local maxC = item:getConditionMax()
                         if maxC and maxC > 0 then
-                            condition = math.max(0.1, item:getCondition() / maxC)
+                            local curRatio = item:getCondition() / maxC
+                            local baseMax = nil
+                            if item.getScriptItem then
+                                local ok, script = pcall(function() return item:getScriptItem() end)
+                                if ok and script and script.getConditionMax then
+                                    baseMax = script:getConditionMax()
+                                end
+                            end
+                            if not baseMax and ScriptManager and ScriptManager.instance then
+                                local ok, script = pcall(function() return ScriptManager.instance:getItem(itemType) end)
+                                if ok and script and script.getConditionMax then
+                                    baseMax = script:getConditionMax()
+                                end
+                            end
+
+                            local maxRatio = 1.0
+                            if baseMax and baseMax > 0 then
+                                -- 修理劣化等で最大耐久度が落ちていれば減額、鍛冶名工等で標準より高ければ最大1.3倍までプレミア
+                                maxRatio = math.min(1.3, maxC / baseMax)
+                            end
+
+                            condition = math.max(0.1, curRatio * maxRatio)
+                        end
+                    end
+
+                    -- 鋭さ計算（刃物武器: B42 Sharpness）
+                    local sharpnessMultiplier = 1.0
+                    local sharpnessTag = nil
+                    if item.getSharpness then
+                        local ok, sh = pcall(function() return item:getSharpness() end)
+                        if ok and type(sh) == "number" then
+                            if sh >= 0.90 then
+                                sharpnessMultiplier = 1.2 -- 研ぎ澄まされた刃: +20% ボーナス
+                                sharpnessTag = "Razor"
+                            elseif sh >= 0.50 then
+                                sharpnessMultiplier = 1.0 -- 通常切れ味
+                            else
+                                sharpnessMultiplier = 0.8 -- ナマクラ・刃こぼれ: -20% 減額
+                                sharpnessTag = "Dull"
+                            end
                         end
                     end
 
@@ -4121,6 +4160,11 @@ function RadioTrader_AssessContainer(player)
                                 else
                                     qualityMultiplier = 0.4
                                 end
+
+                                -- 刃物武器の鋭さ（Sharpness）補正を乗算
+                                if sharpnessMultiplier and sharpnessMultiplier ~= 1.0 then
+                                    qualityMultiplier = qualityMultiplier * sharpnessMultiplier
+                                end
                             end
 
                             -- 消耗品・残量アイテム（Drainable: 糸・より糸・針金等）の残量補正
@@ -4183,6 +4227,11 @@ function RadioTrader_AssessContainer(player)
                                     local qTag = (condition >= 0.90) and (getTextOrNull and getTextOrNull("UI_RadioTrader_Quality_Mint") or "Mint")
                                         or ((condition >= 0.50) and (getTextOrNull and getTextOrNull("UI_RadioTrader_Quality_Used") or "Used")
                                         or (getTextOrNull and getTextOrNull("UI_RadioTrader_Quality_Worn") or "Worn"))
+                                    if sharpnessTag == "Razor" then
+                                        qTag = qTag .. "+"
+                                    elseif sharpnessTag == "Dull" then
+                                        qTag = qTag .. "-"
+                                    end
                                     displayName = string.format("[%s] %s", qTag, displayName)
                                 end
 
